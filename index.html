@@ -144,6 +144,27 @@ p{margin:0 0 10px}
 .hist .p{font:800 1.4rem var(--display);text-align:right;font-variant-numeric:tabular-nums}
 .x{background:none;border:0;color:var(--muted);font-size:1.3rem;line-height:1;padding:4px 6px;cursor:pointer;border-radius:8px}
 
+/* court */
+.court{display:block;width:100%;height:auto;border-radius:16px;border:1px solid var(--line);margin:0 0 14px;touch-action:manipulation;overflow:hidden;box-shadow:var(--shadow)}
+.court .wood line{stroke:rgba(110,60,20,.22);stroke-width:.6}
+.court .grain line{stroke:rgba(110,60,20,.28);stroke-width:.5}
+.court .keypaint{fill:#23508F}
+.court .apron{fill:#23508F}
+.court .zone{fill:transparent;cursor:pointer;transition:fill .15s}
+.court .zone:focus{outline:none}
+.court .zone:focus-visible{stroke:#FFD34D;stroke-width:2.5}
+.court .zone.sel{fill:rgba(255,255,255,.26);stroke:#FFD34D;stroke-width:3}
+.court.heat .zone{cursor:default}
+.court .ln{fill:none;stroke:#FFFFFF;stroke-width:2;pointer-events:none}
+.court .board{stroke:#FFFFFF;stroke-width:3;stroke-linecap:round}
+.court .neck{stroke:#FFFFFF;stroke-width:1.5}
+.court .rim{fill:none;stroke:#F26B1D;stroke-width:2.2;pointer-events:none}
+.court text{fill:#2A1A0C;font-family:var(--display);pointer-events:none;paint-order:stroke;stroke:rgba(255,236,208,.75);stroke-width:3px;stroke-linejoin:round}
+.court text.lt{fill:#FFFFFF;stroke:rgba(10,25,50,.45)}
+.court .zn{font-family:var(--body);font-size:9.5px;font-weight:700}
+.court .zv{font-size:19px;font-weight:800}
+.minihead{font-size:.85rem;color:var(--muted);font-weight:500;margin:4px 0 8px}
+
 /* players */
 form.addp{display:grid;grid-template-columns:1fr 4.6rem auto;gap:8px;margin-bottom:16px}
 input[type=text],input[type=number]{font:500 1rem var(--body);padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0}
@@ -193,8 +214,21 @@ form.addp button{border:0;border-radius:12px;background:var(--ink);color:var(--b
 <script>
 const LS_KEY = 'drillboard-v1';
 const MIN_ATT = 10;
-const DEFAULT = { team:'My team', players:[], drills:['Free throws','Spot-up 3s','Mid-range','Layups'], active:null, sessions:[] };
+const DEFAULT = { team:'My team', players:[], drills:['Paint','Mid-range','Corner 3','Above the break 3','Free throws'], active:null, sessions:[] };
 let state = JSON.parse(JSON.stringify(DEFAULT));
+const ZONES = [
+  { id:'paint',  drill:'Paint' },
+  { id:'mid',    drill:'Mid-range' },
+  { id:'corner', drill:'Corner 3' },
+  { id:'arc',    drill:'Above the break 3' },
+  { id:'ft',     drill:'Free throws' },
+];
+const ZONE_NAMES = ZONES.map(z => z.drill);
+function normalizeDrills(){
+  const used = new Set(state.sessions.map(s => s.drill)); if(state.active) used.add(state.active.drill);
+  state.drills = state.drills.filter(d => !(['Spot-up 3s','Layups'].includes(d) && !used.has(d)));
+  ZONE_NAMES.forEach(d => { if(!state.drills.includes(d)) state.drills.push(d); });
+}
 let ui = { drill:'Free throws', boardDrill:'all', period:'all', open:null, share:null };
 let ref = null;
 
@@ -221,7 +255,7 @@ async function connect(){
     ref = db.doc('data/users/' + uid + '/team');
     const snap = await ref.get();
     const remote = snap.exists ? snap.data() : null;
-    if(valid(remote)){ state = JSON.parse(JSON.stringify(remote)); saveLocal(); render(); setSync('Synced', false); }
+    if(valid(remote)){ state = JSON.parse(JSON.stringify(remote)); normalizeDrills(); saveLocal(); render(); setSync('Synced', false); }
     else if(state.players.length || state.sessions.length) persist();
     else setSync('Synced', false);
   }catch(e){ ref = null; }
@@ -260,6 +294,89 @@ function ranking(){
 let toastT;
 function toast(t){ const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2200); }
 
+/* ---------- court ---------- */
+const PATHS = {
+  paint:  'M102,10 H198 V124 H102 Z',
+  mid:    'M18,10 V94 A142.5,142.5 0 0 0 282,94 V10 Z M102,10 V124 H198 V10 Z',
+  cornerL:'M0,10 H18 V94 A142.5,142.5 0 0 0 38.3,130 H0 Z',
+  cornerR:'M300,10 H282 V94 A142.5,142.5 0 0 1 261.7,130 H300 Z',
+  arc:    'M0,130 H38.3 A142.5,142.5 0 0 0 261.7,130 H300 V240 H0 Z',
+  ft:     'M114,124 A36,36 0 0 0 186,124 Z',
+};
+// mode 'pick': tappable, highlights selected drill; mode 'heat': shaded by make rate
+let courtN = 0;
+function courtSVG(mode, vals, selDrill){
+  const k = ++courtN;
+  const z = id => ZONES.find(x => x.id === id);
+  const v = id => vals[id] || {m:0,a:0};
+  const style = id => {
+    if(mode !== 'heat' || !v(id).a) return '';
+    return ` style="fill:#E4572E;fill-opacity:${(0.10 + (v(id).m/v(id).a)*0.55).toFixed(2)}"`;
+  };
+  const zone = (id, key, label, extra='') => `<path class="zone${mode==='pick' && selDrill===z(id).drill ? ' sel' : ''}" d="${PATHS[key]}"${extra}${style(id)}${mode==='pick'
+      ? ` data-zonepick="${esc(z(id).drill)}" role="button" tabindex="0" aria-label="${esc(label)}" aria-pressed="${selDrill===z(id).drill}"` : ''}/>`;
+  const val = id => pct(v(id).m, v(id).a);
+  const planks = [];
+  for(let x = 0; x < 300; x += 10){
+    const shade = ['#D9A56C','#D29B61','#DEAD78','#CF975D'][(x/10) % 4];
+    planks.push(`<rect x="${x}" y="0" width="10" height="240" fill="${shade}"/>`);
+    const j = 30 + ((x * 37) % 160);
+    planks.push(`<line x1="${x}" y1="${j}" x2="${x+10}" y2="${j}" />`);
+  }
+  return `<svg class="court${mode==='heat' ? ' heat' : ''}" viewBox="0 0 300 240" role="group" aria-label="Half court shooting spots">
+    <defs>
+      <linearGradient id="sheen${k}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/>
+        <stop offset="1" stop-color="#5a2e0e" stop-opacity=".10"/>
+      </linearGradient>
+    </defs>
+    <g class="wood">${planks.join('')}</g>
+    <g class="grain"><line x1="0" y1="0" x2="0" y2="240"/>${Array.from({length:30},(_,i)=>`<line x1="${i*10}" y1="0" x2="${i*10}" y2="240"/>`).join('')}</g>
+    <rect x="102" y="10" width="96" height="114" class="keypaint"/>
+    <rect x="0" y="0" width="300" height="10" class="apron"/>
+    <rect width="300" height="240" fill="url(#sheen${k})" pointer-events="none"/>
+    ${zone('arc','arc','Above the break 3')}
+    ${zone('corner','cornerL','Corner 3, left side')}
+    ${zone('corner','cornerR','Corner 3, right side')}
+    ${zone('mid','mid','Mid-range',' fill-rule="evenodd"')}
+    ${zone('paint','paint','Paint')}
+    ${zone('ft','ft','Free throws')}
+    <g class="ln">
+      <line x1="0" y1="10" x2="300" y2="10"/>
+      <path d="M18,10 V94 A142.5,142.5 0 0 0 282,94 V10"/>
+      <rect x="102" y="10" width="96" height="114"/>
+      <path d="M114,124 A36,36 0 0 0 186,124"/>
+      <path d="M114,124 A36,36 0 0 1 186,124" stroke-dasharray="5 5"/>
+      <path d="M138,41.5 A12,12 0 0 0 162,41.5" />
+      <line x1="102" y1="55" x2="96" y2="55"/><line x1="198" y1="55" x2="204" y2="55"/>
+      <line x1="102" y1="75" x2="96" y2="75"/><line x1="198" y1="75" x2="204" y2="75"/>
+      <line x1="102" y1="95" x2="96" y2="95"/><line x1="198" y1="95" x2="204" y2="95"/>
+    </g>
+    <line x1="132" y1="33" x2="168" y2="33" class="board"/>
+    <line x1="150" y1="33" x2="150" y2="37" class="neck"/>
+    <circle class="rim" cx="150" cy="41.5" r="5"/>
+    <text class="zn lt" x="150" y="72" text-anchor="middle">Paint</text>
+    <text class="zv lt" x="150" y="96" text-anchor="middle">${val('paint')}</text>
+    <text class="zn" x="150" y="141" text-anchor="middle">Free throws</text>
+    <text class="zv" x="150" y="159" text-anchor="middle" style="font-size:15px">${val('ft')}</text>
+    <text class="zn" x="60" y="46" text-anchor="middle">Mid-range</text>
+    <text class="zv" x="60" y="68" text-anchor="middle">${val('mid')}</text>
+    <text class="zn" x="291" y="68" text-anchor="middle" transform="rotate(90 291 68)">Corner 3</text>
+    <text class="zv" x="10" y="68" text-anchor="middle"${v('corner').a ? ' transform="rotate(-90 10 68)"' : ''} style="font-size:13px">${val('corner')}</text>
+    <text class="zn" x="150" y="206" text-anchor="middle">Above the break 3</text>
+    <text class="zv" x="150" y="228" text-anchor="middle">${val('arc')}</text>
+  </svg>`;
+}
+function zoneVals(pid){
+  const out = {};
+  ZONES.forEach(z => {
+    const t = totals(z.drill, 'all');
+    if(pid) out[z.id] = t[pid] || {m:0,a:0};
+    else out[z.id] = Object.values(t).reduce((s,x) => ({ m:s.m+x.m, a:s.a+x.a }), {m:0,a:0});
+  });
+  return out;
+}
+
 /* ---------- render: drill ---------- */
 function renderDrill(){
   const el = document.getElementById('drill');
@@ -271,11 +388,14 @@ function renderDrill(){
   }
   if(!state.active){
     if(!state.drills.includes(ui.drill)) ui.drill = state.drills[0];
-    el.innerHTML = `<div class="panel"><h2>Choose a drill</h2>
-      <div class="chips">${state.drills.map(d => `<button class="chip" data-pick="${esc(d)}" aria-pressed="${d===ui.drill}">${esc(d)}</button>`).join('')}
+    const others = state.drills.filter(d => !ZONE_NAMES.includes(d));
+    el.innerHTML = `<div class="panel"><h2>Pick a spot</h2>
+      ${courtSVG('pick', zoneVals(), ui.drill)}
+      <p class="minihead">Other drills</p>
+      <div class="chips">${others.map(d => `<button class="chip" data-pick="${esc(d)}" aria-pressed="${d===ui.drill}">${esc(d)}</button>`).join('')}
       <button class="chip add" data-adddrill>Add drill</button></div>
       <button class="primary" data-start>Start ${esc(ui.drill)}</button>
-      <p class="lede">${state.players.length} player${state.players.length>1?'s':''} ready. Each gets a card with Make and Miss.</p></div>`;
+      <p class="lede">Court percentages are your team’s all-time rate from each spot. ${state.players.length} player${state.players.length>1?'s':''} ready.</p></div>`;
     return;
   }
   const c = liveCounts();
@@ -360,7 +480,10 @@ function playerDetail(p){
   const rows = state.drills.map(d => { const t = totals(d,'all')[p.id] || {m:0,a:0}; return t.a ? `<tr><td>${esc(d)}</td><td>${t.m}/${t.a}</td><td>${pct(t.m,t.a)}</td></tr>` : ''; }).join('');
   const recent = state.sessions.filter(s => s.counts[p.id]).slice(-5).reverse().map(s => {
     const c = s.counts[p.id]; return `<tr><td>${new Date(s.date).toLocaleDateString(undefined,{day:'numeric',month:'short'})}, ${esc(s.drill)}</td><td>${c.m}/${c.a}</td><td>${pct(c.m,c.a)}</td></tr>`; }).join('');
+  const zv = zoneVals(p.id);
+  const anyZone = Object.values(zv).some(x => x.a);
   return `<div class="pdetail">
+    ${anyZone ? `<p class="minihead">Shooting by spot</p>${courtSVG('heat', zv)}` : ''}
     ${rows ? `<table><tr><th>By drill</th><th>Shots</th><th>Rate</th></tr>${rows}</table>` : '<p class="muted">No shots logged yet.</p>'}
     ${recent ? `<table><tr><th>Last 5 drills</th><th>Shots</th><th>Rate</th></tr>${recent}</table>` : ''}
     <div class="row"><button class="ghost" data-rename="${p.id}">Rename</button><button class="ghost danger" data-delp="${p.id}">Remove player</button></div>
@@ -383,7 +506,14 @@ function buildShare(){
   const label = (ui.boardDrill === 'all' ? 'All drills' : ui.boardDrill) + ', ' + ({all:'all time','30':'last 30 days','7':'last 7 days'}[ui.period]);
   return `${state.team} shooting leaderboard (${label})\n` + ranked.map((x,i) => `${i+1}. ${x.p.name} ${pct(x.m,x.a)} (${x.m}/${x.a})`).join('\n');
 }
+function pickZone(name){ ui.drill = name; renderDrill(); }
+document.addEventListener('keydown', e => {
+  const z = e.target.closest && e.target.closest('[data-zonepick]');
+  if(z && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); pickZone(z.dataset.zonepick);
+    document.querySelector(`[data-zonepick="${CSS.escape(z.dataset.zonepick)}"]`)?.focus(); }
+});
 document.addEventListener('click', async e => {
+  const zp = e.target.closest('[data-zonepick]'); if(zp){ pickZone(zp.dataset.zonepick); return; }
   const b = e.target.closest('button'); if(!b) return;
   const d = b.dataset;
   if(d.tab){ showTab(d.tab); return; }
@@ -420,6 +550,7 @@ document.getElementById('teamName').onclick = () => {
 
 const local = loadLocal();
 if(local) state = local;
+normalizeDrills();
 render();
 connect();
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
