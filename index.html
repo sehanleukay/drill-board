@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drill Board</title>
+<meta name="theme-color" content="#F1E2C4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Drill Board">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --floor:#F1E2C4; --plank:#E6D1A8; --ink:#1E2430; --muted:#6B5E4A;
+  --key:#2D5DA8; --make:#2F8F5B; --miss:#C4452F; --surface:#FBF4E6; --rule:#D9C39A; --gold:#C9962B;
+  --cond:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --floor:#1E1A15; --plank:#2A241D; --ink:#F2E6D0; --muted:#A8977C;
+    --key:#6E9BE8; --make:#3FA56F; --miss:#D65A43; --surface:#27211A; --rule:#433829; --gold:#E0B04A;
+  }
+}
+:root[data-theme="dark"]{
+  --floor:#1E1A15; --plank:#2A241D; --ink:#F2E6D0; --muted:#A8977C;
+  --key:#6E9BE8; --make:#3FA56F; --miss:#D65A43; --surface:#27211A; --rule:#433829; --gold:#E0B04A;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--floor);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}
+.team{font-family:var(--cond);font-weight:700;font-size:2.3rem;line-height:1;margin:0;background:none;border:0;color:var(--ink);padding:0;text-align:left;cursor:pointer}
+.app{font-size:.85rem;color:var(--muted);margin:0 0 2px}
+.sync{font-size:.8rem;color:var(--muted);text-align:right}
+nav{display:flex;gap:4px;background:var(--plank);border-radius:10px;padding:4px;margin-bottom:16px}
+nav button{flex:1;border:0;background:transparent;color:var(--muted);font:600 1rem var(--body);padding:8px;border-radius:7px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--surface);color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--key);outline-offset:2px}
+h2{font-family:var(--cond);font-weight:600;font-size:1.45rem;margin:18px 0 8px}
+p{margin:0 0 10px}
+.muted{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+.chip{border:1.5px solid var(--rule);background:transparent;color:var(--ink);font:500 .92rem var(--body);padding:6px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--key);border-color:var(--key);color:#fff}
+.chip.add{border-style:dashed;color:var(--muted)}
+.primary{display:block;width:100%;border:0;border-radius:12px;background:var(--key);color:#fff;font:700 1.4rem var(--cond);padding:14px;cursor:pointer}
+.primary:disabled{opacity:.45;cursor:default}
+.link{background:none;border:0;color:var(--muted);font:500 .95rem var(--body);padding:6px 2px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:disabled{opacity:.4;cursor:default}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:4px 0 10px}
+
+/* live drill */
+.drillhead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:12px}
+.drillhead b{font:700 1.7rem/1 var(--cond)}
+.drillhead span{font:700 1.7rem/1 var(--cond);color:var(--key);font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pcard{background:var(--surface);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.pcard.hot{box-shadow:inset 0 0 0 2px var(--gold)}
+.pname{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-weight:600;line-height:1.2}
+.pname small{color:var(--muted);font-weight:500}
+.pstat{display:flex;justify-content:space-between;align-items:baseline}
+.pstat b{font:700 2.1rem/1 var(--cond);font-variant-numeric:tabular-nums}
+.pstat span{color:var(--muted);font-variant-numeric:tabular-nums}
+.mm{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm button{border:0;border-radius:9px;padding:13px 0;font:700 1.15rem var(--cond);color:#fff;cursor:pointer}
+.mm button:active{transform:scale(.96)}
+.mm .mk{background:var(--make)} .mm .ms{background:var(--miss)}
+
+/* leaderboard */
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:grid;grid-template-columns:2rem 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule)}
+.rank .n{font:700 1.5rem var(--cond);color:var(--muted);text-align:center}
+.rank li:first-child .n{color:var(--gold)}
+.rank .who{font-weight:600}
+.rank .who small{display:block;font-weight:400;color:var(--muted);font-size:.82rem}
+.rank .p{font:700 1.7rem var(--cond);font-variant-numeric:tabular-nums}
+.meter{height:5px;background:var(--plank);border-radius:3px;margin-top:5px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--key)}
+.below{margin-top:14px}
+
+/* players */
+form.addp{display:grid;grid-template-columns:1fr 4.5rem auto;gap:8px;margin-bottom:12px}
+input[type=text],input[type=number]{font:500 1rem var(--body);padding:10px;border-radius:9px;border:1.5px solid var(--rule);background:var(--surface);color:var(--ink);min-width:0}
+form.addp button{border:0;border-radius:9px;background:var(--key);color:#fff;font:600 1rem var(--body);padding:0 14px;cursor:pointer}
+.plist{list-style:none;margin:0;padding:0}
+.plist > li{border-bottom:1px solid var(--rule)}
+.prow{display:grid;grid-template-columns:1fr auto;gap:10px;width:100%;background:none;border:0;color:var(--ink);text-align:left;padding:12px 0;cursor:pointer;font:inherit}
+.prow b{font:700 1.4rem var(--cond);font-variant-numeric:tabular-nums}
+.pdetail{padding:0 0 12px}
+.pdetail table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.pdetail td,.pdetail th{padding:5px 0;text-align:left;border-bottom:1px solid var(--rule);font-size:.95rem}
+.pdetail th{color:var(--muted);font-weight:500}
+.pdetail td:last-child,.pdetail th:last-child{text-align:right}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--rule)}
+.hist small{color:var(--muted)}
+.empty{color:var(--muted);padding:10px 0}
+.sharebox{width:100%;min-height:9rem;font:.9rem var(--body);padding:10px;border-radius:9px;border:1.5px solid var(--rule);background:var(--surface);color:var(--ink);margin-top:8px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--floor);padding:10px 16px;border-radius:10px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <p class="app">Drill Board</p>
+      <button class="team" id="teamName" aria-label="Rename team">My team</button>
+    </div>
+    <div class="sync" id="sync">Saved on this device</div>
+  </header>
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-tab="drill">Drill</button>
+    <button role="tab" aria-selected="false" data-tab="board">Leaderboard</button>
+    <button role="tab" aria-selected="false" data-tab="players">Players</button>
+  </nav>
+  <section id="drill"></section>
+  <section id="board" hidden></section>
+  <section id="players" hidden></section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const LS_KEY = 'drillboard-v1';
+const MIN_ATT = 10;
+const DEFAULT = { team:'My team', players:[], drills:['Free throws','Spot-up 3s','Mid-range','Layups'], active:null, sessions:[] };
+let state = JSON.parse(JSON.stringify(DEFAULT));
+let ui = { drill:'Free throws', boardDrill:'all', period:'all', open:null, share:null };
+let ref = null;
+
+/* ---------- storage ---------- */
+function valid(s){ return s && typeof s === 'object' && Array.isArray(s.players) && Array.isArray(s.sessions); }
+function loadLocal(){ try{ const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); return valid(s) ? s : null; }catch(e){ return null; } }
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+let dirty=false, writing=false, timer=null;
+function persist(){ saveLocal(); if(!ref) return; dirty=true; setSync('Saving…'); clearTimeout(timer); timer=setTimeout(flush,500); }
+async function flush(){
+  if(writing || !dirty) return;
+  writing = true; dirty = false;
+  try{ await ref.set(JSON.parse(JSON.stringify(state))); setSync('Saved to your account'); }
+  catch(e){ setSync('Saved on this device only'); }
+  writing = false; if(dirty) flush();
+}
+function setSync(t){ document.getElementById('sync').textContent = t; }
+async function connect(){
+  if(!window.claude || !window.claude.use) return;
+  try{
+    const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+    if(!db || !user) return;
+    const uid = await user.id(); if(!uid) return;
+    ref = db.doc('data/users/' + uid + '/team');
+    const snap = await ref.get();
+    const remote = snap.exists ? snap.data() : null;
+    if(valid(remote)){ state = JSON.parse(JSON.stringify(remote)); saveLocal(); render(); setSync('Saved to your account'); }
+    else if(state.players.length || state.sessions.length) persist();
+    else setSync('Saved to your account');
+  }catch(e){ ref = null; }
+}
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct = (m,a) => a ? Math.round(m/a*100) + '%' : '–';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const player = id => state.players.find(p => p.id === id);
+function liveCounts(){
+  const c = {};
+  if(state.active) state.active.log.forEach(s => { c[s.p] = c[s.p] || {m:0,a:0}; c[s.p].a++; if(s.m) c[s.p].m++; });
+  return c;
+}
+function totals(filterDrill, period){
+  const since = period === '30' ? Date.now() - 30*864e5 : period === '7' ? Date.now() - 7*864e5 : 0;
+  const t = {};
+  state.sessions.forEach(s => {
+    if(filterDrill !== 'all' && s.drill !== filterDrill) return;
+    if(s.date < since) return;
+    Object.entries(s.counts).forEach(([p,c]) => { t[p] = t[p] || {m:0,a:0}; t[p].m += c.m; t[p].a += c.a; });
+  });
+  return t;
+}
+let toastT;
+function toast(t){ const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2200); }
+
+/* ---------- render: drill ---------- */
+function renderDrill(){
+  const el = document.getElementById('drill');
+  if(!state.players.length){
+    el.innerHTML = `<h2>Add your squad first</h2><p class="muted">Add players on the Players tab, then come back here to run a shooting drill.</p>
+      <button class="primary" data-go="players">Add players</button>`;
+    return;
+  }
+  if(!state.active){
+    if(!state.drills.includes(ui.drill)) ui.drill = state.drills[0];
+    el.innerHTML = `<h2>Pick a drill</h2>
+      <div class="chips">${state.drills.map(d => `<button class="chip" data-pick="${esc(d)}" aria-pressed="${d===ui.drill}">${esc(d)}</button>`).join('')}
+      <button class="chip add" data-adddrill>Add drill</button></div>
+      <button class="primary" data-start>Start ${esc(ui.drill)}</button>
+      <p class="muted below">Each player gets a card with Make and Miss buttons. Tap as they shoot.</p>`;
+    return;
+  }
+  const c = liveCounts();
+  const tm = Object.values(c).reduce((s,x) => s + x.m, 0), ta = Object.values(c).reduce((s,x) => s + x.a, 0);
+  const best = Object.entries(c).filter(([,x]) => x.a >= 5).sort((a,b) => b[1].m/b[1].a - a[1].m/a[1].a)[0];
+  el.innerHTML = `<div class="drillhead"><b>${esc(state.active.drill)}</b><span>${tm}/${ta} · ${pct(tm,ta)}</span></div>
+    <div class="grid">${state.players.map(p => {
+      const x = c[p.id] || {m:0,a:0};
+      return `<div class="pcard${best && best[0]===p.id ? ' hot' : ''}">
+        <div class="pname">${esc(p.name)}${p.num!=='' ? `<small>#${esc(p.num)}</small>` : ''}</div>
+        <div class="pstat"><b>${pct(x.m,x.a)}</b><span>${x.m}/${x.a}</span></div>
+        <div class="mm"><button class="mk" data-shot="${p.id}" data-m="1" aria-label="Make for ${esc(p.name)}">Make</button><button class="ms" data-shot="${p.id}" data-m="0" aria-label="Miss for ${esc(p.name)}">Miss</button></div>
+      </div>`; }).join('')}</div>
+    <div class="bar" style="margin-top:14px">
+      <button class="link" data-undo ${state.active.log.length ? '' : 'disabled'}>Undo ${state.active.log.length ? 'last (' + esc(player(state.active.log.at(-1).p)?.name || '') + ')' : 'last'}</button>
+      <button class="link" data-cancel>Discard drill</button>
+    </div>
+    <button class="primary" data-end ${ta ? '' : 'disabled'}>End and save drill</button>
+    <p class="muted below">A gold outline marks the hottest shooter with 5 or more attempts.</p>`;
+}
+
+/* ---------- render: leaderboard ---------- */
+function renderBoard(){
+  const el = document.getElementById('board');
+  const t = totals(ui.boardDrill, ui.period);
+  const ranked = state.players.map(p => ({ p, ...(t[p.id] || {m:0,a:0}) }))
+    .filter(x => x.a >= MIN_ATT).sort((a,b) => b.m/b.a - a.m/a.a || b.a - a.a);
+  const low = state.players.map(p => ({ p, ...(t[p.id] || {m:0,a:0}) })).filter(x => x.a > 0 && x.a < MIN_ATT);
+  const drills = ['all', ...state.drills];
+  el.innerHTML = `<div class="chips">${drills.map(d => `<button class="chip" data-bdrill="${esc(d)}" aria-pressed="${d===ui.boardDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
+    <div class="chips" style="margin-top:-6px">${[['all','All time'],['30','Last 30 days'],['7','Last 7 days']].map(([v,l]) => `<button class="chip" data-period="${v}" aria-pressed="${v===ui.period}">${l}</button>`).join('')}</div>
+    ${ranked.length ? `<ol class="rank">${ranked.map((x,i) => `<li><span class="n">${i+1}</span>
+      <div class="who">${esc(x.p.name)}<small>${x.m}/${x.a} shots</small><div class="meter"><i style="width:${Math.round(x.m/x.a*100)}%"></i></div></div>
+      <span class="p">${pct(x.m,x.a)}</span></li>`).join('')}</ol>`
+      : `<p class="empty">Players need ${MIN_ATT} or more shots in this drill and period to appear here.</p>`}
+    ${low.length ? `<p class="muted below">Not enough shots yet: ${low.map(x => `${esc(x.p.name)} (${x.a})`).join(', ')}.</p>` : ''}
+    ${ranked.length ? `<button class="primary below" data-share>Copy for the team chat</button>` : ''}
+    ${ui.share ? `<textarea class="sharebox" readonly id="shareText">${esc(ui.share)}</textarea>` : ''}
+    <h2>Recent drills</h2>
+    ${state.sessions.length ? `<ul class="hist">${[...state.sessions].reverse().slice(0,15).map(s => {
+      const v = Object.values(s.counts), m = v.reduce((a,x)=>a+x.m,0), a = v.reduce((q,x)=>q+x.a,0);
+      const d = new Date(s.date).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+      return `<li><span>${esc(s.drill)}<br><small>${d} · ${v.length} players</small></span><span><b>${pct(m,a)}</b> <small>${m}/${a}</small> <button class="link" data-delsess="${s.id}" aria-label="Delete this drill">Delete</button></span></li>`; }).join('')}</ul>`
+      : '<p class="empty">Saved drills show up here.</p>'}`;
+}
+
+/* ---------- render: players ---------- */
+function renderPlayers(){
+  const el = document.getElementById('players');
+  const all = totals('all','all');
+  el.innerHTML = `<form class="addp" id="addForm">
+      <input type="text" id="pName" placeholder="Player name" aria-label="Player name" maxlength="40" required>
+      <input type="number" id="pNum" placeholder="No." aria-label="Jersey number" min="0" max="99">
+      <button type="submit">Add</button>
+    </form>
+    ${state.players.length ? `<ul class="plist">${state.players.map(p => {
+      const x = all[p.id] || {m:0,a:0}, open = ui.open === p.id;
+      return `<li><button class="prow" data-open="${p.id}" aria-expanded="${open}">
+          <span><strong>${esc(p.name)}</strong>${p.num!=='' ? ` <span class="muted">#${esc(p.num)}</span>` : ''}<br><small class="muted">${x.a} shots all time</small></span>
+          <b>${pct(x.m,x.a)}</b></button>
+        ${open ? playerDetail(p) : ''}</li>`; }).join('')}</ul>`
+      : '<p class="empty">Add each player on your squad. You can include their jersey number.</p>'}`;
+  document.getElementById('addForm').onsubmit = e => {
+    e.preventDefault();
+    const name = document.getElementById('pName').value.trim(); if(!name) return;
+    state.players.push({ id: uid(), name, num: document.getElementById('pNum').value.trim() });
+    persist(); renderPlayers(); renderDrill(); renderBoard();
+    document.getElementById('pName').focus();
+  };
+}
+function playerDetail(p){
+  const rows = state.drills.map(d => { const t = totals(d,'all')[p.id] || {m:0,a:0}; return t.a ? `<tr><td>${esc(d)}</td><td>${t.m}/${t.a}</td><td>${pct(t.m,t.a)}</td></tr>` : ''; }).join('');
+  const recent = state.sessions.filter(s => s.counts[p.id]).slice(-5).reverse().map(s => {
+    const c = s.counts[p.id]; return `<tr><td>${new Date(s.date).toLocaleDateString(undefined,{day:'numeric',month:'short'})} · ${esc(s.drill)}</td><td>${c.m}/${c.a}</td><td>${pct(c.m,c.a)}</td></tr>`; }).join('');
+  return `<div class="pdetail">
+    ${rows ? `<table><tr><th>By drill</th><th>Shots</th><th>%</th></tr>${rows}</table>` : '<p class="muted">No shots logged yet.</p>'}
+    ${recent ? `<table style="margin-top:10px"><tr><th>Last 5 drills</th><th>Shots</th><th>%</th></tr>${recent}</table>` : ''}
+    <div class="bar"><button class="link" data-rename="${p.id}">Rename</button><button class="link" data-delp="${p.id}">Remove player</button></div>
+  </div>`;
+}
+function render(){ document.getElementById('teamName').textContent = state.team; renderDrill(); renderBoard(); renderPlayers(); }
+
+/* ---------- actions ---------- */
+function showTab(t){
+  document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
+  document.querySelectorAll('.wrap > section').forEach(s => s.hidden = s.id !== t);
+}
+function buildShare(){
+  const t = totals(ui.boardDrill, ui.period);
+  const ranked = state.players.map(p => ({ p, ...(t[p.id] || {m:0,a:0}) })).filter(x => x.a >= MIN_ATT).sort((a,b) => b.m/b.a - a.m/a.a);
+  const label = (ui.boardDrill === 'all' ? 'All drills' : ui.boardDrill) + ', ' + ({all:'all time','30':'last 30 days','7':'last 7 days'}[ui.period]);
+  return `${state.team} shooting leaderboard (${label})\n` + ranked.map((x,i) => `${i+1}. ${x.p.name} ${pct(x.m,x.a)} (${x.m}/${x.a})`).join('\n');
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button'); if(!b) return;
+  const d = b.dataset;
+  if(d.tab){ showTab(d.tab); return; }
+  if(d.go){ showTab(d.go); document.getElementById('pName')?.focus(); return; }
+  if(d.pick){ ui.drill = d.pick; renderDrill(); return; }
+  if('adddrill' in d){ const n = (prompt('Drill name, e.g. Corner 3s') || '').trim(); if(n && !state.drills.includes(n)){ state.drills.push(n); ui.drill = n; persist(); render(); } return; }
+  if('start' in d){ state.active = { drill: ui.drill, started: Date.now(), log: [] }; persist(); renderDrill(); return; }
+  if(d.shot){ state.active.log.push({ p: d.shot, m: +d.m }); if(navigator.vibrate) try{ navigator.vibrate(10); }catch(_){} persist(); renderDrill(); return; }
+  if('undo' in d){ state.active.log.pop(); persist(); renderDrill(); return; }
+  if('cancel' in d){ if(confirm('Discard this drill? Shots logged so far will be lost.')){ state.active = null; persist(); renderDrill(); } return; }
+  if('end' in d){
+    const c = liveCounts(); const a = state.active;
+    state.sessions.push({ id: uid(), drill: a.drill, date: a.started, counts: c });
+    state.active = null; ui.boardDrill = a.drill; ui.period = 'all'; ui.share = null;
+    persist(); render(); showTab('board'); toast(`${a.drill} saved`); return;
+  }
+  if(d.bdrill){ ui.boardDrill = d.bdrill; ui.share = null; renderBoard(); return; }
+  if(d.period){ ui.period = d.period; ui.share = null; renderBoard(); return; }
+  if('share' in d){
+    const text = buildShare();
+    try{ await navigator.clipboard.writeText(text); ui.share = null; renderBoard(); toast('Leaderboard copied'); }
+    catch(_){ ui.share = text; renderBoard(); const ta = document.getElementById('shareText'); ta.focus(); ta.select(); toast('Select and copy the text below'); }
+    return;
+  }
+  if(d.delsess){ if(confirm('Delete this drill from the records?')){ state.sessions = state.sessions.filter(s => s.id !== d.delsess); persist(); render(); } return; }
+  if(d.open){ ui.open = ui.open === d.open ? null : d.open; renderPlayers(); return; }
+  if(d.rename){ const p = player(d.rename); const n = (prompt('Player name', p.name) || '').trim(); if(n){ p.name = n; persist(); render(); } return; }
+  if(d.delp){ const p = player(d.delp); if(confirm(`Remove ${p.name}? Their past shots stay in team totals for saved drills.`)){ state.players = state.players.filter(x => x.id !== p.id); if(state.active) state.active.log = state.active.log.filter(s => s.p !== p.id); ui.open = null; persist(); render(); } return; }
+});
+document.getElementById('teamName').onclick = () => {
+  const n = (prompt('Team name', state.team) || '').trim();
+  if(n){ state.team = n; persist(); render(); }
+};
+
+const local = loadLocal();
+if(local) state = local;
+render();
+connect();
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+</script>
+</body>
+</html>
