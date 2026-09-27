@@ -254,6 +254,30 @@ body.has-tabbar .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 .cele-card .d{color:#C9CFC9;margin:0 0 22px}
 @media (prefers-reduced-motion: reduce){.enter,.bump-make,.bump-miss,.plus,.skel,.cele-card,.bigmedal,.splashin{animation:none!important}}
 
+/* ---- streaks, practice, sharing ---- */
+.tabbar{grid-template-columns:repeat(var(--n,3),1fr)}
+.streak{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;margin-top:14px}
+.streak .flame svg{width:46px;height:46px;fill:var(--brass-soft);stroke:var(--muted);stroke-width:1.5;stroke-linejoin:round}
+.streak.on .flame svg{fill:#F26B1D;stroke:#F7A53E;filter:drop-shadow(0 4px 12px rgba(242,107,29,.45))}
+.streak b{font:800 1.7rem/1 var(--display)}
+.streak small{display:block;color:var(--muted);font-size:.82rem;margin-top:4px}
+.week{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.week span{display:grid;place-items:center;height:30px;border-radius:9px;background:var(--bg2);font-size:.72rem;font-weight:700;color:var(--muted)}
+.week span.on{background:var(--brass);color:var(--brass-ink)}
+.runline{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.9rem;margin:0 2px 14px}
+.runline .ic{color:#F26B1D}
+.mm.solo{gap:12px}
+.mm.solo button{padding:44px 0;font-size:2rem;border-radius:20px}
+button.medal{font:inherit;color:inherit;cursor:pointer;width:100%}
+.sharebtn{margin-top:12px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:12px;padding:10px 14px;font:600 .9rem var(--body);cursor:pointer;display:inline-flex;align-items:center}
+.preview img{display:block;width:auto;max-width:min(76vw,330px);max-height:64vh;border-radius:20px;margin:0 auto 18px;box-shadow:0 24px 60px -20px rgba(0,0,0,.7)}
+.preview .primary{display:flex;justify-content:center}
+.cele-card .ghost{margin-top:8px}
+.cele-card .share2{margin-top:10px;background:none;border:1px solid rgba(239,231,214,.25);color:#EFE7D6;border-radius:14px;padding:12px;width:100%;font:600 1rem var(--body);cursor:pointer;display:flex;justify-content:center;align-items:center}
+.pflame{display:inline-flex;align-items:center;color:#F26B1D;font-weight:700;font-size:.8rem;margin-left:6px}
+.pflame .ic{width:14px;height:14px;margin-right:2px;fill:#F26B1D;stroke:#F26B1D}
+.hist .tagsolo{font-size:.68rem;font-weight:700;color:var(--muted);background:var(--bg2);padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+
 /* ---- competition ---- */
 .medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
 .medal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
@@ -385,6 +409,7 @@ input[type=email],input[type=password]{font:500 1rem var(--body);padding:12px 14
 <nav id="tabbar" class="tabbar" role="tablist" hidden></nav>
 <div class="statusfill" aria-hidden="true"></div>
 <div id="celebrate" class="celebrate" hidden></div>
+<div id="sheet" class="celebrate" hidden></div>
 <div class="toast" id="toast" role="status"></div>
 <script>
 const SB_URL = 'https://ayogbykechnpeopfqoew.supabase.co';
@@ -580,7 +605,7 @@ async function loadCoach(){
   const id = coachTeam.id;
   const [p, s] = await Promise.all([
     sb.from('players').select('id,name,num,invite_code,user_id').eq('team_id', id).order('created_at'),
-    sb.from('sessions').select('id,drill,started_at,session_results(player_id,made,attempts)').eq('team_id', id).order('started_at'),
+    sb.from('sessions').select('id,drill,started_at,kind,session_results(player_id,made,attempts)').eq('team_id', id).order('started_at'),
   ]);
   if(p.error || s.error) return fail();
   state.teamId = id; state.team = coachTeam.name;
@@ -588,7 +613,7 @@ async function loadCoach(){
   const missing = ZONE_NAMES.filter(d => !state.drills.includes(d));
   if(missing.length){ state.drills.push(...missing); sb.from('teams').update({ drills: state.drills }).eq('id', id).then(()=>{}); }
   state.players = p.data;
-  state.sessions = s.data.map(x => ({ id:x.id, drill:x.drill, date:Date.parse(x.started_at),
+  state.sessions = s.data.map(x => ({ id:x.id, drill:x.drill, kind:x.kind || 'team', date:Date.parse(x.started_at),
     counts:Object.fromEntries((x.session_results||[]).map(r => [r.player_id, { m:r.made, a:r.attempts }])) }));
   state.active = loadActive();
   state.showNames = !!coachTeam.show_names;
@@ -603,10 +628,11 @@ function liveCounts(){
   if(state.active) state.active.log.forEach(s => { if(!player(s.p)) return; c[s.p] = c[s.p] || {m:0,a:0}; c[s.p].a++; if(s.m) c[s.p].m++; });
   return c;
 }
-function totals(filterDrill, period){
+function totals(filterDrill, period, solo){
   const since = period === '30' ? Date.now() - 30*864e5 : period === '7' ? Date.now() - 7*864e5 : 0;
   const t = {};
   state.sessions.forEach(s => {
+    if(!solo && s.kind === 'solo') return;
     if(filterDrill !== 'all' && s.drill !== filterDrill) return;
     if(s.date < since) return;
     Object.entries(s.counts).forEach(([p,c]) => { t[p] = t[p] || {m:0,a:0}; t[p].m += c.m; t[p].a += c.a; });
@@ -698,7 +724,7 @@ function courtSVG(mode, vals, selDrill){
 function zoneVals(pid){
   const out = {};
   ZONES.forEach(z => {
-    const t = totals(z.drill, 'all');
+    const t = totals(z.drill, 'all', !!pid);
     if(pid) out[z.id] = t[pid] || {m:0,a:0};
     else out[z.id] = Object.values(t).reduce((s,x) => ({ m:s.m+x.m, a:s.a+x.a }), {m:0,a:0});
   });
@@ -800,7 +826,8 @@ function renderBoardInner(){
     <h2>Recent drills</h2>
     ${state.sessions.length ? `<ul class="hist">${[...state.sessions].reverse().slice(0,15).map(s => {
       const v = Object.values(s.counts), m = v.reduce((a,x)=>a+x.m,0), a = v.reduce((q,x)=>q+x.a,0);
-      return `<li><div class="t">${esc(s.drill)}<small>${day(s.date)}, ${v.length} player${v.length>1?'s':''}, ${m}/${a}</small></div>
+      const soloName = s.kind === 'solo' ? (player(Object.keys(s.counts)[0])?.name || 'Player') : '';
+      return `<li><div class="t">${esc(s.drill)}${soloName ? '<span class="tagsolo">Practice</span>' : ''}<small>${day(s.date)}, ${soloName ? esc(soloName) : `${v.length} player${v.length>1?'s':''}`}, ${m}/${a}</small></div>
         <span class="p">${pct(m,a)}</span>
         <button class="x" data-delsess="${s.id}" aria-label="Delete ${esc(s.drill)} from ${day(s.date)}">${ic('trash')}</button></li>`; }).join('')}</ul>`
       : '<p class="empty">Finished drills are listed here.</p>'}`;
@@ -809,7 +836,7 @@ function renderBoardInner(){
 /* ---------- coach: players ---------- */
 function renderPlayers(){
   const el = $('#players');
-  const all = totals('all','all');
+  const all = totals('all','all',true);
   const bmap = Object.fromEntries((state.compete?.board || []).map(r => [r.player_id, r]));
   el.innerHTML = `<div class="panel switch" style="margin-bottom:16px"><div><b>Show names to teammates</b>
       <small>${state.showNames ? 'Players can see each other’s names on the team ladder, challenges and player of the week.' : 'Players see their own stats. Teammates show as “Teammate”.'}</small></div>
@@ -823,7 +850,7 @@ function renderPlayers(){
       const x = all[p.id] || {m:0,a:0}, open = ui.open === p.id;
       return `<li><button class="prow" data-open="${p.id}" aria-expanded="${open}">
           <span class="num">${p.num ? esc(p.num) : esc(initials(p.name))}</span>
-          <span><span class="nm">${esc(p.name)}</span>${p.user_id ? ' <span class="tag">Linked</span>' : ''}<small>${bmap[p.id] ? `Level ${bmap[p.id].level}, ${bmap[p.id].badges} badge${bmap[p.id].badges===1?'':'s'}, ` : ''}${x.a} shot${x.a===1?'':'s'}</small></span>
+          <span><span class="nm">${esc(p.name)}</span>${(() => { const st = dayStreak(state.sessions.filter(s => s.counts[p.id]).map(s => s.date)); return st.cur >= 2 ? `<span class="pflame">${ic('flame')}${st.cur}</span>` : ''; })()}${p.user_id ? ' <span class="tag">Linked</span>' : ''}<small>${bmap[p.id] ? `Level ${bmap[p.id].level}, ${bmap[p.id].badges} badge${bmap[p.id].badges===1?'':'s'}, ` : ''}${x.a} shot${x.a===1?'':'s'}</small></span>
           <b>${pct(x.m,x.a)}</b></button>
         ${open ? playerDetail(p) : ''}</li>`; }).join('')}</ul>
       <p class="note">Tap a player to see their stats and invite code.</p>`
@@ -839,9 +866,9 @@ function renderPlayers(){
   };
 }
 function playerDetail(p){
-  const rows = state.drills.map(d => { const t = totals(d,'all')[p.id] || {m:0,a:0}; return t.a ? `<tr><td>${esc(d)}</td><td>${t.m}/${t.a}</td><td>${pct(t.m,t.a)}</td></tr>` : ''; }).join('');
+  const rows = state.drills.map(d => { const t = totals(d,'all',true)[p.id] || {m:0,a:0}; return t.a ? `<tr><td>${esc(d)}</td><td>${t.m}/${t.a}</td><td>${pct(t.m,t.a)}</td></tr>` : ''; }).join('');
   const recent = state.sessions.filter(s => s.counts[p.id]).slice(-5).reverse().map(s => {
-    const c = s.counts[p.id]; return `<tr><td>${new Date(s.date).toLocaleDateString(undefined,{day:'numeric',month:'short'})}, ${esc(s.drill)}</td><td>${c.m}/${c.a}</td><td>${pct(c.m,c.a)}</td></tr>`; }).join('');
+    const c = s.counts[p.id]; return `<tr><td>${new Date(s.date).toLocaleDateString(undefined,{day:'numeric',month:'short'})}, ${esc(s.drill)}${s.kind === 'solo' ? ' (practice)' : ''}</td><td>${c.m}/${c.a}</td><td>${pct(c.m,c.a)}</td></tr>`; }).join('');
   const zv = zoneVals(p.id);
   const anyZone = Object.values(zv).some(x => x.a);
   return `<div class="pdetail">
@@ -896,12 +923,12 @@ async function loadPlayer(){
   const ids = myPlayers.map(p => p.id), tids = [...new Set(myPlayers.map(p => p.team_id))];
   const [t, r] = await Promise.all([
     sb.from('teams').select('id,name,drills').in('id', tids),
-    sb.from('session_results').select('player_id,made,attempts,sessions(drill,started_at)').in('player_id', ids),
+    sb.from('session_results').select('player_id,made,attempts,sessions(id,drill,started_at,kind)').in('player_id', ids),
   ]);
   if(t.error || r.error) return fail();
   pdata = {
     teams: Object.fromEntries(t.data.map(x => [x.id, x])),
-    results: r.data.filter(x => x.sessions).map(x => ({ pid:x.player_id, m:x.made, a:x.attempts, drill:x.sessions.drill, date:Date.parse(x.sessions.started_at) })).sort((a,b) => a.date - b.date),
+    results: r.data.filter(x => x.sessions).map(x => ({ pid:x.player_id, m:x.made, a:x.attempts, drill:x.sessions.drill, sid:x.sessions.id, kind:x.sessions.kind || 'team', date:Date.parse(x.sessions.started_at) })).sort((a,b) => a.date - b.date),
   };
   if(ui.meIdx >= myPlayers.length) ui.meIdx = 0;
   pdata.compete = {};
@@ -928,6 +955,7 @@ function renderPlayerViewInner(){
   const tabsOld = `<div class="seg full ptabs" style="grid-template-columns:repeat(3,1fr)">${[['me','My stats'],['team','Team'],['badges','Badges']].map(([v,l]) => `<button data-ptab="${v}" aria-pressed="${tab===v}">${l}</button>`).join('')}</div>`;
   const tabs = '';
   const picker = myPlayers.length > 1 ? `<div class="chips">${myPlayers.map((q,i) => `<button class="chip" data-meidx="${i}" aria-pressed="${i===ui.meIdx}">${esc(q.name)}, ${esc(pdata.teams[q.team_id]?.name || '')}</button>`).join('')}</div>` : '';
+  if(tab === 'practice'){ $('#player').innerHTML = picker + renderPractice(p, team, res, zv); return; }
   if(tab === 'team'){
     const hidden = C.board.some(r => !r.name);
     $('#player').innerHTML = picker + tabs + potwCard(C.potw) +
@@ -943,7 +971,7 @@ function renderPlayerViewInner(){
     const earned = Object.keys(BADGES).filter(k => cnt[k]), locked = Object.keys(BADGES).filter(k => !cnt[k]);
     $('#player').innerHTML = picker + tabs + `<div class="panel" style="margin-bottom:16px"><span class="lvl">Lv ${L.lv}</span><b>${numUp(meRow.xp,' XP')}</b>
         <div class="xpbar"><i style="width:${L.pctToNext}%"></i></div><small class="muted">${L.toNext.toLocaleString()} XP to level ${L.lv+1}. ${earned.length} of ${Object.keys(BADGES).length} badges earned.</small></div>
-      ${earned.length ? `<h2>Earned</h2><div class="medals">${earned.map(k => medal(k, true, cnt[k])).join('')}</div>` : ''}
+      ${earned.length ? `<h2>Earned</h2><p class="note" style="margin-top:-4px">Tap a badge to share it.</p><div class="medals">${earned.map(k => medal(k, true, cnt[k]).replace('<div class="medal on"', `<button class="medal on" data-sharebadge="${k}"`).replace(/<\/div>$/, '</button>')).join('')}</div>` : ''}
       <h2>${earned.length ? 'Still to unlock' : 'Badges to unlock'}</h2><div class="medals">${locked.map(k => medal(k, false)).join('')}</div>`;
     return;
   }
@@ -956,7 +984,9 @@ function renderPlayerViewInner(){
       <p class="muted" style="margin:0">${a ? `${m} of ${a} shots made across ${res.length} drill${res.length===1?'':'s'}` : 'No shots logged yet'}</p>
       <div class="xpbar"><i style="width:${L.pctToNext}%"></i></div>
       <small class="muted"><span class="lvl">Lv ${L.lv}</span>${numUp(meRow.xp,' XP')}, ${L.toNext.toLocaleString()} to next level</small>
+      ${a ? `<div><button class="sharebtn" data-sharestats>${ic('share')}Share my stats</button></div>` : ''}
     </div>
+    ${streakCard(dayStreak(res.map(x => x.date)))}
     <h2>Team rank</h2>
     <div class="chips">${drills.map(d => `<button class="chip" data-medrill="${esc(d)}" aria-pressed="${d===ui.meDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
     <div class="seg">${[['all','All time'],['30','30 days'],['7','7 days']].map(([v,l]) => `<button data-meperiod="${v}" aria-pressed="${v===ui.mePeriod}">${l}</button>`).join('')}</div>
@@ -1093,8 +1123,9 @@ function emptyArt(){
 function renderTabbar(){
   const items = mode === 'coach'
     ? [['drill','Drill','drill'],['board','Leaderboard','board'],['players','Players','players']]
-    : [['me','My stats','stats'],['team','Team','board'],['badges','Badges','badge']];
+    : [['me','My stats','stats'],['practice','Practice','drill'],['team','Team','board'],['badges','Badges','badge']];
   const cur = mode === 'coach' ? (ui.ctab || 'drill') : (ui.ptab || 'me');
+  $('#tabbar').style.setProperty('--n', items.length);
   $('#tabbar').innerHTML = items.map(([v,l,n]) => `<button ${mode === 'coach' ? 'data-tab' : 'data-ptab'}="${v}" role="tab" aria-selected="${v === cur}">${ic(n,'')}<span>${l}</span></button>`).join('');
 }
 function skeleton(){
@@ -1120,7 +1151,8 @@ function nextCele(){
   const b = BADGES[it.key];
   el.innerHTML = `<canvas></canvas><div class="cele-card" role="dialog" aria-label="Badge earned: ${esc(b.name)}">
     <p class="k">${esc(it.kicker)}</p>${bigMedal(it.key)}<h2>${esc(b.name)}</h2><p class="d">${esc(b.desc)}</p>
-    <button class="primary" data-celenext>${celeQ.length ? `Next (${celeQ.length} more)` : 'Nice!'}</button></div>`;
+    <button class="primary" data-celenext>${celeQ.length ? `Next (${celeQ.length} more)` : 'Nice!'}</button>
+    ${mode === 'player' ? `<button class="share2" data-sharebadge="${it.key}">${ic('share')}Share</button>` : ''}</div>`;
   el.hidden = false; haptic(); confetti(el.querySelector('canvas'));
   el.querySelector('[data-celenext]').focus();
 }
@@ -1153,8 +1185,137 @@ function checkNewBadges(){
 }
 addEventListener('scroll', () => { const h = $('#hdr'); if(h) h.classList.toggle('scrolled', scrollY > 6); }, { passive:true });
 
+/* ---------- streaks, solo practice, share cards ---------- */
+ICONS.flame = '<path d="M12 21.2c-4 0-7-2.7-7-6.6 0-3.3 2.3-5.2 3.6-7.9.4 1.9 1.5 3 2.6 3.4C11 6.6 12.8 4.2 15.6 3c-.5 3.1.7 4.9 2 6.7 1.1 1.5 1.4 2.8 1.4 4.7 0 3.9-3 6.8-7 6.8Z"/>';
+ICONS.share = '<path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7.5h14V12"/>';
+BADGES.days_3 = { name:'On a Roll', glyph:'3d', desc:'Practise 3 days in a row' };
+BADGES.days_7 = { name:'Locked In', glyph:'7d', desc:'Practise 7 days in a row' };
+const melDay = t => new Date(t).toLocaleDateString('en-CA', { timeZone:'Australia/Melbourne' });
+const dayNum = d => Date.UTC(+d.slice(0,4), +d.slice(5,7) - 1, +d.slice(8,10)) / 864e5;
+function dayStreak(times){
+  const days = [...new Set(times.map(melDay))].sort().map(dayNum);
+  const today = dayNum(melDay(Date.now()));
+  const set = new Set(days);
+  const last7 = Array.from({ length:7 }, (_,i) => ({ on: set.has(today - 6 + i), label: new Date((today - 6 + i) * 864e5).toLocaleDateString(undefined, { weekday:'narrow', timeZone:'UTC' }) }));
+  if(!days.length) return { cur:0, best:0, today:false, last7 };
+  let best = 1, run = 1;
+  for(let i = 1; i < days.length; i++){ run = days[i] - days[i-1] === 1 ? run + 1 : 1; best = Math.max(best, run); }
+  let cur = 0; const last = days[days.length - 1];
+  if(today - last <= 1){ cur = 1; for(let i = days.length - 1; i > 0 && days[i] - days[i-1] === 1; i--) cur++; }
+  return { cur, best, today: last === today, last7 };
+}
+function streakCard(s){
+  return `<div class="panel streak${s.cur ? ' on' : ''}">
+    <div class="flame">${ic('flame','')}</div>
+    <div><b>${s.cur ? numUp(s.cur, s.cur === 1 ? ' day streak' : '-day streak') : 'No streak yet'}</b>
+      <small>${s.today ? 'You’ve trained today. Nice work.' : s.cur ? 'Train today to keep your streak alive.' : 'Log a practice or a team drill on back-to-back days to start one.'}${s.best > 1 ? ` Best: ${s.best} days.` : ''}</small></div>
+    <div class="week" aria-label="Last 7 days">${s.last7.map(d => `<span class="${d.on ? 'on' : ''}">${esc(d.label)}</span>`).join('')}</div>
+  </div>`;
+}
+
+/* solo practice */
+const soloKey = pid => 'drillboard-solo-' + pid;
+function loadSolo(pid){ try{ return JSON.parse(localStorage.getItem(soloKey(pid)) || 'null'); }catch(_){ return null; } }
+function saveSolo(pid, v){ try{ v ? localStorage.setItem(soloKey(pid), JSON.stringify(v)) : localStorage.removeItem(soloKey(pid)); }catch(_){} }
+function renderPractice(p, team, res, zv){
+  const solo = loadSolo(p.id);
+  if(!solo){
+    const drills = team.drills && team.drills.length ? team.drills : ZONE_NAMES;
+    if(!ui.soloDrill || !drills.includes(ui.soloDrill)) ui.soloDrill = 'Free throws';
+    const others = drills.filter(d => !ZONE_NAMES.includes(d));
+    const mine = res.filter(x => x.kind === 'solo').slice(-10).reverse();
+    return `<div class="panel"><h2>Practise on your own</h2>
+      <p class="muted">Log shots at the park or at home. Practice counts toward your stats, XP, badges and streak.</p>
+      ${courtSVG('pick', zv, ui.soloDrill)}
+      ${others.length ? `<p class="minihead">Other drills</p><div class="chips">${others.map(d => `<button class="chip" data-spick="${esc(d)}" aria-pressed="${d===ui.soloDrill}">${esc(d)}</button>`).join('')}</div>` : ''}
+      <button class="primary" data-sstart>Start ${esc(ui.soloDrill)}</button>
+      <p class="lede">Court percentages are your all-time rate from each spot. Team ranks and challenges only count drills your coach runs.</p></div>
+      <h2>Recent practice</h2>
+      ${mine.length ? `<ul class="hist">${mine.map(x => `<li><div class="t">${esc(x.drill)}<small>${day(x.date)}, ${x.m}/${x.a}</small></div><span class="p">${pct(x.m,x.a)}</span>
+        <button class="x" data-sdel="${x.sid}" aria-label="Delete practice from ${day(x.date)}">${ic('trash')}</button></li>`).join('')}</ul>`
+        : `<div class="emptybox">${emptyArt()}<p class="muted" style="margin:0">Your practice sessions will show here.</p></div>`}`;
+  }
+  const m = solo.log.filter(x => x).length, a = solo.log.length;
+  let run = 0; for(let i = solo.log.length - 1; i >= 0 && solo.log[i]; i--) run++;
+  let best = 0, r = 0; solo.log.forEach(x => { r = x ? r + 1 : 0; best = Math.max(best, r); });
+  return `<div class="scorehead">
+      <div><p class="label">Practice</p><p class="drill">${esc(solo.drill)}</p></div>
+      <div><div class="pct">${pct(m,a)}</div><span class="of">${m} of ${a} made</span></div>
+    </div>
+    <div class="runline"><span>${run >= 2 ? `${ic('flame')}${run} in a row` : 'Current run: ' + run}</span><span>Best run: ${best}</span></div>
+    <div class="mm solo" id="soloPad"><button class="mk" data-sshot="1">Make</button><button class="ms" data-sshot="0">Miss</button></div>
+    <div class="actions">
+      <div class="row">
+        <button class="ghost" data-sundo ${a ? '' : 'disabled'}>${ic('undo')}Undo last shot</button>
+        <button class="ghost danger" data-scancel>${ic('trash')}Discard</button>
+      </div>
+      <button class="primary" data-sfinish ${a && !ui.busy ? '' : 'disabled'}>${ui.busy ? 'Saving…' : 'Finish and save'}</button>
+    </div>`;
+}
+
+/* share cards */
+function loadImg(src){ return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; }); }
+function hexPath(x, cx, cy, s){
+  x.beginPath(); x.moveTo(cx, cy - 34*s); x.lineTo(cx + 28*s, cy - 16*s); x.lineTo(cx + 28*s, cy + 20*s);
+  x.lineTo(cx, cy + 38*s); x.lineTo(cx - 28*s, cy + 20*s); x.lineTo(cx - 28*s, cy - 16*s); x.closePath();
+}
+function fitText(x, text, maxW, size, weight, family){
+  let s = size; do { x.font = `${weight} ${s}px ${family}`; s -= 4; } while(x.measureText(text).width > maxW && s > 20); return s + 4;
+}
+async function makeCard(o){
+  try{ await Promise.all([document.fonts.load('800 200px "Big Shoulders Display"'), document.fonts.load('600 48px Figtree'), document.fonts.load('500 40px Figtree')]); }catch(_){}
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const D = '"Big Shoulders Display", Impact, sans-serif', B = 'Figtree, -apple-system, sans-serif';
+  let g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#1C372F'); g.addColorStop(1, '#0A1512'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  g = x.createRadialGradient(W/2, H*.42, 0, W/2, H*.42, W*.85); g.addColorStop(0, 'rgba(210,174,99,.24)'); g.addColorStop(1, 'rgba(210,174,99,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.strokeStyle = 'rgba(239,231,214,.06)'; x.lineWidth = 8;
+  x.beginPath(); x.arc(W/2, 1500, 760, Math.PI, 0); x.stroke(); x.strokeRect(W/2 - 260, 1100, 520, 900); x.beginPath(); x.arc(W/2, 1100, 190, Math.PI, 0); x.stroke();
+  const logo = await loadImg('icon-512.png');
+  if(logo){ x.save(); x.beginPath(); x.roundRect(90, 110, 120, 120, 28); x.clip(); x.drawImage(logo, 90, 110, 120, 120); x.restore(); }
+  x.fillStyle = '#EFE7D6'; x.textBaseline = 'middle'; x.textAlign = 'left'; x.font = `800 72px ${D}`; x.fillText('Drill Board', 240, 172);
+  x.textAlign = 'center';
+  if(o.type === 'badge'){
+    const b = BADGES[o.key];
+    x.fillStyle = '#D2AE63'; x.font = `600 50px ${B}`; x.fillText(o.kicker, W/2, 470);
+    const s = 7.2, cy = 800; x.save(); x.shadowColor = 'rgba(210,174,99,.45)'; x.shadowBlur = 90;
+    hexPath(x, W/2, cy, s); const mg = x.createLinearGradient(W/2 - 200, cy - 250, W/2 + 200, cy + 270);
+    mg.addColorStop(0, '#F3D896'); mg.addColorStop(.55, '#D2AE63'); mg.addColorStop(1, '#94702C'); x.fillStyle = mg; x.fill(); x.restore();
+    hexPath(x, W/2, cy, s * .82); x.strokeStyle = 'rgba(18,36,31,.3)'; x.lineWidth = 8; x.stroke();
+    x.fillStyle = '#12241F'; x.font = `800 ${b.glyph.length > 2 ? 150 : 190}px ${D}`; x.fillText(b.glyph, W/2, cy + 18);
+    x.fillStyle = '#FFFFFF'; fitText(x, b.name, W - 160, 170, 800, D); x.fillText(b.name, W/2, 1220);
+    x.fillStyle = '#C9CFC9'; x.font = `500 46px ${B}`; x.fillText(b.desc, W/2, 1330);
+  } else {
+    x.fillStyle = '#EFE7D6'; fitText(x, o.name, W - 160, 64, 600, B); x.fillText(o.name, W/2, 470);
+    x.fillStyle = '#98A89F'; x.font = `500 44px ${B}`; x.fillText(o.team, W/2, 545);
+    x.fillStyle = '#D2AE63'; x.font = `800 400px ${D}`; x.save(); x.shadowColor = 'rgba(210,174,99,.35)'; x.shadowBlur = 70; x.fillText(o.big, W/2, 850); x.restore();
+    x.fillStyle = '#EFE7D6'; x.font = `500 48px ${B}`; x.fillText(o.sub, W/2, 1110);
+    const pills = o.pills, pw = 290, gap = 30, startX = W/2 - (pills.length * pw + (pills.length - 1) * gap) / 2;
+    pills.forEach((pl, i) => { const px = startX + i * (pw + gap);
+      x.fillStyle = 'rgba(239,231,214,.07)'; x.beginPath(); x.roundRect(px, 1210, pw, 190, 30); x.fill();
+      x.strokeStyle = 'rgba(210,174,99,.5)'; x.lineWidth = 3; x.stroke();
+      x.fillStyle = '#D2AE63'; x.font = `800 96px ${D}`; x.fillText(pl[0], px + pw/2, 1285);
+      x.fillStyle = '#98A89F'; x.font = `600 36px ${B}`; x.fillText(pl[1], px + pw/2, 1365); });
+  }
+  x.fillStyle = '#98A89F'; x.font = `500 38px ${B}`;
+  x.fillText(new Date().toLocaleDateString(undefined, { day:'numeric', month:'long', year:'numeric' }), W/2, 1700);
+  x.fillStyle = '#D2AE63'; x.font = `600 38px ${B}`; x.fillText(location.host + location.pathname.replace(/index\.html$/, '').replace(/\/$/, ''), W/2, 1770);
+  return new Promise(r => c.toBlob(r, 'image/png'));
+}
+let shareFile = null;
+async function openShare(o){
+  toast('Creating your card…');
+  const blob = await makeCard(o); if(!blob) return toast('Couldn’t create the image.');
+  shareFile = new File([blob], o.type === 'badge' ? 'drill-board-badge.png' : 'drill-board-stats.png', { type:'image/png' });
+  const url = URL.createObjectURL(blob), canShare = !!(navigator.canShare && navigator.canShare({ files:[shareFile] }));
+  $('#sheet').innerHTML = `<div class="cele-card preview" role="dialog" aria-label="Share card preview">
+    <img src="${url}" alt="Your Drill Board share card">
+    ${canShare ? `<button class="primary" data-doshare>${ic('share')}Share</button>` : `<p class="d">Press and hold the image to save it, then post it from your photos.</p>`}
+    <button class="ghost center" data-closesheet style="color:#C9CFC9">Close</button></div>`;
+  $('#sheet').hidden = false;
+}
+
 /* ---------- events ---------- */
-function pickZone(name){ ui.drill = name; renderDrill(); }
+function pickZone(name){ if(mode === 'player'){ ui.soloDrill = name; renderPlayerView(); return; } ui.drill = name; renderDrill(); }
 document.addEventListener('submit', async e => {
   if(e.target.id !== 'chalForm') return;
   e.preventDefault();
@@ -1221,6 +1382,49 @@ document.addEventListener('click', async e => {
   // coach
   if(d.tab){ showTab(d.tab); return; }
   if('celenext' in d){ nextCele(); return; }
+  if('closesheet' in d){ $('#sheet').hidden = true; $('#sheet').innerHTML = ''; return; }
+  if('doshare' in d){ try{ await navigator.share({ files:[shareFile], text:'My shooting on Drill Board' }); }catch(_){} return; }
+  if(d.sharebadge){
+    const p = myPlayers[ui.meIdx];
+    $('#celebrate').hidden = true; celeQ = [];
+    openShare({ type:'badge', key:d.sharebadge, kicker: `${p.name} earned` }); return;
+  }
+  if('sharestats' in d){
+    const p = myPlayers[ui.meIdx], C = pdata.compete[p.team_id] || { board:[], badges:[] };
+    const res = pdata.results.filter(x => x.pid === p.id), m = res.reduce((s,x)=>s+x.m,0), a = res.reduce((s,x)=>s+x.a,0);
+    const meRow = C.board.find(r => r.player_id === p.id) || { xp:0, badges:0 }, st = dayStreak(res.map(x => x.date));
+    openShare({ type:'stats', name: p.name + (p.num ? `  #${p.num}` : ''), team: pdata.teams[p.team_id]?.name || '', big: pct(m,a),
+      sub: `${m.toLocaleString()} of ${a.toLocaleString()} shots made`, pills: [[`Lv ${levelInfo(meRow.xp).lv}`, 'Level'], [String(st.cur), 'Day streak'], [String(meRow.badges), 'Badges']] });
+    return;
+  }
+  if(d.spick){ ui.soloDrill = d.spick; renderPlayerView(); return; }
+  if('sstart' in d){ const p = myPlayers[ui.meIdx]; saveSolo(p.id, { drill: ui.soloDrill, started: Date.now(), log: [] }); renderPlayerView(); return; }
+  if(d.sshot){ const p = myPlayers[ui.meIdx], so = loadSolo(p.id); if(!so) return; so.log.push(d.sshot === '1' ? 1 : 0); saveSolo(p.id, so); haptic(); renderPlayerView();
+    const pad = $('#soloPad'); if(pad) pad.classList.add(d.sshot === '1' ? 'bump-make' : 'bump-miss'); return; }
+  if('sundo' in d){ const p = myPlayers[ui.meIdx], so = loadSolo(p.id); if(so){ so.log.pop(); saveSolo(p.id, so); } renderPlayerView(); return; }
+  if('scancel' in d){ if(confirm('Discard this practice? Shots logged so far will be lost.')){ saveSolo(myPlayers[ui.meIdx].id, null); renderPlayerView(); } return; }
+  if('sfinish' in d){
+    if(ui.busy) return;
+    const p = myPlayers[ui.meIdx], so = loadSolo(p.id); if(!so || !so.log.length) return;
+    let best = 0, r = 0; so.log.forEach(x => { r = x ? r + 1 : 0; best = Math.max(best, r); });
+    const before = dayStreak(pdata.results.filter(x => x.pid === p.id).map(x => x.date)).cur;
+    ui.busy = true; renderPlayerView();
+    const { error } = await sb.rpc('log_solo', { p_player: p.id, p_drill: so.drill, p_made: so.log.filter(x => x).length, p_attempts: so.log.length, p_best_streak: best, p_started: new Date(so.started).toISOString() });
+    ui.busy = false;
+    if(error){ renderPlayerView(); return toast(/practice|shots|Makes|Pick|tomorrow/i.test(error.message) ? error.message : 'Couldn’t save. Your shots are kept on this phone. Try again.'); }
+    saveSolo(p.id, null); ui.ptab = 'me';
+    await loadPlayer();
+    const after = dayStreak(pdata.results.filter(x => x.pid === p.id).map(x => x.date)).cur;
+    toast(after > before && after >= 2 ? `Practice saved. ${after}-day streak!` : 'Practice saved');
+    return;
+  }
+  if(d.sdel){
+    if(!confirm('Delete this practice session?')) return;
+    const { error } = await sb.rpc('delete_solo', { p_session: d.sdel });
+    if(error) return toast('Couldn’t delete. Check your connection.');
+    pdata.results = pdata.results.filter(x => x.sid !== d.sdel); renderPlayerView(); return;
+  }
+
   if(d.go){ showTab(d.go); $('#pName')?.focus(); return; }
   if('import' in d){ importLocal(b); return; }
   if(d.pick){ ui.drill = d.pick; renderDrill(); return; }
@@ -1249,7 +1453,7 @@ document.addEventListener('click', async e => {
       const rows = Object.entries(c).map(([pid,x]) => ({ session_id: s.data.id, player_id: pid, team_id: state.teamId, made: x.m, attempts: x.a, best_streak: Math.min(streaks[pid] || 0, x.m) }));
       const r = await sb.from('session_results').insert(rows);
       if(r.error){ await sb.from('sessions').delete().eq('id', s.data.id); throw r.error; }
-      state.sessions.push({ id: s.data.id, drill: a.drill, date: a.started, counts: c });
+      state.sessions.push({ id: s.data.id, drill: a.drill, kind:'team', date: a.started, counts: c });
       state.active = null; saveActive();
       ui.busy = false; ui.boardDrill = a.drill; ui.period = 'all';
       const before = new Set((state.compete?.badges || []).map(b => b.player_id + b.badge));
