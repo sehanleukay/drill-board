@@ -190,6 +190,59 @@ form.addp button{border:0;border-radius:12px;background:var(--ink);color:var(--b
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 
+/* ---- competition ---- */
+.medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.medal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
+.medal svg{width:52px;height:58px;display:block;margin:0 auto 6px}
+.medal path{fill:var(--bg2);stroke:var(--line);stroke-width:2}
+.medal path.in{fill:none;stroke:var(--line);stroke-width:1.5}
+.medal text{fill:var(--muted);font-family:var(--display);font-weight:800}
+.medal.on{border-color:var(--brass)}
+.medal.on path{fill:var(--brass);stroke:var(--brass)}
+.medal.on path.in{stroke:var(--brass-ink);stroke-opacity:.35}
+.medal.on text{fill:var(--brass-ink)}
+.medal b{display:block;font-size:.82rem;line-height:1.2}
+.medal small{display:block;color:var(--muted);font-size:.7rem;line-height:1.25;margin-top:3px}
+.medal:not(.on) b{color:var(--muted)}
+.mstrip{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.mstrip .mb{font-size:.78rem;font-weight:600;color:var(--brass);background:var(--brass-soft);padding:4px 9px;border-radius:999px}
+.potw{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-bottom:14px}
+.pw{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);min-width:0}
+.pw.main{display:flex;gap:10px;align-items:flex-start;border-color:var(--brass);background:linear-gradient(var(--brass-soft),var(--brass-soft)),var(--surface)}
+.pw .star{font-size:1.6rem;line-height:1;color:var(--brass)}
+.pw small{display:block;font-size:.75rem;color:var(--muted);font-weight:600}
+.pw b{display:block;font:800 1.5rem/1.1 var(--display);margin:4px 0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pw b.dim{color:var(--muted);font-size:1.2rem}
+.pw .muted{font-size:.8rem}
+.chal{margin-bottom:12px}
+.chal small{display:block;margin-top:2px}
+.chal .when{font-size:.75rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.chal .when.live{color:var(--make)}
+.mini{list-style:none;margin:10px 0 0;padding:0}
+.mini li{display:grid;grid-template-columns:1.6rem 1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.mini li.me{color:var(--brass);font-weight:700}
+.mini .n{font:800 1.1rem var(--display);color:var(--muted);text-align:center}
+.mini b{font:800 1.2rem var(--display)}
+.xpbar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:10px 0 4px}
+.xpbar i{display:block;height:100%;background:var(--brass)}
+.lvl{display:inline-block;font:800 .95rem var(--display);color:var(--brass-ink);background:var(--brass);padding:2px 8px;border-radius:7px;margin-right:6px}
+.ladder{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.ladder li{display:grid;grid-template-columns:2rem 1fr auto;gap:10px;align-items:center;padding:11px 16px;border-top:1px solid var(--line)}
+.ladder li:first-child{border-top:0}
+.ladder li.me{background:var(--brass-soft)}
+.ladder .n{font:800 1.3rem var(--display);color:var(--muted);text-align:center}
+.ladder small{display:block;color:var(--muted);font-size:.78rem}
+.ladder b{font:800 1.2rem var(--display);font-variant-numeric:tabular-nums}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.switch small{display:block;color:var(--muted);font-size:.82rem;margin-top:2px}
+.tog{position:relative;width:52px;height:30px;flex:none;border-radius:999px;border:0;background:var(--line);cursor:pointer;transition:background .2s}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.tog[aria-checked="true"]{background:var(--make)}
+.tog[aria-checked="true"]::after{transform:translateX(22px)}
+.cform select{width:100%;font:500 1rem var(--body);padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0 12px}
+.cform .seg{margin-bottom:12px}
+.ptabs{margin-bottom:18px}
+
 /* ---- accounts ---- */
 [hidden]{display:none!important}
 header{position:relative}
@@ -387,7 +440,7 @@ async function boot(){
 }
 async function loadRoles(){
   const [t, p] = await Promise.all([
-    sb.from('teams').select('id,name,drills').eq('coach_id', me.id).order('created_at').limit(1),
+    sb.from('teams').select('id,name,drills,show_names').eq('coach_id', me.id).order('created_at').limit(1),
     sb.from('players').select('id,name,num,team_id').eq('user_id', me.id).order('created_at'),
   ]);
   if(t.error) throw t.error; if(p.error) throw p.error;
@@ -472,6 +525,8 @@ async function loadCoach(){
   state.sessions = s.data.map(x => ({ id:x.id, drill:x.drill, date:Date.parse(x.started_at),
     counts:Object.fromEntries((x.session_results||[]).map(r => [r.player_id, { m:r.made, a:r.attempts }])) }));
   state.active = loadActive();
+  state.showNames = !!coachTeam.show_names;
+  try{ state.compete = await loadCompete(id); }catch(_){ state.compete = { board:[], potw:[], challenges:[], badges:[] }; }
   if(!state.drills.includes(ui.drill)) ui.drill = state.drills[0];
   renderHeader(); render(); showTab('drill'); show('coach');
 }
@@ -652,7 +707,21 @@ function renderBoard(){
   const top = ranked.slice(0,3), rest = ranked.slice(3);
   const step = (x, i) => x ? `<div class="step${i===0?' first':''}"><div class="place">${['1st','2nd','3rd'][i]}</div>
       <div class="nm">${esc(x.p.name.trim().split(/\s+/)[0])}</div><div class="pc">${pct(x.m,x.a)}</div><small>${x.m}/${x.a}</small></div>` : '<div></div>';
-  el.innerHTML = `<div class="chips">${drills.map(d => `<button class="chip" data-bdrill="${esc(d)}" aria-pressed="${d===ui.boardDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
+  const C = state.compete || { potw:[], challenges:[] };
+  const drillOpts = ['', ...state.drills].map(d => `<option value="${esc(d)}">${d ? esc(d) : 'Any drill'}</option>`).join('');
+  const compete = `${potwCard(C.potw)}
+    <h2 style="margin-top:6px">Challenges</h2>
+    ${C.challenges.map(c => challengeCard(c, true)).join('')}
+    ${ui.newChal ? `<form class="panel cform" id="chalForm" style="margin-bottom:12px">
+        <label class="field"><span>Name</span><input type="text" id="cTitle" maxlength="80" placeholder="e.g. Free throw week"></label>
+        <label class="field"><span>Drill</span><select id="cDrill">${drillOpts}</select></label>
+        <div class="field"><span>Winner is</span><div class="seg">${[['makes','Most makes'],['pct','Best %']].map(([v,l]) => `<button type="button" data-cmetric="${v}" aria-pressed="${(ui.cMetric||'makes')===v}">${l}</button>`).join('')}</div></div>
+        <div class="field"><span>Runs for</span><div class="seg">${[['7','1 week'],['14','2 weeks'],['30','1 month']].map(([v,l]) => `<button type="button" data-cdays="${v}" aria-pressed="${(ui.cDays||'7')===v}">${l}</button>`).join('')}</div></div>
+        <button class="primary" type="submit">Start challenge</button>
+        <button class="ghost center" type="button" data-cancelchal>Cancel</button>
+      </form>` : `<button class="chip add" data-newchal style="margin-bottom:6px">New challenge</button>`}
+    <h2>Shooting leaderboard</h2>`;
+  el.innerHTML = compete + `<div class="chips">${drills.map(d => `<button class="chip" data-bdrill="${esc(d)}" aria-pressed="${d===ui.boardDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
     <div class="seg">${[['all','All time'],['30','30 days'],['7','7 days']].map(([v,l]) => `<button data-period="${v}" aria-pressed="${v===ui.period}">${l}</button>`).join('')}</div>
     ${ranked.length ? `<div class="podium">${step(top[1],1)}${step(top[0],0)}${step(top[2],2)}</div>` : ''}
     ${rest.length ? `<ol class="rank" start="4">${rest.map((x,i) => `<li><span class="n">${i+4}</span>
@@ -674,7 +743,11 @@ function renderBoard(){
 function renderPlayers(){
   const el = $('#players');
   const all = totals('all','all');
-  el.innerHTML = `<form class="addp" id="addForm">
+  const bmap = Object.fromEntries((state.compete?.board || []).map(r => [r.player_id, r]));
+  el.innerHTML = `<div class="panel switch" style="margin-bottom:16px"><div><b>Show names to teammates</b>
+      <small>${state.showNames ? 'Players can see each other’s names on the team ladder, challenges and player of the week.' : 'Players see their own stats. Teammates show as “Teammate”.'}</small></div>
+      <button class="tog" role="switch" aria-checked="${!!state.showNames}" aria-label="Show names to teammates" data-shownames></button></div>
+    <form class="addp" id="addForm">
       <input type="text" id="pName" placeholder="Player name" aria-label="Player name" maxlength="40" autocomplete="off" required>
       <input type="number" id="pNum" placeholder="No." aria-label="Jersey number" min="0" max="999" inputmode="numeric">
       <button type="submit">Add</button>
@@ -683,7 +756,7 @@ function renderPlayers(){
       const x = all[p.id] || {m:0,a:0}, open = ui.open === p.id;
       return `<li><button class="prow" data-open="${p.id}" aria-expanded="${open}">
           <span class="num">${p.num ? esc(p.num) : esc(initials(p.name))}</span>
-          <span><span class="nm">${esc(p.name)}</span>${p.user_id ? ' <span class="tag">Linked</span>' : ''}<small>${x.a} shot${x.a===1?'':'s'} all time</small></span>
+          <span><span class="nm">${esc(p.name)}</span>${p.user_id ? ' <span class="tag">Linked</span>' : ''}<small>${bmap[p.id] ? `Level ${bmap[p.id].level}, ${bmap[p.id].badges} badge${bmap[p.id].badges===1?'':'s'}, ` : ''}${x.a} shot${x.a===1?'':'s'}</small></span>
           <b>${pct(x.m,x.a)}</b></button>
         ${open ? playerDetail(p) : ''}</li>`; }).join('')}</ul>
       <p class="note">Tap a player to see their stats and invite code.</p>`
@@ -709,6 +782,9 @@ function playerDetail(p){
       ? `<div><strong>Player account linked</strong><small>${esc(p.name)} can sign in and see their own stats.</small></div><button class="ghost" data-unlink="${p.id}">Unlink</button>`
       : `<div><small>Invite code</small><span class="code">${esc(p.invite_code)}</span></div><div class="invbtns"><button class="chip" data-invite="${p.id}">Copy invite</button><button class="ghost" data-newcode="${p.id}">New code</button></div>`}
     </div>
+    ${(() => { const mine = (state.compete?.badges || []).filter(b => b.player_id === p.id); const cnt = {};
+        mine.forEach(b => { const k = badgeKey(b.badge); cnt[k] = (cnt[k] || 0) + 1; });
+        return Object.keys(cnt).length ? `<p class="minihead">Badges</p><div class="mstrip">${Object.entries(cnt).map(([k,n]) => `<span class="mb">${esc(BADGES[k]?.name || k)}${n>1?` ×${n}`:''}</span>`).join('')}</div>` : ''; })()}
     ${anyZone ? `<p class="minihead">Shooting by spot</p>${courtSVG('heat', zv)}` : ''}
     ${rows ? `<table><tr><th>By drill</th><th>Shots</th><th>Rate</th></tr>${rows}</table>` : '<p class="muted">No shots logged yet.</p>'}
     ${recent ? `<table><tr><th>Last 5 drills</th><th>Shots</th><th>Rate</th></tr>${recent}</table>` : ''}
@@ -760,6 +836,8 @@ async function loadPlayer(){
     results: r.data.filter(x => x.sessions).map(x => ({ pid:x.player_id, m:x.made, a:x.attempts, drill:x.sessions.drill, date:Date.parse(x.sessions.started_at) })).sort((a,b) => a.date - b.date),
   };
   if(ui.meIdx >= myPlayers.length) ui.meIdx = 0;
+  pdata.compete = {};
+  await Promise.all(tids.map(async t => { try{ pdata.compete[t] = await loadCompete(t); }catch(_){ pdata.compete[t] = { board:[], potw:[], challenges:[], badges:[] }; } }));
   renderHeader(); renderPlayerView(); show('player');
 }
 function renderPlayerView(){
@@ -774,13 +852,40 @@ function renderPlayerView(){
       ${[0,50,100].map(v => `<line x1="24" x2="300" y1="${10 + (100-v)*0.9}" y2="${10 + (100-v)*0.9}" class="gl"/><text x="18" y="${14 + (100-v)*0.9}" text-anchor="end">${v}</text>`).join('')}
       ${last.map((x,i) => { const w = 276/12, h = x.a ? x.m/x.a*90 : 0; return `<rect x="${28 + i*w}" y="${100 - h}" width="${w-6}" height="${Math.max(h,1)}" rx="3"><title>${esc(x.drill)}, ${day(x.date)}: ${pct(x.m,x.a)}</title></rect>`; }).join('')}
     </svg>` : '<p class="empty">Your drills will show here once your coach logs some shots.</p>';
+  const C = pdata.compete[p.team_id] || { board:[], potw:[], challenges:[], badges:[] };
+  const meRow = C.board.find(r => r.player_id === p.id) || { xp:0, level:1, badges:0 };
+  const L = levelInfo(meRow.xp);
+  const tab = ui.ptab || 'me';
+  const tabs = `<div class="seg full ptabs" style="grid-template-columns:repeat(3,1fr)">${[['me','My stats'],['team','Team'],['badges','Badges']].map(([v,l]) => `<button data-ptab="${v}" aria-pressed="${tab===v}">${l}</button>`).join('')}</div>`;
+  const picker = myPlayers.length > 1 ? `<div class="chips">${myPlayers.map((q,i) => `<button class="chip" data-meidx="${i}" aria-pressed="${i===ui.meIdx}">${esc(q.name)}, ${esc(pdata.teams[q.team_id]?.name || '')}</button>`).join('')}</div>` : '';
+  if(tab === 'team'){
+    const hidden = C.board.some(r => !r.name);
+    $('#player').innerHTML = picker + tabs + potwCard(C.potw) +
+      `<h2>Challenges</h2>${C.challenges.length ? C.challenges.map(c => challengeCard(c, false)).join('') : '<div class="panel"><p class="muted" style="margin:0">No challenges right now. Your coach can start one.</p></div>'}
+      <h2>Team ladder</h2>
+      <ol class="ladder">${C.board.map((r,i) => `<li class="${r.is_me ? 'me' : ''}"><span class="n">${i+1}</span>
+        <div>${r.is_me ? 'You' : esc(r.name || 'Teammate')}<small>Level ${r.level}, ${r.badges} badge${r.badges===1?'':'s'}</small></div><b>${r.xp.toLocaleString()} XP</b></li>`).join('')}</ol>
+      <p class="note">XP: 10 per make, 2 per shot, 100 per badge, 250 for player of the week.${hidden ? ' Your coach has names hidden, so teammates show as “Teammate”.' : ''}</p>`;
+    return;
+  }
+  if(tab === 'badges'){
+    const cnt = {}; C.badges.filter(b => b.player_id === p.id).forEach(b => { const k = badgeKey(b.badge); cnt[k] = (cnt[k] || 0) + 1; });
+    const earned = Object.keys(BADGES).filter(k => cnt[k]), locked = Object.keys(BADGES).filter(k => !cnt[k]);
+    $('#player').innerHTML = picker + tabs + `<div class="panel" style="margin-bottom:16px"><span class="lvl">Lv ${L.lv}</span><b>${meRow.xp.toLocaleString()} XP</b>
+        <div class="xpbar"><i style="width:${L.pctToNext}%"></i></div><small class="muted">${L.toNext.toLocaleString()} XP to level ${L.lv+1}. ${earned.length} of ${Object.keys(BADGES).length} badges earned.</small></div>
+      ${earned.length ? `<h2>Earned</h2><div class="medals">${earned.map(k => medal(k, true, cnt[k])).join('')}</div>` : ''}
+      <h2>${earned.length ? 'Still to unlock' : 'Badges to unlock'}</h2><div class="medals">${locked.map(k => medal(k, false)).join('')}</div>`;
+    return;
+  }
   $('#player').innerHTML = `
-    ${myPlayers.length > 1 ? `<div class="chips">${myPlayers.map((q,i) => `<button class="chip" data-meidx="${i}" aria-pressed="${i===ui.meIdx}">${esc(q.name)}, ${esc(pdata.teams[q.team_id]?.name || '')}</button>`).join('')}</div>` : ''}
+    ${picker}${tabs}
     <div class="hero panel">
       ${p.num ? `<span class="jersey" aria-hidden="true">${esc(p.num)}</span>` : ''}
       <p class="label">${esc(p.name)}</p>
       <div class="big">${pct(m,a)}</div>
       <p class="muted" style="margin:0">${a ? `${m} of ${a} shots made across ${res.length} drill${res.length===1?'':'s'}` : 'No shots logged yet'}</p>
+      <div class="xpbar"><i style="width:${L.pctToNext}%"></i></div>
+      <small class="muted"><span class="lvl">Lv ${L.lv}</span>${meRow.xp.toLocaleString()} XP, ${L.toNext.toLocaleString()} to next level</small>
     </div>
     <h2>Team rank</h2>
     <div class="chips">${drills.map(d => `<button class="chip" data-medrill="${esc(d)}" aria-pressed="${d===ui.meDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
@@ -806,8 +911,91 @@ async function loadRank(p){
        <p class="muted" style="margin:6px 0 0">${row.attempts ? `Take ${MIN_ATT - row.attempts} more shot${MIN_ATT - row.attempts === 1 ? '' : 's'} here to get ranked.` : `Players get ranked after ${MIN_ATT} shots.`}${row.ranked ? ` ${row.ranked} teammate${row.ranked===1?' is':'s are'} ranked.` : ''}</p>`;
 }
 
+/* ---------- achievements & competition ---------- */
+const BADGES = {
+  shots_100:  { name:'Century',        glyph:'100', desc:'Take 100 shots' },
+  shots_500:  { name:'Workhorse',      glyph:'500', desc:'Take 500 shots' },
+  shots_1000: { name:'Gym Rat',        glyph:'1K',  desc:'Take 1,000 shots' },
+  makes_250:  { name:'Bucket Getter',  glyph:'250', desc:'Make 250 shots' },
+  hot_drill:  { name:'Heating Up',     glyph:'60',  desc:'Shoot 60%+ in a drill (10+ shots)' },
+  on_fire:    { name:'On Fire',        glyph:'80',  desc:'Shoot 80%+ in a drill (10+ shots)' },
+  ft_80:      { name:'Automatic',      glyph:'FT',  desc:'80%+ on free throws (20+ shots)' },
+  three_45:   { name:'Sniper',         glyph:'3',   desc:'45%+ from three (30+ shots)' },
+  spot_master:{ name:'Spot Master',    glyph:'5/5', desc:'50%+ from every spot (10+ shots each)' },
+  streak_5:   { name:'Hot Hand',       glyph:'×5',  desc:'Make 5 in a row' },
+  streak_10:  { name:'Unconscious',    glyph:'×10', desc:'Make 10 in a row' },
+  regular:    { name:'Regular',        glyph:'14',  desc:'Do 5 drills within 2 weeks' },
+  potw:       { name:'Player of the Week', glyph:'★', desc:'Most makes in a week (20+ shots)' },
+};
+const badgeKey = b => b.startsWith('potw:') ? 'potw' : b;
+function medal(key, earned, count){
+  const b = BADGES[key]; if(!b) return '';
+  return `<div class="medal${earned ? ' on' : ''}" title="${esc(b.desc)}">
+    <svg viewBox="0 0 64 72" aria-hidden="true"><path d="M32 2 60 18v36L32 70 4 54V18Z"/><path class="in" d="M32 9 54 22v28L32 63 10 50V22Z"/>
+    <text x="32" y="${b.glyph.length > 2 ? 43 : 45}" text-anchor="middle" font-size="${b.glyph.length > 2 ? 17 : 22}">${esc(b.glyph)}</text></svg>
+    <b>${esc(b.name)}${count > 1 ? ` ×${count}` : ''}</b><small>${esc(b.desc)}</small></div>`;
+}
+function levelInfo(xp){
+  const lv = Math.floor(Math.sqrt(xp / 100)) + 1, lo = 100 * (lv-1) ** 2, hi = 100 * lv ** 2;
+  return { lv, pctToNext: Math.round((xp - lo) / (hi - lo) * 100), toNext: hi - xp };
+}
+function longestStreaks(log){
+  const best = {}, run = {};
+  log.forEach(s => { run[s.p] = s.m ? (run[s.p] || 0) + 1 : 0; best[s.p] = Math.max(best[s.p] || 0, run[s.p]); });
+  return best;
+}
+async function loadCompete(teamId){
+  const [tb, pw, ch, bd] = await Promise.all([
+    sb.rpc('team_board', { p_team: teamId }),
+    sb.rpc('player_of_week', { p_team: teamId }),
+    sb.from('challenges').select('id,title,drill,metric,starts_at,ends_at').eq('team_id', teamId).order('ends_at', { ascending:false }).limit(8),
+    sb.from('player_badges').select('player_id,badge,earned_at').eq('team_id', teamId),
+  ]);
+  const now = Date.now();
+  const chal = (ch.data || []).filter(c => Date.parse(c.ends_at) > now - 14*864e5).slice(0,5);
+  const boards = await Promise.all(chal.map(c => sb.rpc('challenge_board', { p_challenge: c.id })));
+  chal.forEach((c,i) => c.rows = boards[i].data || []);
+  return { board: tb.data || [], potw: pw.data || [], challenges: chal, badges: bd.data || [] };
+}
+function potwCard(potw){
+  const last = potw.find(x => !x.is_current), cur = potw.find(x => x.is_current);
+  const who = x => x.is_me ? 'You' : (x.name || 'A teammate');
+  return `<div class="potw">
+    <div class="pw main"><span class="star" aria-hidden="true">★</span><div><small>Player of the week</small>
+      ${last ? `<b>${esc(who(last))}</b><span class="muted">${last.made} makes from ${last.attempts} shots</span>` : '<b class="dim">Not awarded yet</b><span class="muted">Needs 20+ shots in a week</span>'}</div></div>
+    <div class="pw"><small>Leading this week</small>
+      ${cur ? `<b>${esc(who(cur))}</b><span class="muted">${cur.made} makes</span>` : '<span class="muted">Nobody has 20+ shots yet</span>'}</div>
+  </div>`;
+}
+function challengeCard(c, coachView){
+  const ends = Date.parse(c.ends_at), live = ends > Date.now();
+  const left = Math.ceil((ends - Date.now()) / 864e5);
+  const unit = c.metric === 'makes' ? '' : '%';
+  const rows = c.rows.slice(0, 5); const me = c.rows.find(r => r.is_me);
+  if(me && !rows.includes(me)) rows.push(me);
+  return `<div class="panel chal">
+    <div class="row"><div><b>${esc(c.title)}</b><small class="muted">${c.metric === 'makes' ? 'Most makes' : 'Best percentage (10+ shots)'}, ${c.drill ? esc(c.drill) : 'any drill'}</small></div>
+      <span class="when ${live ? 'live' : ''}">${live ? (left <= 1 ? 'Ends today' : `${left} days left`) : 'Finished'}</span></div>
+    ${rows.length ? `<ol class="mini">${rows.map(r => `<li class="${r.is_me ? 'me' : ''}"><span class="n">${r.rank ?? '–'}</span><span>${r.is_me ? 'You' : esc(r.name || 'Teammate')}</span><b>${r.score ?? '–'}${r.score != null ? unit : ''}</b></li>`).join('')}</ol>`
+      : '<p class="muted" style="margin:8px 0 0">No shots logged for this challenge yet.</p>'}
+    ${coachView ? `<button class="ghost danger" data-delchal="${c.id}">Delete challenge</button>` : ''}
+  </div>`;
+}
+
 /* ---------- events ---------- */
 function pickZone(name){ ui.drill = name; renderDrill(); }
+document.addEventListener('submit', async e => {
+  if(e.target.id !== 'chalForm') return;
+  e.preventDefault();
+  const drill = $('#cDrill').value || null, metric = ui.cMetric || 'makes', days = +(ui.cDays || 7);
+  const title = $('#cTitle').value.trim() || `${metric === 'makes' ? 'Most makes' : 'Best %'}${drill ? ': ' + drill : ''}`;
+  const ends = new Date(Date.now() + days * 864e5).toISOString();
+  const { error } = await sb.from('challenges').insert({ team_id: state.teamId, title: title.slice(0,80), drill, metric, ends_at: ends });
+  if(error) return toast('Couldn’t start the challenge. Check your connection.');
+  ui.newChal = false; ui.cMetric = ui.cDays = null;
+  try{ state.compete = await loadCompete(state.teamId); }catch(_){}
+  renderBoard(); toast('Challenge started');
+});
 document.addEventListener('keydown', e => {
   const z = e.target.closest && e.target.closest('[data-zonepick]');
   if(z && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); pickZone(z.dataset.zonepick);
@@ -839,6 +1027,23 @@ document.addEventListener('click', async e => {
     return;
   }
   // player view
+  if(d.ptab){ ui.ptab = d.ptab; renderPlayerView(); window.scrollTo(0,0); return; }
+  if('shownames' in d){
+    const next = !state.showNames;
+    const { error } = await sb.from('teams').update({ show_names: next }).eq('id', state.teamId);
+    if(error) return toast('Couldn’t change the setting. Check your connection.');
+    state.showNames = coachTeam.show_names = next; renderPlayers(); toast(next ? 'Names now visible to teammates' : 'Names hidden from teammates'); return;
+  }
+  if('newchal' in d){ ui.newChal = true; renderBoard(); return; }
+  if('cancelchal' in d){ ui.newChal = false; renderBoard(); return; }
+  if(d.cmetric){ ui.cMetric = d.cmetric; b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); return; }
+  if(d.cdays){ ui.cDays = d.cdays; b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); return; }
+  if(d.delchal){
+    if(!confirm('Delete this challenge?')) return;
+    const { error } = await sb.from('challenges').delete().eq('id', d.delchal);
+    if(error) return toast('Couldn’t delete. Check your connection.');
+    state.compete.challenges = state.compete.challenges.filter(c => c.id !== d.delchal); renderBoard(); return;
+  }
   if(d.meidx){ ui.meIdx = +d.meidx; renderHeader(); renderPlayerView(); return; }
   if(d.medrill){ ui.meDrill = d.medrill; renderPlayerView(); return; }
   if(d.meperiod){ ui.mePeriod = d.meperiod; renderPlayerView(); return; }
@@ -868,13 +1073,18 @@ document.addEventListener('click', async e => {
     try{
       const s = await sb.from('sessions').insert({ team_id: state.teamId, drill: a.drill, started_at: new Date(a.started).toISOString() }).select('id').single();
       if(s.error) throw s.error;
-      const rows = Object.entries(c).map(([pid,x]) => ({ session_id: s.data.id, player_id: pid, team_id: state.teamId, made: x.m, attempts: x.a }));
+      const streaks = longestStreaks(a.log);
+      const rows = Object.entries(c).map(([pid,x]) => ({ session_id: s.data.id, player_id: pid, team_id: state.teamId, made: x.m, attempts: x.a, best_streak: Math.min(streaks[pid] || 0, x.m) }));
       const r = await sb.from('session_results').insert(rows);
       if(r.error){ await sb.from('sessions').delete().eq('id', s.data.id); throw r.error; }
       state.sessions.push({ id: s.data.id, drill: a.drill, date: a.started, counts: c });
       state.active = null; saveActive();
       ui.busy = false; ui.boardDrill = a.drill; ui.period = 'all';
-      render(); showTab('board'); toast(`${a.drill} saved`);
+      const before = new Set((state.compete?.badges || []).map(b => b.player_id + b.badge));
+      try{ state.compete = await loadCompete(state.teamId); }catch(_){}
+      const fresh = (state.compete?.badges || []).filter(b => !before.has(b.player_id + b.badge) && BADGES[badgeKey(b.badge)]);
+      render(); showTab('board');
+      toast(fresh.length ? `${a.drill} saved. ${fresh.length === 1 ? `${player(fresh[0].player_id)?.name} earned ${BADGES[badgeKey(fresh[0].badge)].name}!` : `${fresh.length} new badges earned!`}` : `${a.drill} saved`);
     }catch(_){
       ui.busy = false; renderDrill();
       toast('Couldn’t save. Your shots are kept on this phone. Check your connection and try again.');
