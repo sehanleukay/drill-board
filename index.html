@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <style>
 :root{
   --bg:#F3EEE3; --bg2:#EAE3D3; --surface:#FFFDF8; --raised:#FFFFFF;
@@ -188,34 +189,94 @@ form.addp button{border:0;border-radius:12px;background:var(--ink);color:var(--b
 .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,8px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:600;font-size:.92rem;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:var(--shadow)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---- accounts ---- */
+[hidden]{display:none!important}
+header{position:relative}
+.acct{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 .85rem var(--body);cursor:pointer;box-shadow:var(--shadow)}
+.team:disabled{cursor:default;opacity:1}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:240px;background:var(--raised);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px -16px rgba(0,0,0,.45);padding:8px}
+.menu .who{margin:6px 10px 10px;font-size:.85rem;color:var(--muted);word-break:break-all}
+.menu .who strong{color:var(--ink);font-weight:600}
+.menu button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--ink);font:500 .95rem var(--body);padding:11px 10px;border-radius:9px;cursor:pointer}
+.menu button:hover{background:var(--faint)}
+.menu .danger{color:var(--miss)}
+.authcard{max-width:420px;margin:6vh auto 0}
+.brandmark{text-align:center;margin-bottom:22px}
+.brandmark h1{font:800 2.6rem/1 var(--display);margin:14px 0 6px}
+.brandmark p{margin:0;word-break:break-all}
+.crest.big{width:76px;height:76px;margin:0 auto;font-size:1.8rem}
+.seg.full{display:grid;grid-template-columns:1fr 1fr;width:100%;margin-bottom:14px}
+.field{display:block;margin-bottom:12px}
+.field span{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px}
+.field input,.panel input[type=text]{width:100%}
+input[type=email],input[type=password]{font:500 1rem var(--body);padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+.panel input[type=text]{background:var(--bg)}
+.codein::placeholder{opacity:.3}
+.codein{font:800 1.8rem/1 var(--display)!important;letter-spacing:.25em;text-align:center;text-transform:uppercase;margin:6px 0 12px}
+.msg{font-size:.9rem;margin:4px 0 12px;padding:10px 12px;border-radius:10px}
+.msg.err{background:var(--miss-soft);color:var(--miss)}
+.msg.ok{background:var(--make-soft);color:var(--make)}
+.ghost.center{display:block;margin:10px auto 0}
+.panel.accent{border-color:var(--brass);background:linear-gradient(var(--brass-soft),var(--brass-soft)),var(--surface)}
+.loader{display:grid;place-items:center;min-height:60vh;color:var(--muted)}
+.loader .crest{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+.invite{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg2);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.invite small{display:block;color:var(--muted);font-size:.8rem}
+.invite .code{font:800 1.7rem/1.1 var(--display);letter-spacing:.14em;color:var(--brass)}
+.invbtns{display:flex;gap:6px;align-items:center}
+.prow .tag{vertical-align:middle}
+.hero{position:relative;overflow:hidden}
+.hero .jersey{position:absolute;right:6px;top:-10px;font:800 7rem/1 var(--display);color:var(--faint);pointer-events:none}
+.hero .label{font-weight:600;margin:0}
+.hero .big{font:800 4.4rem/1 var(--display);color:var(--brass);margin:6px 0 8px;font-variant-numeric:tabular-nums}
+.rankbox .rk{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.rkn{font:800 3rem/1 var(--display);color:var(--brass)}
+.rkn.dim{color:var(--muted);font-size:2.2rem}
+.bars{display:block;width:100%;height:auto}
+.bars .gl{stroke:var(--line);stroke-width:1}
+.bars text{fill:var(--muted);font:500 9px var(--body)}
+.bars rect{fill:var(--brass)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="crest" id="crest" aria-hidden="true">MT</div>
+  <header id="hdr" hidden>
+    <div class="crest" id="crest" aria-hidden="true">DB</div>
     <div style="min-width:0">
-      <p class="app">Drill Board</p>
+      <p class="app" id="appLabel">Drill Board</p>
       <button class="team" id="teamName" aria-label="Rename team">My team</button>
     </div>
-    <div class="sync local" id="sync"><i></i><span>On this device</span></div>
+    <button class="acct" id="acct" aria-label="Account menu">DB</button>
+    <div class="menu" id="menu" hidden></div>
   </header>
-  <nav role="tablist">
-    <button role="tab" aria-selected="true" data-tab="drill">Drill</button>
-    <button role="tab" aria-selected="false" data-tab="board">Leaderboard</button>
-    <button role="tab" aria-selected="false" data-tab="players">Players</button>
-  </nav>
-  <section id="drill"></section>
-  <section id="board" hidden></section>
-  <section id="players" hidden></section>
+
+  <div id="loading" class="loader"><div class="crest big" aria-hidden="true">DB</div><span class="sr" style="position:absolute;left:-9999px">Loading</span></div>
+  <div id="auth" hidden></div>
+  <div id="onboard" hidden></div>
+  <div id="error" hidden></div>
+
+  <div id="coach" hidden>
+    <nav role="tablist">
+      <button role="tab" aria-selected="true" data-tab="drill">Drill</button>
+      <button role="tab" aria-selected="false" data-tab="board">Leaderboard</button>
+      <button role="tab" aria-selected="false" data-tab="players">Players</button>
+    </nav>
+    <section id="drill"></section>
+    <section id="board" hidden></section>
+    <section id="players" hidden></section>
+  </div>
+
+  <div id="player" hidden></div>
 </div>
 <div class="toast" id="toast" role="status"></div>
-
 <script>
-const LS_KEY = 'drillboard-v1';
+const SB_URL = 'https://ayogbykechnpeopfqoew.supabase.co';
+const SB_KEY = 'sb_publishable_u1-tN9NvXyVDZRUk1urNwg_LQciq3a7';
+const APP_URL = location.origin + location.pathname;
+const sb = window.supabase.createClient(SB_URL, SB_KEY, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true } });
 const MIN_ATT = 10;
-const DEFAULT = { team:'My team', players:[], drills:['Paint','Mid-range','Corner 3','Above the break 3','Free throws'], active:null, sessions:[] };
-let state = JSON.parse(JSON.stringify(DEFAULT));
 const ZONES = [
   { id:'paint',  drill:'Paint' },
   { id:'mid',    drill:'Mid-range' },
@@ -224,53 +285,201 @@ const ZONES = [
   { id:'ft',     drill:'Free throws' },
 ];
 const ZONE_NAMES = ZONES.map(z => z.drill);
-function normalizeDrills(){
-  const used = new Set(state.sessions.map(s => s.drill)); if(state.active) used.add(state.active.drill);
-  state.drills = state.drills.filter(d => !(['Spot-up 3s','Layups'].includes(d) && !used.has(d)));
-  ZONE_NAMES.forEach(d => { if(!state.drills.includes(d)) state.drills.push(d); });
-}
-let ui = { drill:'Free throws', boardDrill:'all', period:'all', open:null, share:null };
-let ref = null;
 
-/* ---------- storage ---------- */
-function valid(s){ return s && typeof s === 'object' && Array.isArray(s.players) && Array.isArray(s.sessions); }
-function loadLocal(){ try{ const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); return valid(s) ? s : null; }catch(e){ return null; } }
-function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
-let dirty=false, writing=false, timer=null;
-function persist(){ saveLocal(); if(!ref) return; dirty=true; setSync('Saving', true); clearTimeout(timer); timer=setTimeout(flush,500); }
-async function flush(){
-  if(writing || !dirty) return;
-  writing = true; dirty = false;
-  try{ await ref.set(JSON.parse(JSON.stringify(state))); setSync('Synced', false); }
-  catch(e){ setSync('On this device', true); }
-  writing = false; if(dirty) flush();
-}
-function setSync(t, local){ const el = document.getElementById('sync'); el.querySelector('span').textContent = t; el.classList.toggle('local', !!local); }
-async function connect(){
-  if(!window.claude || !window.claude.use) return;
-  try{
-    const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
-    if(!db || !user) return;
-    const uid = await user.id(); if(!uid) return;
-    ref = db.doc('data/users/' + uid + '/team');
-    const snap = await ref.get();
-    const remote = snap.exists ? snap.data() : null;
-    if(valid(remote)){ state = JSON.parse(JSON.stringify(remote)); normalizeDrills(); saveLocal(); render(); setSync('Synced', false); }
-    else if(state.players.length || state.sessions.length) persist();
-    else setSync('Synced', false);
-  }catch(e){ ref = null; }
-}
+let me = null, mode = null, coachTeam = null, myPlayers = [], pdata = null;
+let state = { teamId:null, team:'', drills:[...ZONE_NAMES], players:[], sessions:[], active:null };
+let ui = { drill:'Free throws', boardDrill:'all', period:'all', open:null, share:null,
+           meIdx:0, meDrill:'all', mePeriod:'all', authTab:'in', menu:false, busy:false };
 
 /* ---------- helpers ---------- */
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct = (m,a) => a ? Math.round(m/a*100) + '%' : '–';
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const player = id => state.players.find(p => p.id === id);
-const initials = n => (n.trim().split(/\s+/).map(w => w[0]).join('').slice(0,2) || 'DB').toUpperCase();
+const initials = n => (String(n||'').trim().split(/\s+/).map(w => w[0]).join('').slice(0,2) || 'DB').toUpperCase();
 const day = t => new Date(t).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+const ordinal = n => n + (['th','st','nd','rd'][(n%100-20)%10] || ['th','st','nd','rd'][n%100] || 'th');
+const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(3)), b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+let toastT;
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); }
+async function copyText(text, done){
+  try{ await navigator.clipboard.writeText(text); toast(done); }
+  catch(_){ window.prompt('Copy this text:', text); }
+}
+function show(id){
+  ['loading','auth','onboard','coach','player','error'].forEach(s => $('#'+s).hidden = s !== id);
+  $('#hdr').hidden = !(id === 'coach' || id === 'player');
+  window.scrollTo(0,0);
+}
+function fail(msg){
+  $('#error').innerHTML = `<div class="authcard"><div class="panel"><h2>Something went wrong</h2>
+    <p class="muted">${esc(msg || 'Drill Board couldn’t load. Check your internet connection and try again.')}</p>
+    <button class="primary" data-retry>Try again</button>
+    <button class="ghost" data-signout style="margin-top:8px">Sign out</button></div></div>`;
+  show('error');
+}
+function niceAuthError(e){
+  const m = (e && e.message) || '';
+  if(/invalid login/i.test(m)) return 'That email and password don’t match.';
+  if(/not confirmed/i.test(m)) return 'Please confirm your email first. Check your inbox for the link.';
+  if(/already registered/i.test(m)) return 'There’s already an account with that email. Try signing in.';
+  if(/rate limit|too many/i.test(m)) return 'Too many attempts. Wait a few minutes and try again.';
+  if(/password/i.test(m) && /6/.test(m)) return 'Passwords need at least 6 characters.';
+  return m || 'Something went wrong. Please try again.';
+}
+
+/* ---------- auth ---------- */
+function renderAuth(msg, kind){
+  const tab = ui.authTab;
+  if(tab === 'reset'){
+    $('#auth').innerHTML = `<div class="authcard">${brand('Choose a new password')}
+      <form id="resetForm" class="panel">
+        <label class="field"><span>New password</span><input type="password" id="nPass" autocomplete="new-password" minlength="6" required></label>
+        ${msg ? `<p class="msg ${kind||'err'}">${esc(msg)}</p>` : ''}
+        <button class="primary" type="submit">Save password</button>
+      </form></div>`;
+    $('#resetForm').onsubmit = async e => {
+      e.preventDefault();
+      const { error } = await sb.auth.updateUser({ password: $('#nPass').value });
+      if(error) return renderAuth(niceAuthError(error));
+      ui.authTab = 'in'; toast('Password updated'); boot();
+    };
+    return;
+  }
+  $('#auth').innerHTML = `<div class="authcard">${brand('Shooting drills and stats for your team.')}
+    <div class="seg full"><button data-authtab="in" aria-pressed="${tab==='in'}">Sign in</button><button data-authtab="up" aria-pressed="${tab==='up'}">Create account</button></div>
+    <form id="authForm" class="panel">
+      <label class="field"><span>Email</span><input type="email" id="aEmail" autocomplete="email" inputmode="email" required></label>
+      <label class="field"><span>Password</span><input type="password" id="aPass" autocomplete="${tab==='up'?'new-password':'current-password'}" minlength="6" required></label>
+      ${msg ? `<p class="msg ${kind||'err'}">${esc(msg)}</p>` : ''}
+      <button class="primary" type="submit">${tab==='up' ? 'Create account' : 'Sign in'}</button>
+      ${tab==='in' ? '<button type="button" class="ghost center" data-forgot>Forgot password?</button>' : '<p class="note">Players: create an account, then enter the invite code from your coach.</p>'}
+    </form></div>`;
+  $('#authForm').onsubmit = async e => {
+    e.preventDefault();
+    const email = $('#aEmail').value.trim(), password = $('#aPass').value;
+    const btn = e.submitter || $('#authForm .primary'); btn.disabled = true; btn.textContent = 'Please wait…';
+    if(ui.authTab === 'up'){
+      const { data, error } = await sb.auth.signUp({ email, password, options:{ emailRedirectTo: APP_URL } });
+      if(error) return renderAuth(niceAuthError(error));
+      if(!data.session){ ui.authTab = 'in'; return renderAuth(`Almost there. We’ve emailed a confirmation link to ${email}. Open it on this phone, then sign in.`, 'ok'); }
+      return boot();
+    }
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if(error) return renderAuth(niceAuthError(error));
+    boot();
+  };
+}
+function brand(sub){
+  return `<div class="brandmark"><div class="crest big" aria-hidden="true">DB</div><h1>Drill Board</h1><p class="muted">${esc(sub)}</p></div>`;
+}
+
+/* ---------- boot & routing ---------- */
+async function boot(){
+  show('loading');
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session){ me = null; renderAuth(); show('auth'); return; }
+    me = session.user;
+    await loadRoles();
+    route();
+  }catch(e){ fail(e && e.message && !/fetch/i.test(e.message) ? e.message : null); }
+}
+async function loadRoles(){
+  const [t, p] = await Promise.all([
+    sb.from('teams').select('id,name,drills').eq('coach_id', me.id).order('created_at').limit(1),
+    sb.from('players').select('id,name,num,team_id').eq('user_id', me.id).order('created_at'),
+  ]);
+  if(t.error) throw t.error; if(p.error) throw p.error;
+  coachTeam = t.data[0] || null; myPlayers = p.data || [];
+}
+function route(prefer){
+  mode = prefer || (coachTeam ? 'coach' : myPlayers.length ? 'player' : null);
+  ui.menu = false;
+  if(!mode){ renderOnboard(); show('onboard'); return; }
+  if(mode === 'coach') loadCoach(); else loadPlayer();
+}
+
+/* ---------- onboarding ---------- */
+function renderOnboard(msg, kind, which){
+  const showCoach = !coachTeam;
+  $('#onboard').innerHTML = `<div class="authcard">${brand(me.email)}
+    <form id="joinForm" class="panel">
+      <h2>I’m a player</h2><p class="muted">Enter the 6-character invite code from your coach.</p>
+      <input id="code" type="text" class="codein" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="4F9A2C" aria-label="Invite code" required>
+      ${msg && which==='join' ? `<p class="msg ${kind||'err'}">${esc(msg)}</p>` : ''}
+      <button class="primary" type="submit">Join team</button>
+    </form>
+    ${showCoach ? `<form id="teamForm" class="panel" style="margin-top:14px">
+      <h2>I’m a coach</h2><p class="muted">Set up your team to run drills and invite your players.</p>
+      <input id="tname" type="text" maxlength="60" placeholder="Team name, e.g. Tigers U14" aria-label="Team name" required>
+      ${msg && which==='team' ? `<p class="msg ${kind||'err'}">${esc(msg)}</p>` : ''}
+      <button class="primary" type="submit" style="margin-top:12px">Create team</button>
+    </form>` : ''}
+    <div class="row" style="margin-top:14px">
+      ${mode ? `<button class="ghost" data-back>Back</button>` : '<span></span>'}
+      <button class="ghost" data-signout>Sign out</button>
+    </div></div>`;
+  $('#joinForm').onsubmit = async e => {
+    e.preventDefault();
+    const code = $('#code').value.trim().toUpperCase();
+    const { error } = await sb.rpc('claim_invite', { code });
+    if(error) return renderOnboard(/not valid|used/i.test(error.message) ? 'That code isn’t valid or has already been used. Check with your coach.' : error.message, 'err', 'join');
+    await loadRoles(); ui.meIdx = myPlayers.length - 1; toast('You’re on the team'); route('player');
+  };
+  const tf = $('#teamForm');
+  if(tf) tf.onsubmit = async e => {
+    e.preventDefault();
+    const { data, error } = await sb.from('teams').insert({ name: $('#tname').value.trim() }).select('id,name,drills').single();
+    if(error) return renderOnboard(error.message, 'err', 'team');
+    coachTeam = data; route('coach');
+  };
+}
+
+/* ---------- header ---------- */
+function renderHeader(){
+  const teamName = mode === 'coach' ? state.team : (pdata && myPlayers[ui.meIdx] ? (pdata.teams[myPlayers[ui.meIdx].team_id]?.name || '') : '');
+  $('#crest').textContent = initials(teamName);
+  $('#teamName').textContent = teamName;
+  $('#teamName').disabled = mode !== 'coach';
+  $('#appLabel').textContent = mode === 'coach' ? 'Coach view' : 'Player view';
+  $('#acct').textContent = initials(me?.email?.split('@')[0]?.replace(/[._-]+/g,' '));
+  const m = $('#menu');
+  m.hidden = !ui.menu;
+  m.innerHTML = `<p class="who">Signed in as<br><strong>${esc(me?.email)}</strong></p>
+    ${coachTeam && myPlayers.length ? `<button data-switch="${mode==='coach'?'player':'coach'}">Switch to ${mode==='coach'?'player':'coach'} view</button>` : ''}
+    <button data-joinmore>${mode==='coach' && !myPlayers.length ? 'Join a team as a player' : coachTeam ? 'Join another team' : 'Join another team or set one up'}</button>
+    <button data-signout class="danger">Sign out</button>`;
+}
+
+/* ---------- coach: load & persist ---------- */
+function activeKey(){ return 'drillboard-active-' + state.teamId; }
+function saveActive(){ try{ state.active ? localStorage.setItem(activeKey(), JSON.stringify(state.active)) : localStorage.removeItem(activeKey()); }catch(_){} }
+function loadActive(){ try{ return JSON.parse(localStorage.getItem(activeKey()) || 'null'); }catch(_){ return null; } }
+async function loadCoach(){
+  show('loading');
+  const id = coachTeam.id;
+  const [p, s] = await Promise.all([
+    sb.from('players').select('id,name,num,invite_code,user_id').eq('team_id', id).order('created_at'),
+    sb.from('sessions').select('id,drill,started_at,session_results(player_id,made,attempts)').eq('team_id', id).order('started_at'),
+  ]);
+  if(p.error || s.error) return fail();
+  state.teamId = id; state.team = coachTeam.name;
+  state.drills = Array.isArray(coachTeam.drills) && coachTeam.drills.length ? [...coachTeam.drills] : [...ZONE_NAMES];
+  const missing = ZONE_NAMES.filter(d => !state.drills.includes(d));
+  if(missing.length){ state.drills.push(...missing); sb.from('teams').update({ drills: state.drills }).eq('id', id).then(()=>{}); }
+  state.players = p.data;
+  state.sessions = s.data.map(x => ({ id:x.id, drill:x.drill, date:Date.parse(x.started_at),
+    counts:Object.fromEntries((x.session_results||[]).map(r => [r.player_id, { m:r.made, a:r.attempts }])) }));
+  state.active = loadActive();
+  if(!state.drills.includes(ui.drill)) ui.drill = state.drills[0];
+  renderHeader(); render(); showTab('drill'); show('coach');
+}
+
+/* ---------- stats helpers ---------- */
 function liveCounts(){
   const c = {};
-  if(state.active) state.active.log.forEach(s => { c[s.p] = c[s.p] || {m:0,a:0}; c[s.p].a++; if(s.m) c[s.p].m++; });
+  if(state.active) state.active.log.forEach(s => { if(!player(s.p)) return; c[s.p] = c[s.p] || {m:0,a:0}; c[s.p].a++; if(s.m) c[s.p].m++; });
   return c;
 }
 function totals(filterDrill, period){
@@ -291,8 +500,6 @@ function ranking(){
     low: rows.filter(x => x.a > 0 && x.a < MIN_ATT),
   };
 }
-let toastT;
-function toast(t){ const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2200); }
 
 /* ---------- court ---------- */
 const PATHS = {
@@ -377,12 +584,25 @@ function zoneVals(pid){
   return out;
 }
 
-/* ---------- render: drill ---------- */
+
+
+/* ---------- coach: drill ---------- */
+function localData(){
+  try{
+    if(localStorage.getItem('drillboard-imported')) return null;
+    const s = JSON.parse(localStorage.getItem('drillboard-v1') || 'null');
+    return s && Array.isArray(s.players) && s.players.length ? s : null;
+  }catch(_){ return null; }
+}
 function renderDrill(){
-  const el = document.getElementById('drill');
+  const el = $('#drill');
+  const L = (!state.players.length && !state.sessions.length) ? localData() : null;
+  const importPanel = L ? `<div class="panel accent" style="margin-bottom:14px"><h2>Bring your team over</h2>
+      <p class="muted">This phone has ${L.players.length} player${L.players.length>1?'s':''} and ${L.sessions.length} saved drill${L.sessions.length===1?'':'s'} from before you signed in.</p>
+      <button class="primary" data-import>Import to my account</button></div>` : '';
   if(!state.players.length){
-    el.innerHTML = `<div class="panel"><h2>Build your squad</h2>
-      <p class="muted">Add your players first. Then pick a drill here and log every shot as they take it.</p>
+    el.innerHTML = importPanel + `<div class="panel"><h2>Build your squad</h2>
+      <p class="muted">Add your players first. Each one gets an invite code so they can follow their own stats.</p>
       <button class="primary" data-go="players" style="margin-top:16px">Add players</button></div>`;
     return;
   }
@@ -401,7 +621,7 @@ function renderDrill(){
   const c = liveCounts();
   const tm = Object.values(c).reduce((s,x) => s + x.m, 0), ta = Object.values(c).reduce((s,x) => s + x.a, 0);
   const best = Object.entries(c).filter(([,x]) => x.a >= 5).sort((a,b) => b[1].m/b[1].a - a[1].m/a[1].a)[0];
-  const last = state.active.log.at(-1);
+  const last = [...state.active.log].reverse().find(s => player(s.p));
   el.innerHTML = `<div class="scorehead">
       <div><p class="label">Live drill</p><p class="drill">${esc(state.active.drill)}</p></div>
       <div><div class="pct">${pct(tm,ta)}</div><span class="of">${tm} of ${ta} made</span></div>
@@ -409,7 +629,7 @@ function renderDrill(){
     <div class="grid">${state.players.map(p => {
       const x = c[p.id] || {m:0,a:0}, hot = best && best[0] === p.id;
       return `<div class="pcard${hot ? ' hot' : ''}">
-        ${p.num !== '' ? `<span class="jersey" aria-hidden="true">${esc(p.num)}</span>` : ''}
+        ${p.num ? `<span class="jersey" aria-hidden="true">${esc(p.num)}</span>` : ''}
         <div class="pname">${esc(p.name)}${hot ? '<span class="tag">Hot</span>' : ''}</div>
         <div class="pstat"><b>${pct(x.m,x.a)}</b><span>${x.m}/${x.a}</span></div>
         <div class="track"><i style="width:${x.a ? Math.round(x.m/x.a*100) : 0}%"></i></div>
@@ -417,16 +637,16 @@ function renderDrill(){
       </div>`; }).join('')}</div>
     <div class="actions">
       <div class="row">
-        <button class="ghost" data-undo ${last ? '' : 'disabled'}>${last ? `Undo ${esc(player(last.p)?.name || 'last')}’s ${last.m ? 'make' : 'miss'}` : 'Undo last shot'}</button>
+        <button class="ghost" data-undo ${last ? '' : 'disabled'}>${last ? `Undo ${esc(player(last.p).name)}’s ${last.m ? 'make' : 'miss'}` : 'Undo last shot'}</button>
         <button class="ghost danger" data-cancel>Discard</button>
       </div>
-      <button class="primary" data-end ${ta ? '' : 'disabled'}>End and save drill</button>
+      <button class="primary" data-end ${ta && !ui.busy ? '' : 'disabled'}>${ui.busy ? 'Saving…' : 'End and save drill'}</button>
     </div>`;
 }
 
-/* ---------- render: leaderboard ---------- */
+/* ---------- coach: leaderboard ---------- */
 function renderBoard(){
-  const el = document.getElementById('board');
+  const el = $('#board');
   const { ranked, low } = ranking();
   const drills = ['all', ...state.drills];
   const top = ranked.slice(0,3), rest = ranked.slice(3);
@@ -441,7 +661,6 @@ function renderBoard(){
     ${!ranked.length ? `<div class="panel"><p class="muted" style="margin:0">Players appear here once they’ve taken ${MIN_ATT} or more shots in this drill and time period.</p></div>` : ''}
     ${low.length ? `<p class="note">Still under ${MIN_ATT} shots: ${low.map(x => `${esc(x.p.name)} (${x.a})`).join(', ')}.</p>` : ''}
     ${ranked.length ? `<button class="primary" data-share style="margin-top:18px">Copy for the team chat</button>` : ''}
-    ${ui.share ? `<textarea class="sharebox" readonly id="shareText">${esc(ui.share)}</textarea>` : ''}
     <h2>Recent drills</h2>
     ${state.sessions.length ? `<ul class="hist">${[...state.sessions].reverse().slice(0,15).map(s => {
       const v = Object.values(s.counts), m = v.reduce((a,x)=>a+x.m,0), a = v.reduce((q,x)=>q+x.a,0);
@@ -451,29 +670,32 @@ function renderBoard(){
       : '<p class="empty">Finished drills are listed here.</p>'}`;
 }
 
-/* ---------- render: players ---------- */
+/* ---------- coach: players ---------- */
 function renderPlayers(){
-  const el = document.getElementById('players');
+  const el = $('#players');
   const all = totals('all','all');
   el.innerHTML = `<form class="addp" id="addForm">
       <input type="text" id="pName" placeholder="Player name" aria-label="Player name" maxlength="40" autocomplete="off" required>
-      <input type="number" id="pNum" placeholder="No." aria-label="Jersey number" min="0" max="99" inputmode="numeric">
+      <input type="number" id="pNum" placeholder="No." aria-label="Jersey number" min="0" max="999" inputmode="numeric">
       <button type="submit">Add</button>
     </form>
     ${state.players.length ? `<ul class="plist">${state.players.map(p => {
       const x = all[p.id] || {m:0,a:0}, open = ui.open === p.id;
       return `<li><button class="prow" data-open="${p.id}" aria-expanded="${open}">
-          <span class="num">${p.num !== '' ? esc(p.num) : esc(initials(p.name))}</span>
-          <span><span class="nm">${esc(p.name)}</span><small>${x.a} shot${x.a===1?'':'s'} all time</small></span>
+          <span class="num">${p.num ? esc(p.num) : esc(initials(p.name))}</span>
+          <span><span class="nm">${esc(p.name)}</span>${p.user_id ? ' <span class="tag">Linked</span>' : ''}<small>${x.a} shot${x.a===1?'':'s'} all time</small></span>
           <b>${pct(x.m,x.a)}</b></button>
-        ${open ? playerDetail(p) : ''}</li>`; }).join('')}</ul>`
-      : '<p class="empty">Add each player with their jersey number. It shows on their drill card.</p>'}`;
-  document.getElementById('addForm').onsubmit = e => {
+        ${open ? playerDetail(p) : ''}</li>`; }).join('')}</ul>
+      <p class="note">Tap a player to see their stats and invite code.</p>`
+      : '<p class="empty">Add each player with their jersey number. Each gets an invite code to see their own stats.</p>'}`;
+  $('#addForm').onsubmit = async e => {
     e.preventDefault();
-    const name = document.getElementById('pName').value.trim(); if(!name) return;
-    state.players.push({ id: uid(), name, num: document.getElementById('pNum').value.trim() });
-    persist(); renderPlayers(); renderDrill(); renderBoard();
-    document.getElementById('pName').focus();
+    const name = $('#pName').value.trim(); if(!name) return;
+    const num = $('#pNum').value.trim().slice(0,3);
+    const { data, error } = await sb.from('players').insert({ team_id: state.teamId, name, num }).select('id,name,num,invite_code,user_id').single();
+    if(error) return toast('Couldn’t add player. Check your connection.');
+    state.players.push(data); renderPlayers(); renderDrill(); renderBoard();
+    $('#pName').focus();
   };
 }
 function playerDetail(p){
@@ -483,29 +705,108 @@ function playerDetail(p){
   const zv = zoneVals(p.id);
   const anyZone = Object.values(zv).some(x => x.a);
   return `<div class="pdetail">
+    <div class="invite">${p.user_id
+      ? `<div><strong>Player account linked</strong><small>${esc(p.name)} can sign in and see their own stats.</small></div><button class="ghost" data-unlink="${p.id}">Unlink</button>`
+      : `<div><small>Invite code</small><span class="code">${esc(p.invite_code)}</span></div><div class="invbtns"><button class="chip" data-invite="${p.id}">Copy invite</button><button class="ghost" data-newcode="${p.id}">New code</button></div>`}
+    </div>
     ${anyZone ? `<p class="minihead">Shooting by spot</p>${courtSVG('heat', zv)}` : ''}
     ${rows ? `<table><tr><th>By drill</th><th>Shots</th><th>Rate</th></tr>${rows}</table>` : '<p class="muted">No shots logged yet.</p>'}
     ${recent ? `<table><tr><th>Last 5 drills</th><th>Shots</th><th>Rate</th></tr>${recent}</table>` : ''}
     <div class="row"><button class="ghost" data-rename="${p.id}">Rename</button><button class="ghost danger" data-delp="${p.id}">Remove player</button></div>
   </div>`;
 }
-function render(){
-  document.getElementById('teamName').textContent = state.team;
-  document.getElementById('crest').textContent = initials(state.team);
-  renderDrill(); renderBoard(); renderPlayers();
-}
-
-/* ---------- actions ---------- */
+function render(){ renderDrill(); renderBoard(); renderPlayers(); }
 function showTab(t){
   document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
-  document.querySelectorAll('.wrap > section').forEach(s => s.hidden = s.id !== t);
+  document.querySelectorAll('#coach > section').forEach(s => s.hidden = s.id !== t);
   window.scrollTo(0,0);
 }
-function buildShare(){
-  const { ranked } = ranking();
-  const label = (ui.boardDrill === 'all' ? 'All drills' : ui.boardDrill) + ', ' + ({all:'all time','30':'last 30 days','7':'last 7 days'}[ui.period]);
-  return `${state.team} shooting leaderboard (${label})\n` + ranked.map((x,i) => `${i+1}. ${x.p.name} ${pct(x.m,x.a)} (${x.m}/${x.a})`).join('\n');
+
+/* ---------- coach: import from this phone ---------- */
+async function importLocal(btn){
+  const L = localData(); if(!L) return;
+  btn.disabled = true; btn.textContent = 'Importing…';
+  try{
+    const ins = await sb.from('players').insert(L.players.map(p => ({ team_id: state.teamId, name: String(p.name).slice(0,40), num: String(p.num ?? '').slice(0,3) })))
+      .select('id,name,num,invite_code,user_id');
+    if(ins.error) throw ins.error;
+    const idMap = {}; L.players.forEach((p,i) => idMap[p.id] = ins.data[i].id);
+    const extra = (L.drills || []).filter(d => !state.drills.includes(d));
+    if(extra.length){ state.drills.push(...extra); await sb.from('teams').update({ drills: state.drills }).eq('id', state.teamId); }
+    const sess = (L.sessions || []).filter(s => Object.keys(s.counts || {}).some(k => idMap[k]));
+    if(sess.length){
+      const si = await sb.from('sessions').insert(sess.map(s => ({ team_id: state.teamId, drill: String(s.drill).slice(0,60), started_at: new Date(s.date).toISOString() }))).select('id');
+      if(si.error) throw si.error;
+      const rows = [];
+      sess.forEach((s,i) => Object.entries(s.counts).forEach(([pid,c]) => { if(idMap[pid] && c.a) rows.push({ session_id: si.data[i].id, player_id: idMap[pid], team_id: state.teamId, made: c.m, attempts: c.a }); }));
+      if(rows.length){ const r = await sb.from('session_results').insert(rows); if(r.error) throw r.error; }
+    }
+    try{ localStorage.setItem('drillboard-imported', '1'); }catch(_){}
+    toast('Team imported'); coachTeam.drills = state.drills; loadCoach();
+  }catch(e){ toast('Import didn’t finish. Check your connection and try again.'); btn.disabled = false; btn.textContent = 'Import to my account'; }
 }
+
+/* ---------- player view ---------- */
+async function loadPlayer(){
+  show('loading');
+  const ids = myPlayers.map(p => p.id), tids = [...new Set(myPlayers.map(p => p.team_id))];
+  const [t, r] = await Promise.all([
+    sb.from('teams').select('id,name,drills').in('id', tids),
+    sb.from('session_results').select('player_id,made,attempts,sessions(drill,started_at)').in('player_id', ids),
+  ]);
+  if(t.error || r.error) return fail();
+  pdata = {
+    teams: Object.fromEntries(t.data.map(x => [x.id, x])),
+    results: r.data.filter(x => x.sessions).map(x => ({ pid:x.player_id, m:x.made, a:x.attempts, drill:x.sessions.drill, date:Date.parse(x.sessions.started_at) })).sort((a,b) => a.date - b.date),
+  };
+  if(ui.meIdx >= myPlayers.length) ui.meIdx = 0;
+  renderHeader(); renderPlayerView(); show('player');
+}
+function renderPlayerView(){
+  const p = myPlayers[ui.meIdx], team = pdata.teams[p.team_id] || { name:'', drills:ZONE_NAMES };
+  const res = pdata.results.filter(x => x.pid === p.id);
+  const m = res.reduce((s,x) => s + x.m, 0), a = res.reduce((s,x) => s + x.a, 0);
+  const zv = {}; ZONES.forEach(z => { const rs = res.filter(x => x.drill === z.drill); zv[z.id] = { m: rs.reduce((s,x)=>s+x.m,0), a: rs.reduce((s,x)=>s+x.a,0) }; });
+  const drills = ['all', ...new Set([...(team.drills || []), ...res.map(x => x.drill)])];
+  if(!drills.includes(ui.meDrill)) ui.meDrill = 'all';
+  const last = res.slice(-12);
+  const bars = last.length ? `<svg viewBox="0 0 300 120" class="bars" role="img" aria-label="Make rate in your last ${last.length} drills">
+      ${[0,50,100].map(v => `<line x1="24" x2="300" y1="${10 + (100-v)*0.9}" y2="${10 + (100-v)*0.9}" class="gl"/><text x="18" y="${14 + (100-v)*0.9}" text-anchor="end">${v}</text>`).join('')}
+      ${last.map((x,i) => { const w = 276/12, h = x.a ? x.m/x.a*90 : 0; return `<rect x="${28 + i*w}" y="${100 - h}" width="${w-6}" height="${Math.max(h,1)}" rx="3"><title>${esc(x.drill)}, ${day(x.date)}: ${pct(x.m,x.a)}</title></rect>`; }).join('')}
+    </svg>` : '<p class="empty">Your drills will show here once your coach logs some shots.</p>';
+  $('#player').innerHTML = `
+    ${myPlayers.length > 1 ? `<div class="chips">${myPlayers.map((q,i) => `<button class="chip" data-meidx="${i}" aria-pressed="${i===ui.meIdx}">${esc(q.name)}, ${esc(pdata.teams[q.team_id]?.name || '')}</button>`).join('')}</div>` : ''}
+    <div class="hero panel">
+      ${p.num ? `<span class="jersey" aria-hidden="true">${esc(p.num)}</span>` : ''}
+      <p class="label">${esc(p.name)}</p>
+      <div class="big">${pct(m,a)}</div>
+      <p class="muted" style="margin:0">${a ? `${m} of ${a} shots made across ${res.length} drill${res.length===1?'':'s'}` : 'No shots logged yet'}</p>
+    </div>
+    <h2>Team rank</h2>
+    <div class="chips">${drills.map(d => `<button class="chip" data-medrill="${esc(d)}" aria-pressed="${d===ui.meDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
+    <div class="seg">${[['all','All time'],['30','30 days'],['7','7 days']].map(([v,l]) => `<button data-meperiod="${v}" aria-pressed="${v===ui.mePeriod}">${l}</button>`).join('')}</div>
+    <div class="panel rankbox" id="rankBox"><p class="muted" style="margin:0">Loading your rank…</p></div>
+    <h2>By spot</h2>
+    ${courtSVG('heat', zv)}
+    <h2>Recent form</h2>
+    <div class="panel">${bars}</div>
+    <h2>Drill history</h2>
+    ${res.length ? `<ul class="hist">${[...res].reverse().slice(0,15).map(x => `<li><div class="t">${esc(x.drill)}<small>${day(x.date)}, ${x.m}/${x.a}</small></div><span class="p">${pct(x.m,x.a)}</span><span></span></li>`).join('')}</ul>` : '<p class="empty">Nothing yet.</p>'}`;
+  loadRank(p);
+}
+async function loadRank(p){
+  const box = $('#rankBox'); if(!box) return;
+  const { data, error } = await sb.rpc('my_rank', { p_drill: ui.meDrill === 'all' ? null : ui.meDrill, p_days: ui.mePeriod === 'all' ? null : +ui.mePeriod });
+  if(error){ box.innerHTML = '<p class="muted" style="margin:0">Couldn’t load your rank right now.</p>'; return; }
+  const row = (data || []).find(x => x.player_id === p.id) || { rank:null, ranked:0, made:0, attempts:0 };
+  box.innerHTML = row.rank
+    ? `<div class="rk"><span class="rkn">${ordinal(row.rank)}</span><span class="muted">of ${row.ranked} ranked on the team</span></div>
+       <p class="muted" style="margin:6px 0 0">${pct(row.made,row.attempts)} from ${row.made}/${row.attempts} shots. Only you can see where you rank.</p>`
+    : `<div class="rk"><span class="rkn dim">Unranked</span></div>
+       <p class="muted" style="margin:6px 0 0">${row.attempts ? `Take ${MIN_ATT - row.attempts} more shot${MIN_ATT - row.attempts === 1 ? '' : 's'} here to get ranked.` : `Players get ranked after ${MIN_ATT} shots.`}${row.ranked ? ` ${row.ranked} teammate${row.ranked===1?' is':'s are'} ranked.` : ''}</p>`;
+}
+
+/* ---------- events ---------- */
 function pickZone(name){ ui.drill = name; renderDrill(); }
 document.addEventListener('keydown', e => {
   const z = e.target.closest && e.target.closest('[data-zonepick]');
@@ -513,47 +814,129 @@ document.addEventListener('keydown', e => {
     document.querySelector(`[data-zonepick="${CSS.escape(z.dataset.zonepick)}"]`)?.focus(); }
 });
 document.addEventListener('click', async e => {
+  if(ui.menu && !e.target.closest('#menu') && !e.target.closest('#acct')){ ui.menu = false; $('#menu').hidden = true; }
   const zp = e.target.closest('[data-zonepick]'); if(zp){ pickZone(zp.dataset.zonepick); return; }
   const b = e.target.closest('button'); if(!b) return;
   const d = b.dataset;
-  if(d.tab){ showTab(d.tab); return; }
-  if(d.go){ showTab(d.go); document.getElementById('pName')?.focus(); return; }
-  if(d.pick){ ui.drill = d.pick; renderDrill(); return; }
-  if('adddrill' in d){ const n = (prompt('Drill name, e.g. Corner 3s') || '').trim(); if(n && !state.drills.includes(n)){ state.drills.push(n); ui.drill = n; persist(); render(); } return; }
-  if('start' in d){ state.active = { drill: ui.drill, started: Date.now(), log: [] }; persist(); renderDrill(); return; }
-  if(d.shot){ state.active.log.push({ p: d.shot, m: +d.m }); if(navigator.vibrate) try{ navigator.vibrate(10); }catch(_){} persist(); renderDrill(); return; }
-  if('undo' in d){ state.active.log.pop(); persist(); renderDrill(); return; }
-  if('cancel' in d){ if(confirm('Discard this drill? Shots logged so far will be lost.')){ state.active = null; persist(); renderDrill(); } return; }
-  if('end' in d){
-    const c = liveCounts(); const a = state.active;
-    state.sessions.push({ id: uid(), drill: a.drill, date: a.started, counts: c });
-    state.active = null; ui.boardDrill = a.drill; ui.period = 'all'; ui.share = null;
-    persist(); render(); showTab('board'); toast(`${a.drill} saved`); return;
+  // auth & account
+  if(d.authtab){ ui.authTab = d.authtab; renderAuth(); return; }
+  if('forgot' in d){
+    const email = $('#aEmail').value.trim();
+    if(!email) return renderAuth('Type your email above, then tap Forgot password again.');
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: APP_URL });
+    return renderAuth(error ? niceAuthError(error) : `If there’s an account for ${email}, a reset link is on its way.`, error ? 'err' : 'ok');
   }
-  if(d.bdrill){ ui.boardDrill = d.bdrill; ui.share = null; renderBoard(); return; }
-  if(d.period){ ui.period = d.period; ui.share = null; renderBoard(); return; }
-  if('share' in d){
-    const text = buildShare();
-    try{ await navigator.clipboard.writeText(text); ui.share = null; renderBoard(); toast('Leaderboard copied'); }
-    catch(_){ ui.share = text; renderBoard(); const ta = document.getElementById('shareText'); ta.focus(); ta.select(); toast('Select and copy the text below'); }
+  if('signout' in d){ await sb.auth.signOut(); me = null; coachTeam = null; myPlayers = []; ui.authTab = 'in'; renderAuth(); show('auth'); return; }
+  if(b.id === 'acct'){ ui.menu = !ui.menu; renderHeader(); return; }
+  if(d.switch){ route(d.switch); return; }
+  if('joinmore' in d){ ui.menu = false; renderOnboard(); show('onboard'); return; }
+  if('back' in d){ route(mode); return; }
+  if('retry' in d){ boot(); return; }
+  if(b.id === 'teamName' && mode === 'coach'){
+    const n = (prompt('Team name', state.team) || '').trim().slice(0,60);
+    if(n && n !== state.team){ const { error } = await sb.from('teams').update({ name:n }).eq('id', state.teamId);
+      if(error) return toast('Couldn’t rename. Check your connection.'); state.team = coachTeam.name = n; renderHeader(); }
     return;
   }
-  if(d.delsess){ if(confirm('Delete this drill from the records?')){ state.sessions = state.sessions.filter(s => s.id !== d.delsess); persist(); render(); } return; }
+  // player view
+  if(d.meidx){ ui.meIdx = +d.meidx; renderHeader(); renderPlayerView(); return; }
+  if(d.medrill){ ui.meDrill = d.medrill; renderPlayerView(); return; }
+  if(d.meperiod){ ui.mePeriod = d.meperiod; renderPlayerView(); return; }
+  // coach
+  if(d.tab){ showTab(d.tab); return; }
+  if(d.go){ showTab(d.go); $('#pName')?.focus(); return; }
+  if('import' in d){ importLocal(b); return; }
+  if(d.pick){ ui.drill = d.pick; renderDrill(); return; }
+  if('adddrill' in d){
+    const n = (prompt('Drill name, e.g. Corner 3s') || '').trim().slice(0,60);
+    if(n && !state.drills.includes(n)){
+      const next = [...state.drills, n];
+      const { error } = await sb.from('teams').update({ drills: next }).eq('id', state.teamId);
+      if(error) return toast('Couldn’t add drill. Check your connection.');
+      state.drills = coachTeam.drills = next; ui.drill = n; render();
+    }
+    return;
+  }
+  if('start' in d){ state.active = { drill: ui.drill, started: Date.now(), log: [] }; saveActive(); renderDrill(); return; }
+  if(d.shot){ state.active.log.push({ p: d.shot, m: +d.m }); if(navigator.vibrate) try{ navigator.vibrate(10); }catch(_){} saveActive(); renderDrill(); return; }
+  if('undo' in d){ state.active.log.pop(); saveActive(); renderDrill(); return; }
+  if('cancel' in d){ if(confirm('Discard this drill? Shots logged so far will be lost.')){ state.active = null; saveActive(); renderDrill(); } return; }
+  if('end' in d){
+    if(ui.busy) return;
+    const c = liveCounts(), a = state.active;
+    ui.busy = true; renderDrill();
+    try{
+      const s = await sb.from('sessions').insert({ team_id: state.teamId, drill: a.drill, started_at: new Date(a.started).toISOString() }).select('id').single();
+      if(s.error) throw s.error;
+      const rows = Object.entries(c).map(([pid,x]) => ({ session_id: s.data.id, player_id: pid, team_id: state.teamId, made: x.m, attempts: x.a }));
+      const r = await sb.from('session_results').insert(rows);
+      if(r.error){ await sb.from('sessions').delete().eq('id', s.data.id); throw r.error; }
+      state.sessions.push({ id: s.data.id, drill: a.drill, date: a.started, counts: c });
+      state.active = null; saveActive();
+      ui.busy = false; ui.boardDrill = a.drill; ui.period = 'all';
+      render(); showTab('board'); toast(`${a.drill} saved`);
+    }catch(_){
+      ui.busy = false; renderDrill();
+      toast('Couldn’t save. Your shots are kept on this phone. Check your connection and try again.');
+    }
+    return;
+  }
+  if(d.bdrill){ ui.boardDrill = d.bdrill; renderBoard(); return; }
+  if(d.period){ ui.period = d.period; renderBoard(); return; }
+  if('share' in d){
+    const { ranked } = ranking();
+    const label = (ui.boardDrill === 'all' ? 'All drills' : ui.boardDrill) + ', ' + ({all:'all time','30':'last 30 days','7':'last 7 days'}[ui.period]);
+    copyText(`${state.team} shooting leaderboard (${label})\n` + ranked.map((x,i) => `${i+1}. ${x.p.name} ${pct(x.m,x.a)} (${x.m}/${x.a})`).join('\n'), 'Leaderboard copied');
+    return;
+  }
+  if(d.delsess){
+    if(!confirm('Delete this drill from the records? Players will lose these shots from their stats too.')) return;
+    const { error } = await sb.from('sessions').delete().eq('id', d.delsess);
+    if(error) return toast('Couldn’t delete. Check your connection.');
+    state.sessions = state.sessions.filter(s => s.id !== d.delsess); render(); return;
+  }
   if(d.open){ ui.open = ui.open === d.open ? null : d.open; renderPlayers(); return; }
-  if(d.rename){ const p = player(d.rename); const n = (prompt('Player name', p.name) || '').trim(); if(n){ p.name = n; persist(); render(); } return; }
-  if(d.delp){ const p = player(d.delp); if(confirm(`Remove ${p.name}? Their past shots stay in saved drill totals.`)){ state.players = state.players.filter(x => x.id !== p.id); if(state.active) state.active.log = state.active.log.filter(s => s.p !== p.id); ui.open = null; persist(); render(); } return; }
+  if(d.rename){
+    const p = player(d.rename); const n = (prompt('Player name', p.name) || '').trim().slice(0,40);
+    if(n && n !== p.name){ const { error } = await sb.from('players').update({ name:n }).eq('id', p.id);
+      if(error) return toast('Couldn’t rename. Check your connection.'); p.name = n; render(); }
+    return;
+  }
+  if(d.delp){
+    const p = player(d.delp);
+    if(!confirm(`Remove ${p.name}? Their shooting history will be deleted too.`)) return;
+    const { error } = await sb.from('players').delete().eq('id', p.id);
+    if(error) return toast('Couldn’t remove. Check your connection.');
+    state.players = state.players.filter(x => x.id !== p.id);
+    state.sessions.forEach(s => delete s.counts[p.id]);
+    if(state.active){ state.active.log = state.active.log.filter(s => s.p !== p.id); saveActive(); }
+    ui.open = null; render(); return;
+  }
+  if(d.invite){
+    const p = player(d.invite);
+    copyText(`Hi ${p.name}! Follow your shooting stats for ${state.team} on Drill Board.\n1. Open ${APP_URL}\n2. Create an account\n3. Enter invite code ${p.invite_code}`, 'Invite copied');
+    return;
+  }
+  if(d.newcode || d.unlink){
+    const p = player(d.newcode || d.unlink);
+    if(d.unlink && !confirm(`Unlink ${p.name}’s account? They’ll lose access until they use a new invite code.`)) return;
+    for(let i = 0; i < 3; i++){
+      const code = newCode();
+      const patch = d.unlink ? { invite_code: code, user_id: null } : { invite_code: code };
+      const { error } = await sb.from('players').update(patch).eq('id', p.id);
+      if(!error){ Object.assign(p, patch); renderPlayers(); toast(d.unlink ? 'Account unlinked. New code created.' : 'New invite code created'); return; }
+      if(!/duplicate|unique/i.test(error.message)) break;
+    }
+    toast('Couldn’t update. Check your connection.'); return;
+  }
 });
-document.getElementById('teamName').onclick = () => {
-  const n = (prompt('Team name', state.team) || '').trim();
-  if(n){ state.team = n; persist(); render(); }
-};
 
-const local = loadLocal();
-if(local) state = local;
-normalizeDrills();
-render();
-connect();
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+sb.auth.onAuthStateChange(ev => {
+  if(ev === 'PASSWORD_RECOVERY'){ setTimeout(() => { ui.authTab = 'reset'; renderAuth(); show('auth'); }, 0); }
+});
+boot();
+if('serviceWorker' in navigator){ window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+
 </script>
 </body>
 </html>
