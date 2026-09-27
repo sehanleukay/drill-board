@@ -12,6 +12,16 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1320x2868.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1206x2622.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1290x2796.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1179x2556.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1284x2778.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1170x2532.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1125x2436.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1242x2688.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash-828x1792.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash-750x1334.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -190,6 +200,60 @@ form.addp button{border:0;border-radius:12px;background:var(--ink);color:var(--b
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 
+/* ---- polish ---- */
+:root{--glow:rgba(154,118,49,.10)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--glow:rgba(210,174,99,.09)}}
+:root[data-theme="dark"]{--glow:rgba(210,174,99,.09)}
+body{background:radial-gradient(900px 520px at 50% -140px,var(--glow),transparent 70%),var(--bg);background-attachment:fixed;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:1}
+.statusfill{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:35}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;margin:-20px -18px 18px;padding:12px 18px;background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:saturate(1.5) blur(18px);backdrop-filter:saturate(1.5) blur(18px);border-bottom:1px solid transparent;transition:border-color .2s}
+header.scrolled{border-bottom-color:var(--line)}
+.team .ic{width:16px;height:16px;margin-left:6px;vertical-align:4px;opacity:.45;stroke-width:2}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+  padding:7px max(12px,calc(50% - 270px)) calc(7px + env(safe-area-inset-bottom,0px));
+  background:color-mix(in srgb,var(--surface) 84%,transparent);-webkit-backdrop-filter:saturate(1.5) blur(20px);backdrop-filter:saturate(1.5) blur(20px);border-top:1px solid var(--line)}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;color:var(--muted);font:600 .72rem var(--body);padding:6px 0 4px;border-radius:12px;cursor:pointer;transition:color .15s}
+.tabbar svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.tabbar [aria-selected="true"]{color:var(--brass)}
+.tabbar [aria-selected="true"] svg{stroke-width:2.1;transform:translateY(-1px)}
+body.has-tabbar .wrap{padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+body.has-tabbar .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+.ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;margin-right:6px;flex:none}
+.ghost,.chip,.primary{align-items:center}
+.x .ic{margin:0;width:19px;height:19px}
+.enter{animation:enter .32s cubic-bezier(.2,.8,.2,1)}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}}
+.pcard.bump-make{animation:bumpMake .5s ease-out}
+.pcard.bump-miss{animation:bumpMiss .35s ease-out}
+@keyframes bumpMake{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--make) 70%,transparent),var(--shadow);transform:scale(1)}35%{transform:scale(1.025)}100%{box-shadow:0 0 0 14px transparent,var(--shadow);transform:scale(1)}}
+@keyframes bumpMiss{0%,100%{transform:translateX(0)}30%{transform:translateX(-4px)}65%{transform:translateX(3px)}}
+.plus{position:absolute;right:14px;top:40px;font:800 1.5rem var(--display);color:var(--make);pointer-events:none;animation:plus .8s ease-out forwards}
+@keyframes plus{to{transform:translateY(-30px);opacity:0}}
+.skel{border-radius:16px;border:1px solid var(--line);background:linear-gradient(100deg,var(--surface) 30%,var(--raised) 50%,var(--surface) 70%);background-size:250% 100%;animation:shimmer 1.3s linear infinite}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:-150% 0}}
+.loader.splash{display:grid;place-items:center;min-height:80vh}
+.splashin{text-align:center;animation:enter .5s ease-out}
+.splashin p{font:800 1.8rem var(--display);margin:14px 0 0;color:var(--ink)}
+.applogo{display:block;width:92px;height:92px;border-radius:22px;margin:0 auto;box-shadow:0 14px 34px -12px rgba(0,0,0,.5),0 0 0 1px var(--line)}
+.brandmark .applogo{margin-bottom:4px}
+.emptyart{display:block;width:130px;margin:2px auto 14px;fill:none;stroke:var(--muted);stroke-opacity:.55;stroke-width:2;stroke-linecap:round}
+.emptyart .rim{stroke:var(--brass);stroke-opacity:1}
+.emptyart .ball{fill:var(--brass-soft);stroke:var(--brass);stroke-opacity:1}
+.emptyart .seam{stroke:var(--brass);stroke-opacity:.8;stroke-width:1.5}
+.emptybox{text-align:center}
+.celebrate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:rgba(6,14,11,.78);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.celebrate canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cele-card{position:relative;text-align:center;color:#EFE7D6;max-width:320px;animation:pop .6s cubic-bezier(.2,1.5,.4,1)}
+@keyframes pop{from{opacity:0;transform:scale(.6)}}
+.cele-card .k{font-weight:600;color:#D2AE63;margin:0 0 14px}
+.bigmedal{width:150px;height:170px;display:block;margin:0 auto 10px;filter:drop-shadow(0 18px 30px rgba(210,174,99,.35));animation:spin 1s cubic-bezier(.2,.9,.3,1)}
+@keyframes spin{from{transform:rotateY(180deg) scale(.7)}}
+.cele-card h2{font:800 2.6rem/1 var(--display);margin:6px 0 8px;color:#fff}
+.cele-card .d{color:#C9CFC9;margin:0 0 22px}
+@media (prefers-reduced-motion: reduce){.enter,.bump-make,.bump-miss,.plus,.skel,.cele-card,.bigmedal,.splashin{animation:none!important}}
+
 /* ---- competition ---- */
 .medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
 .medal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
@@ -305,17 +369,12 @@ input[type=email],input[type=password]{font:500 1rem var(--body);padding:12px 14
     <div class="menu" id="menu" hidden></div>
   </header>
 
-  <div id="loading" class="loader"><div class="crest big" aria-hidden="true">DB</div><span class="sr" style="position:absolute;left:-9999px">Loading</span></div>
+  <div id="loading" class="loader splash" aria-busy="true" aria-label="Loading"></div>
   <div id="auth" hidden></div>
   <div id="onboard" hidden></div>
   <div id="error" hidden></div>
 
   <div id="coach" hidden>
-    <nav role="tablist">
-      <button role="tab" aria-selected="true" data-tab="drill">Drill</button>
-      <button role="tab" aria-selected="false" data-tab="board">Leaderboard</button>
-      <button role="tab" aria-selected="false" data-tab="players">Players</button>
-    </nav>
     <section id="drill"></section>
     <section id="board" hidden></section>
     <section id="players" hidden></section>
@@ -323,6 +382,9 @@ input[type=email],input[type=password]{font:500 1rem var(--body);padding:12px 14
 
   <div id="player" hidden></div>
 </div>
+<nav id="tabbar" class="tabbar" role="tablist" hidden></nav>
+<div class="statusfill" aria-hidden="true"></div>
+<div id="celebrate" class="celebrate" hidden></div>
 <div class="toast" id="toast" role="status"></div>
 <script>
 const SB_URL = 'https://ayogbykechnpeopfqoew.supabase.co';
@@ -361,7 +423,11 @@ async function copyText(text, done){
 }
 function show(id){
   ['loading','auth','onboard','coach','player','error'].forEach(s => $('#'+s).hidden = s !== id);
-  $('#hdr').hidden = !(id === 'coach' || id === 'player');
+  const app = id === 'coach' || id === 'player';
+  $('#hdr').hidden = !app; $('#tabbar').hidden = !app; document.body.classList.toggle('has-tabbar', app);
+  if(app) renderTabbar();
+  if(id === 'loading'){ const l = $('#loading'); l.className = me ? 'skeleton' : 'loader splash'; l.innerHTML = me ? skeleton() : splash(); }
+  if(id === 'auth' || id === 'onboard') enter($('#'+id).firstElementChild);
   window.scrollTo(0,0);
 }
 function fail(msg){
@@ -424,7 +490,7 @@ function renderAuth(msg, kind){
   };
 }
 function brand(sub){
-  return `<div class="brandmark"><div class="crest big" aria-hidden="true">DB</div><h1>Drill Board</h1><p class="muted">${esc(sub)}</p></div>`;
+  return `<div class="brandmark"><img class="applogo" src="apple-touch-icon.png" alt="" onerror="this.outerHTML='<div class=&quot;crest big&quot;>DB</div>'"><h1>Drill Board</h1><p class="muted">${esc(sub)}</p></div>`;
 }
 
 /* ---------- boot & routing ---------- */
@@ -493,7 +559,7 @@ function renderOnboard(msg, kind, which){
 function renderHeader(){
   const teamName = mode === 'coach' ? state.team : (pdata && myPlayers[ui.meIdx] ? (pdata.teams[myPlayers[ui.meIdx].team_id]?.name || '') : '');
   $('#crest').textContent = initials(teamName);
-  $('#teamName').textContent = teamName;
+  $('#teamName').innerHTML = esc(teamName) + (mode === 'coach' ? ic('edit') : '');
   $('#teamName').disabled = mode !== 'coach';
   $('#appLabel').textContent = mode === 'coach' ? 'Coach view' : 'Player view';
   $('#acct').textContent = initials(me?.email?.split('@')[0]?.replace(/[._-]+/g,' '));
@@ -528,7 +594,7 @@ async function loadCoach(){
   state.showNames = !!coachTeam.show_names;
   try{ state.compete = await loadCompete(id); }catch(_){ state.compete = { board:[], potw:[], challenges:[], badges:[] }; }
   if(!state.drills.includes(ui.drill)) ui.drill = state.drills[0];
-  renderHeader(); render(); showTab('drill'); show('coach');
+  renderHeader(); render(); show('coach'); showTab(ui.ctab || 'drill');
 }
 
 /* ---------- stats helpers ---------- */
@@ -656,7 +722,7 @@ function renderDrill(){
       <p class="muted">This phone has ${L.players.length} player${L.players.length>1?'s':''} and ${L.sessions.length} saved drill${L.sessions.length===1?'':'s'} from before you signed in.</p>
       <button class="primary" data-import>Import to my account</button></div>` : '';
   if(!state.players.length){
-    el.innerHTML = importPanel + `<div class="panel"><h2>Build your squad</h2>
+    el.innerHTML = importPanel + `<div class="panel emptybox">${emptyArt()}<h2>Build your squad</h2>
       <p class="muted">Add your players first. Each one gets an invite code so they can follow their own stats.</p>
       <button class="primary" data-go="players" style="margin-top:16px">Add players</button></div>`;
     return;
@@ -668,7 +734,7 @@ function renderDrill(){
       ${courtSVG('pick', zoneVals(), ui.drill)}
       <p class="minihead">Other drills</p>
       <div class="chips">${others.map(d => `<button class="chip" data-pick="${esc(d)}" aria-pressed="${d===ui.drill}">${esc(d)}</button>`).join('')}
-      <button class="chip add" data-adddrill>Add drill</button></div>
+      <button class="chip add" data-adddrill>${ic('plus')}Add drill</button></div>
       <button class="primary" data-start>Start ${esc(ui.drill)}</button>
       <p class="lede">Court percentages are your team’s all-time rate from each spot. ${state.players.length} player${state.players.length>1?'s':''} ready.</p></div>`;
     return;
@@ -692,21 +758,22 @@ function renderDrill(){
       </div>`; }).join('')}</div>
     <div class="actions">
       <div class="row">
-        <button class="ghost" data-undo ${last ? '' : 'disabled'}>${last ? `Undo ${esc(player(last.p).name)}’s ${last.m ? 'make' : 'miss'}` : 'Undo last shot'}</button>
-        <button class="ghost danger" data-cancel>Discard</button>
+        <button class="ghost" data-undo ${last ? '' : 'disabled'}>${ic('undo')}${last ? `Undo ${esc(player(last.p).name)}’s ${last.m ? 'make' : 'miss'}` : 'Undo last shot'}</button>
+        <button class="ghost danger" data-cancel>${ic('trash')}Discard</button>
       </div>
       <button class="primary" data-end ${ta && !ui.busy ? '' : 'disabled'}>${ui.busy ? 'Saving…' : 'End and save drill'}</button>
     </div>`;
 }
 
 /* ---------- coach: leaderboard ---------- */
-function renderBoard(){
+function renderBoard(){ renderBoardInner(); if(!$('#board').hidden) countUp($('#board')); }
+function renderBoardInner(){
   const el = $('#board');
   const { ranked, low } = ranking();
   const drills = ['all', ...state.drills];
   const top = ranked.slice(0,3), rest = ranked.slice(3);
   const step = (x, i) => x ? `<div class="step${i===0?' first':''}"><div class="place">${['1st','2nd','3rd'][i]}</div>
-      <div class="nm">${esc(x.p.name.trim().split(/\s+/)[0])}</div><div class="pc">${pct(x.m,x.a)}</div><small>${x.m}/${x.a}</small></div>` : '<div></div>';
+      <div class="nm">${esc(x.p.name.trim().split(/\s+/)[0])}</div><div class="pc">${numUp(Math.round(x.m/x.a*100),'%')}</div><small>${x.m}/${x.a}</small></div>` : '<div></div>';
   const C = state.compete || { potw:[], challenges:[] };
   const drillOpts = ['', ...state.drills].map(d => `<option value="${esc(d)}">${d ? esc(d) : 'Any drill'}</option>`).join('');
   const compete = `${potwCard(C.potw)}
@@ -719,7 +786,7 @@ function renderBoard(){
         <div class="field"><span>Runs for</span><div class="seg">${[['7','1 week'],['14','2 weeks'],['30','1 month']].map(([v,l]) => `<button type="button" data-cdays="${v}" aria-pressed="${(ui.cDays||'7')===v}">${l}</button>`).join('')}</div></div>
         <button class="primary" type="submit">Start challenge</button>
         <button class="ghost center" type="button" data-cancelchal>Cancel</button>
-      </form>` : `<button class="chip add" data-newchal style="margin-bottom:6px">New challenge</button>`}
+      </form>` : `<button class="chip add" data-newchal style="margin-bottom:6px">${ic('plus')}New challenge</button>`}
     <h2>Shooting leaderboard</h2>`;
   el.innerHTML = compete + `<div class="chips">${drills.map(d => `<button class="chip" data-bdrill="${esc(d)}" aria-pressed="${d===ui.boardDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
     <div class="seg">${[['all','All time'],['30','30 days'],['7','7 days']].map(([v,l]) => `<button data-period="${v}" aria-pressed="${v===ui.period}">${l}</button>`).join('')}</div>
@@ -727,15 +794,15 @@ function renderBoard(){
     ${rest.length ? `<ol class="rank" start="4">${rest.map((x,i) => `<li><span class="n">${i+4}</span>
       <div class="who">${esc(x.p.name)}<small>${x.m}/${x.a} shots</small><div class="meter"><i style="width:${Math.round(x.m/x.a*100)}%"></i></div></div>
       <span class="p">${pct(x.m,x.a)}</span></li>`).join('')}</ol>` : ''}
-    ${!ranked.length ? `<div class="panel"><p class="muted" style="margin:0">Players appear here once they’ve taken ${MIN_ATT} or more shots in this drill and time period.</p></div>` : ''}
+    ${!ranked.length ? `<div class="panel emptybox">${emptyArt()}<p class="muted" style="margin:0">Players appear here once they’ve taken ${MIN_ATT} or more shots in this drill and time period.</p></div>` : ''}
     ${low.length ? `<p class="note">Still under ${MIN_ATT} shots: ${low.map(x => `${esc(x.p.name)} (${x.a})`).join(', ')}.</p>` : ''}
-    ${ranked.length ? `<button class="primary" data-share style="margin-top:18px">Copy for the team chat</button>` : ''}
+    ${ranked.length ? `<button class="primary" data-share style="margin-top:18px">${ic('copy')}Copy for the team chat</button>` : ''}
     <h2>Recent drills</h2>
     ${state.sessions.length ? `<ul class="hist">${[...state.sessions].reverse().slice(0,15).map(s => {
       const v = Object.values(s.counts), m = v.reduce((a,x)=>a+x.m,0), a = v.reduce((q,x)=>q+x.a,0);
       return `<li><div class="t">${esc(s.drill)}<small>${day(s.date)}, ${v.length} player${v.length>1?'s':''}, ${m}/${a}</small></div>
         <span class="p">${pct(m,a)}</span>
-        <button class="x" data-delsess="${s.id}" aria-label="Delete ${esc(s.drill)} from ${day(s.date)}">×</button></li>`; }).join('')}</ul>`
+        <button class="x" data-delsess="${s.id}" aria-label="Delete ${esc(s.drill)} from ${day(s.date)}">${ic('trash')}</button></li>`; }).join('')}</ul>`
       : '<p class="empty">Finished drills are listed here.</p>'}`;
 }
 
@@ -780,7 +847,7 @@ function playerDetail(p){
   return `<div class="pdetail">
     <div class="invite">${p.user_id
       ? `<div><strong>Player account linked</strong><small>${esc(p.name)} can sign in and see their own stats.</small></div><button class="ghost" data-unlink="${p.id}">Unlink</button>`
-      : `<div><small>Invite code</small><span class="code">${esc(p.invite_code)}</span></div><div class="invbtns"><button class="chip" data-invite="${p.id}">Copy invite</button><button class="ghost" data-newcode="${p.id}">New code</button></div>`}
+      : `<div><small>Invite code</small><span class="code">${esc(p.invite_code)}</span></div><div class="invbtns"><button class="chip" data-invite="${p.id}">${ic('copy')}Copy invite</button><button class="ghost" data-newcode="${p.id}">New code</button></div>`}
     </div>
     ${(() => { const mine = (state.compete?.badges || []).filter(b => b.player_id === p.id); const cnt = {};
         mine.forEach(b => { const k = badgeKey(b.badge); cnt[k] = (cnt[k] || 0) + 1; });
@@ -793,8 +860,9 @@ function playerDetail(p){
 }
 function render(){ renderDrill(); renderBoard(); renderPlayers(); }
 function showTab(t){
-  document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
+  ui.ctab = t;
   document.querySelectorAll('#coach > section').forEach(s => s.hidden = s.id !== t);
+  renderTabbar(); enter($('#'+t)); if(t === 'board') countUp($('#board'));
   window.scrollTo(0,0);
 }
 
@@ -838,9 +906,10 @@ async function loadPlayer(){
   if(ui.meIdx >= myPlayers.length) ui.meIdx = 0;
   pdata.compete = {};
   await Promise.all(tids.map(async t => { try{ pdata.compete[t] = await loadCompete(t); }catch(_){ pdata.compete[t] = { board:[], potw:[], challenges:[], badges:[] }; } }));
-  renderHeader(); renderPlayerView(); show('player');
+  renderHeader(); show('player'); renderPlayerView(); enter($('#player')); checkNewBadges();
 }
-function renderPlayerView(){
+function renderPlayerView(){ renderPlayerViewInner(); countUp($('#player')); }
+function renderPlayerViewInner(){
   const p = myPlayers[ui.meIdx], team = pdata.teams[p.team_id] || { name:'', drills:ZONE_NAMES };
   const res = pdata.results.filter(x => x.pid === p.id);
   const m = res.reduce((s,x) => s + x.m, 0), a = res.reduce((s,x) => s + x.a, 0);
@@ -851,17 +920,18 @@ function renderPlayerView(){
   const bars = last.length ? `<svg viewBox="0 0 300 120" class="bars" role="img" aria-label="Make rate in your last ${last.length} drills">
       ${[0,50,100].map(v => `<line x1="24" x2="300" y1="${10 + (100-v)*0.9}" y2="${10 + (100-v)*0.9}" class="gl"/><text x="18" y="${14 + (100-v)*0.9}" text-anchor="end">${v}</text>`).join('')}
       ${last.map((x,i) => { const w = 276/12, h = x.a ? x.m/x.a*90 : 0; return `<rect x="${28 + i*w}" y="${100 - h}" width="${w-6}" height="${Math.max(h,1)}" rx="3"><title>${esc(x.drill)}, ${day(x.date)}: ${pct(x.m,x.a)}</title></rect>`; }).join('')}
-    </svg>` : '<p class="empty">Your drills will show here once your coach logs some shots.</p>';
+    </svg>` : `<div class="emptybox">${emptyArt()}<p class="muted" style="margin:0">Your drills will show here once your coach logs some shots.</p></div>`;
   const C = pdata.compete[p.team_id] || { board:[], potw:[], challenges:[], badges:[] };
   const meRow = C.board.find(r => r.player_id === p.id) || { xp:0, level:1, badges:0 };
   const L = levelInfo(meRow.xp);
   const tab = ui.ptab || 'me';
-  const tabs = `<div class="seg full ptabs" style="grid-template-columns:repeat(3,1fr)">${[['me','My stats'],['team','Team'],['badges','Badges']].map(([v,l]) => `<button data-ptab="${v}" aria-pressed="${tab===v}">${l}</button>`).join('')}</div>`;
+  const tabsOld = `<div class="seg full ptabs" style="grid-template-columns:repeat(3,1fr)">${[['me','My stats'],['team','Team'],['badges','Badges']].map(([v,l]) => `<button data-ptab="${v}" aria-pressed="${tab===v}">${l}</button>`).join('')}</div>`;
+  const tabs = '';
   const picker = myPlayers.length > 1 ? `<div class="chips">${myPlayers.map((q,i) => `<button class="chip" data-meidx="${i}" aria-pressed="${i===ui.meIdx}">${esc(q.name)}, ${esc(pdata.teams[q.team_id]?.name || '')}</button>`).join('')}</div>` : '';
   if(tab === 'team'){
     const hidden = C.board.some(r => !r.name);
     $('#player').innerHTML = picker + tabs + potwCard(C.potw) +
-      `<h2>Challenges</h2>${C.challenges.length ? C.challenges.map(c => challengeCard(c, false)).join('') : '<div class="panel"><p class="muted" style="margin:0">No challenges right now. Your coach can start one.</p></div>'}
+      `<h2>Challenges</h2>${C.challenges.length ? C.challenges.map(c => challengeCard(c, false)).join('') : `<div class="panel emptybox">${emptyArt()}<p class="muted" style="margin:0">No challenges right now. Your coach can start one.</p></div>`}
       <h2>Team ladder</h2>
       <ol class="ladder">${C.board.map((r,i) => `<li class="${r.is_me ? 'me' : ''}"><span class="n">${i+1}</span>
         <div>${r.is_me ? 'You' : esc(r.name || 'Teammate')}<small>Level ${r.level}, ${r.badges} badge${r.badges===1?'':'s'}</small></div><b>${r.xp.toLocaleString()} XP</b></li>`).join('')}</ol>
@@ -871,7 +941,7 @@ function renderPlayerView(){
   if(tab === 'badges'){
     const cnt = {}; C.badges.filter(b => b.player_id === p.id).forEach(b => { const k = badgeKey(b.badge); cnt[k] = (cnt[k] || 0) + 1; });
     const earned = Object.keys(BADGES).filter(k => cnt[k]), locked = Object.keys(BADGES).filter(k => !cnt[k]);
-    $('#player').innerHTML = picker + tabs + `<div class="panel" style="margin-bottom:16px"><span class="lvl">Lv ${L.lv}</span><b>${meRow.xp.toLocaleString()} XP</b>
+    $('#player').innerHTML = picker + tabs + `<div class="panel" style="margin-bottom:16px"><span class="lvl">Lv ${L.lv}</span><b>${numUp(meRow.xp,' XP')}</b>
         <div class="xpbar"><i style="width:${L.pctToNext}%"></i></div><small class="muted">${L.toNext.toLocaleString()} XP to level ${L.lv+1}. ${earned.length} of ${Object.keys(BADGES).length} badges earned.</small></div>
       ${earned.length ? `<h2>Earned</h2><div class="medals">${earned.map(k => medal(k, true, cnt[k])).join('')}</div>` : ''}
       <h2>${earned.length ? 'Still to unlock' : 'Badges to unlock'}</h2><div class="medals">${locked.map(k => medal(k, false)).join('')}</div>`;
@@ -882,10 +952,10 @@ function renderPlayerView(){
     <div class="hero panel">
       ${p.num ? `<span class="jersey" aria-hidden="true">${esc(p.num)}</span>` : ''}
       <p class="label">${esc(p.name)}</p>
-      <div class="big">${pct(m,a)}</div>
+      <div class="big">${a ? numUp(Math.round(m/a*100),'%') : '–'}</div>
       <p class="muted" style="margin:0">${a ? `${m} of ${a} shots made across ${res.length} drill${res.length===1?'':'s'}` : 'No shots logged yet'}</p>
       <div class="xpbar"><i style="width:${L.pctToNext}%"></i></div>
-      <small class="muted"><span class="lvl">Lv ${L.lv}</span>${meRow.xp.toLocaleString()} XP, ${L.toNext.toLocaleString()} to next level</small>
+      <small class="muted"><span class="lvl">Lv ${L.lv}</span>${numUp(meRow.xp,' XP')}, ${L.toNext.toLocaleString()} to next level</small>
     </div>
     <h2>Team rank</h2>
     <div class="chips">${drills.map(d => `<button class="chip" data-medrill="${esc(d)}" aria-pressed="${d===ui.meDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
@@ -905,10 +975,11 @@ async function loadRank(p){
   if(error){ box.innerHTML = '<p class="muted" style="margin:0">Couldn’t load your rank right now.</p>'; return; }
   const row = (data || []).find(x => x.player_id === p.id) || { rank:null, ranked:0, made:0, attempts:0 };
   box.innerHTML = row.rank
-    ? `<div class="rk"><span class="rkn">${ordinal(row.rank)}</span><span class="muted">of ${row.ranked} ranked on the team</span></div>
+    ? `<div class="rk"><span class="rkn">${numUp(row.rank, ordinal(row.rank).replace(/^\d+/, ''))}</span><span class="muted">of ${row.ranked} ranked on the team</span></div>
        <p class="muted" style="margin:6px 0 0">${pct(row.made,row.attempts)} from ${row.made}/${row.attempts} shots. Only you can see where you rank.</p>`
     : `<div class="rk"><span class="rkn dim">Unranked</span></div>
        <p class="muted" style="margin:6px 0 0">${row.attempts ? `Take ${MIN_ATT - row.attempts} more shot${MIN_ATT - row.attempts === 1 ? '' : 's'} here to get ranked.` : `Players get ranked after ${MIN_ATT} shots.`}${row.ranked ? ` ${row.ranked} teammate${row.ranked===1?' is':'s are'} ranked.` : ''}</p>`;
+  countUp(box);
 }
 
 /* ---------- achievements & competition ---------- */
@@ -982,6 +1053,106 @@ function challengeCard(c, coachView){
   </div>`;
 }
 
+/* ---------- polish: icons, motion, celebrations ---------- */
+const ICONS = {
+  drill:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>',
+  board:'<path d="M8 4h8v5a4 4 0 0 1-8 0Z"/><path d="M8 6H5a3 3 0 0 0 3 3.5M16 6h3a3 3 0 0 1-3 3.5M12 13v4M8 20.5h8M9.5 17h5v3.5h-5Z"/>',
+  players:'<circle cx="9" cy="8" r="3.2"/><path d="M3 19.5a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.8 14.3A5 5 0 0 1 21 19.5"/>',
+  stats:'<path d="M4 20V11M10 20V5M16 20v-6M3 20.5h18"/>',
+  badge:'<path d="M12 2.8 19.5 7v9L12 20.2 4.5 16V7Z"/><path d="m12 8 1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4Z"/>',
+  undo:'<path d="M9 7.5H4.5V3"/><path d="M4.8 7.3A8 8 0 1 1 4 14"/>',
+  trash:'<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l.9 12.5h9.2L17.5 7M10 11v5M14 11v5"/>',
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5.5 15H5a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 5 3.5h8.5A1.5 1.5 0 0 1 15 5v.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16Z"/>',
+};
+const ic = (n, cls = 'ic') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
+const numUp = (v, suf = '') => `<span data-count="${v}" data-suffix="${esc(suf)}">${Number(v).toLocaleString()}${esc(suf)}</span>`;
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countUp(root){
+  if(!root || reduced()) return;
+  root.querySelectorAll('[data-count]').forEach(el => {
+    const end = +el.dataset.count, suf = el.dataset.suffix || '', t0 = performance.now(), dur = 800;
+    const put = v => el.textContent = Math.round(v).toLocaleString() + suf;
+    const step = now => { const k = Math.min(1, (now - t0) / dur); put(end * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(step); };
+    put(0); requestAnimationFrame(step);
+  });
+}
+function enter(el){ if(!el || reduced()) return; el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter'); }
+const hapticEl = (() => { const l = document.createElement('label'); l.setAttribute('aria-hidden','true'); l.style.cssText = 'position:fixed;left:-200px;top:0;opacity:0;pointer-events:none';
+  const i = document.createElement('input'); i.type = 'checkbox'; i.setAttribute('switch',''); i.tabIndex = -1; l.appendChild(i); document.body.appendChild(l); return l; })();
+function haptic(){ try{ if(navigator.vibrate) navigator.vibrate(12); else hapticEl.click(); }catch(_){} }
+function bump(pid, made){
+  const btn = document.querySelector(`[data-shot="${pid}"]`); const card = btn && btn.closest('.pcard'); if(!card) return;
+  card.classList.add(made ? 'bump-make' : 'bump-miss');
+  if(made){ const s = document.createElement('span'); s.className = 'plus'; s.textContent = '+1'; card.appendChild(s); }
+}
+function emptyArt(){
+  return `<svg class="emptyart" viewBox="0 0 140 90" aria-hidden="true"><path d="M10 10h120M28 10v34a42 42 0 0 0 84 0V10M54 10v40h32V10M58 50a12 12 0 0 0 24 0"/><circle cx="70" cy="22" r="3.5" class="rim"/><circle cx="104" cy="70" r="12" class="ball"/><path d="M92 70h24M104 58v24M96 61a14 14 0 0 1 0 18M112 61a14 14 0 0 0 0 18" class="seam"/></svg>`;
+}
+function renderTabbar(){
+  const items = mode === 'coach'
+    ? [['drill','Drill','drill'],['board','Leaderboard','board'],['players','Players','players']]
+    : [['me','My stats','stats'],['team','Team','board'],['badges','Badges','badge']];
+  const cur = mode === 'coach' ? (ui.ctab || 'drill') : (ui.ptab || 'me');
+  $('#tabbar').innerHTML = items.map(([v,l,n]) => `<button ${mode === 'coach' ? 'data-tab' : 'data-ptab'}="${v}" role="tab" aria-selected="${v === cur}">${ic(n,'')}<span>${l}</span></button>`).join('');
+}
+function skeleton(){
+  return `<div class="skel" style="height:56px;margin-bottom:22px"></div><div class="skel" style="height:190px;margin-bottom:14px"></div>
+    <div class="skel" style="height:24px;width:40%;margin-bottom:12px"></div><div class="skel" style="height:260px;margin-bottom:14px"></div><div class="skel" style="height:90px"></div>`;
+}
+function splash(){
+  return `<div class="splashin"><img class="applogo" src="apple-touch-icon.png" alt="" onerror="this.remove()"><p>Drill Board</p></div>`;
+}
+
+/* badge celebration */
+let celeQ = [];
+function bigMedal(key){
+  const b = BADGES[key];
+  return `<svg class="bigmedal" viewBox="0 0 64 72" aria-hidden="true"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0D28E"/><stop offset=".55" stop-color="#D2AE63"/><stop offset="1" stop-color="#9A7631"/></linearGradient></defs>
+    <path d="M32 2 60 18v36L32 70 4 54V18Z" fill="url(#mg)"/><path d="M32 9 54 22v28L32 63 10 50V22Z" fill="none" stroke="#12241F" stroke-opacity=".3" stroke-width="1.5"/>
+    <text x="32" y="${b.glyph.length > 2 ? 43 : 45}" text-anchor="middle" font-size="${b.glyph.length > 2 ? 17 : 22}" fill="#12241F" font-family="Big Shoulders Display, Impact, sans-serif" font-weight="800">${esc(b.glyph)}</text></svg>`;
+}
+function celebrate(items){ celeQ.push(...items.filter(x => BADGES[x.key])); if($('#celebrate').hidden) nextCele(); }
+function nextCele(){
+  const el = $('#celebrate'), it = celeQ.shift();
+  if(!it){ el.hidden = true; el.innerHTML = ''; return; }
+  const b = BADGES[it.key];
+  el.innerHTML = `<canvas></canvas><div class="cele-card" role="dialog" aria-label="Badge earned: ${esc(b.name)}">
+    <p class="k">${esc(it.kicker)}</p>${bigMedal(it.key)}<h2>${esc(b.name)}</h2><p class="d">${esc(b.desc)}</p>
+    <button class="primary" data-celenext>${celeQ.length ? `Next (${celeQ.length} more)` : 'Nice!'}</button></div>`;
+  el.hidden = false; haptic(); confetti(el.querySelector('canvas'));
+  el.querySelector('[data-celenext]').focus();
+}
+function confetti(cv){
+  if(reduced()) return;
+  const d = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+  cv.width = W * d; cv.height = H * d; const c = cv.getContext('2d'); c.scale(d, d);
+  const cols = ['#D2AE63','#F0D28E','#EFE7D6','#5DBE8C','#F26B1D','#6E9BE8'];
+  const P = Array.from({ length: 150 }, () => ({ x: W/2, y: H*0.38, vx: (Math.random() - .5) * 13, vy: -Math.random() * 13 - 4,
+    r: Math.random() * Math.PI, vr: (Math.random() - .5) * .35, w: 6 + Math.random() * 6, h: 3 + Math.random() * 5, c: cols[(Math.random() * cols.length) | 0] }));
+  const t0 = performance.now();
+  (function frame(now){
+    const t = now - t0; c.clearRect(0, 0, W, H);
+    P.forEach(p => { p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      c.save(); c.translate(p.x, p.y); c.rotate(p.r); c.globalAlpha = Math.max(0, 1 - t / 2600); c.fillStyle = p.c; c.fillRect(-p.w/2, -p.h/2, p.w, p.h); c.restore(); });
+    if(t < 2600 && cv.isConnected) requestAnimationFrame(frame);
+  })(t0);
+}
+function checkNewBadges(){
+  const items = [];
+  myPlayers.forEach(p => {
+    const C = pdata.compete[p.team_id]; if(!C) return;
+    const mine = C.badges.filter(b => b.player_id === p.id).map(b => b.badge);
+    const k = 'drillboard-seen-' + p.id; let seen = [];
+    try{ seen = JSON.parse(localStorage.getItem(k) || '[]'); }catch(_){}
+    mine.filter(b => !seen.includes(b)).slice(0, 4).forEach(b => items.push({ key: badgeKey(b), kicker: myPlayers.length > 1 ? `${p.name} earned` : 'You earned' }));
+    try{ localStorage.setItem(k, JSON.stringify(mine)); }catch(_){}
+  });
+  if(items.length) setTimeout(() => celebrate(items), 450);
+}
+addEventListener('scroll', () => { const h = $('#hdr'); if(h) h.classList.toggle('scrolled', scrollY > 6); }, { passive:true });
+
 /* ---------- events ---------- */
 function pickZone(name){ ui.drill = name; renderDrill(); }
 document.addEventListener('submit', async e => {
@@ -1027,7 +1198,7 @@ document.addEventListener('click', async e => {
     return;
   }
   // player view
-  if(d.ptab){ ui.ptab = d.ptab; renderPlayerView(); window.scrollTo(0,0); return; }
+  if(d.ptab){ ui.ptab = d.ptab; renderTabbar(); renderPlayerView(); enter($('#player')); window.scrollTo(0,0); return; }
   if('shownames' in d){
     const next = !state.showNames;
     const { error } = await sb.from('teams').update({ show_names: next }).eq('id', state.teamId);
@@ -1049,6 +1220,7 @@ document.addEventListener('click', async e => {
   if(d.meperiod){ ui.mePeriod = d.meperiod; renderPlayerView(); return; }
   // coach
   if(d.tab){ showTab(d.tab); return; }
+  if('celenext' in d){ nextCele(); return; }
   if(d.go){ showTab(d.go); $('#pName')?.focus(); return; }
   if('import' in d){ importLocal(b); return; }
   if(d.pick){ ui.drill = d.pick; renderDrill(); return; }
@@ -1063,7 +1235,7 @@ document.addEventListener('click', async e => {
     return;
   }
   if('start' in d){ state.active = { drill: ui.drill, started: Date.now(), log: [] }; saveActive(); renderDrill(); return; }
-  if(d.shot){ state.active.log.push({ p: d.shot, m: +d.m }); if(navigator.vibrate) try{ navigator.vibrate(10); }catch(_){} saveActive(); renderDrill(); return; }
+  if(d.shot){ state.active.log.push({ p: d.shot, m: +d.m }); haptic(); saveActive(); renderDrill(); bump(d.shot, +d.m); return; }
   if('undo' in d){ state.active.log.pop(); saveActive(); renderDrill(); return; }
   if('cancel' in d){ if(confirm('Discard this drill? Shots logged so far will be lost.')){ state.active = null; saveActive(); renderDrill(); } return; }
   if('end' in d){
@@ -1084,6 +1256,7 @@ document.addEventListener('click', async e => {
       try{ state.compete = await loadCompete(state.teamId); }catch(_){}
       const fresh = (state.compete?.badges || []).filter(b => !before.has(b.player_id + b.badge) && BADGES[badgeKey(b.badge)]);
       render(); showTab('board');
+      if(fresh.length) celebrate(fresh.slice(0, 5).map(b => ({ key: badgeKey(b.badge), kicker: `${player(b.player_id)?.name || 'A player'} earned` })));
       toast(fresh.length ? `${a.drill} saved. ${fresh.length === 1 ? `${player(fresh[0].player_id)?.name} earned ${BADGES[badgeKey(fresh[0].badge)].name}!` : `${fresh.length} new badges earned!`}` : `${a.drill} saved`);
     }catch(_){
       ui.busy = false; renderDrill();
