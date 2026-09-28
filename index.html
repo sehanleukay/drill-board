@@ -377,6 +377,21 @@ button.medal{font:inherit;color:inherit;cursor:pointer;width:100%}
 .bgrid.locked small{color:var(--muted)}
 .bgrid em{font-style:normal;font-size:.62rem;color:var(--muted);text-align:center;line-height:1.2;opacity:.8}
 
+/* ---- photos ---- */
+.avimg{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.bigav{overflow:visible;cursor:pointer;padding:0}
+.bigav .avimg{position:absolute;inset:0}
+.bigav span{position:relative}
+.camb{position:absolute;right:-2px;top:-2px;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;box-shadow:0 0 0 2px var(--bg)}
+.camb svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.acct{overflow:hidden;padding:0}
+.acct .avimg{border-radius:50%}
+.num{overflow:hidden}
+.num .avimg{border-radius:10px}
+.avatar.big2{width:96px;height:96px;overflow:hidden;font-size:2.2rem}
+.lav{width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;box-shadow:0 0 0 1.5px var(--line)}
+.pcav{width:24px;height:24px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 1.5px var(--line)}
+
 /* ---- competition ---- */
 .medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
 .medal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
@@ -631,7 +646,7 @@ async function boot(){
 }
 async function loadRoles(){
   const [t, p] = await Promise.all([
-    sb.from('teams').select('id,name,drills,show_names,suburb,state,age_group,division,public_boards').eq('coach_id', me.id).order('created_at').limit(1),
+    sb.from('teams').select('id,name,drills,show_names,suburb,state,age_group,division,public_boards,coach_avatar_v,allow_photos').eq('coach_id', me.id).order('created_at').limit(1),
     sb.from('players').select('id,name,num,team_id,nickname,public_opt_in').eq('user_id', me.id).order('created_at'),
   ]);
   if(t.error) throw t.error; if(p.error) throw p.error;
@@ -689,7 +704,8 @@ function renderHeader(){
   $('#teamName').innerHTML = esc(teamName) + (mode === 'coach' ? ic('edit') : '');
   $('#teamName').disabled = mode !== 'coach';
   $('#appLabel').textContent = mode === 'coach' ? 'Coach view' : ui.preview ? 'Player preview' : 'Player view';
-  $('#acct').textContent = initials(me?.email?.split('@')[0]?.replace(/[._-]+/g,' '));
+  { const mp = myPlayers[ui.meIdx], tId = mode === 'coach' ? state.teamId : mp?.team_id, pId = mode === 'coach' ? null : mp?.id;
+    $('#acct').innerHTML = avFace(tId, pId, initials(mode === 'player' && mp ? (mp.nickname || mp.name) : me?.email?.split('@')[0]?.replace(/[._-]+/g,' '))); }
   const m = $('#menu');
   m.hidden = !ui.menu;
   m.innerHTML = `<p class="who">Signed in as<br><strong>${esc(me?.email)}</strong></p>
@@ -720,6 +736,7 @@ async function loadCoach(){
   state.sessions = s.data.map(x => ({ id:x.id, drill:x.drill, kind:x.kind || 'team', date:Date.parse(x.started_at),
     counts:Object.fromEntries((x.session_results||[]).map(r => [r.player_id, { m:r.made, a:r.attempts }])) }));
   state.active = loadActive();
+  await loadTeamAvatars(id);
   state.showNames = !!coachTeam.show_names;
   try{ state.compete = await loadCompete(id); }catch(_){ state.compete = { board:[], potw:[], challenges:[], badges:[] }; }
   if(!state.drills.includes(ui.drill)) ui.drill = state.drills[0];
@@ -911,7 +928,7 @@ function renderDrill(){
       const x = c[p.id] || {m:0,a:0}, hot = best && best[0] === p.id;
       return `<div class="pcard${hot ? ' hot' : ''}">
         ${p.num ? `<span class="jersey" aria-hidden="true">${esc(p.num)}</span>` : ''}
-        <div class="pname">${esc(p.name)}${hot ? '<span class="tag">Hot</span>' : ''}</div>
+        <div class="pname">${avatarUrl(state.teamId, p.id) ? `<img class="pcav" src="${avatarUrl(state.teamId, p.id)}" alt="">` : ''}${esc(p.name)}${hot ? '<span class="tag">Hot</span>' : ''}</div>
         <div class="pstat"><b>${pct(x.m,x.a)}</b><span>${x.m}/${x.a}</span></div>
         <div class="track"><i style="width:${x.a ? Math.round(x.m/x.a*100) : 0}%"></i></div>
         <div class="mm"><button class="mk" data-shot="${p.id}" data-m="1" aria-label="Make for ${esc(p.name)}">Make</button><button class="ms" data-shot="${p.id}" data-m="0" aria-label="Miss for ${esc(p.name)}">Miss</button></div>
@@ -980,7 +997,7 @@ function renderPlayers(){
     ${state.players.length ? `<ul class="plist">${state.players.map(p => {
       const x = all[p.id] || {m:0,a:0}, open = ui.open === p.id;
       return `<li><button class="prow" data-open="${p.id}" aria-expanded="${open}">
-          <span class="num">${p.num ? esc(p.num) : esc(initials(p.name))}</span>
+          <span class="num">${avFace(state.teamId, p.id, p.num ? p.num : initials(p.name))}</span>
           <span><span class="nm">${esc(p.name)}</span>${(() => { const st = dayStreak(state.sessions.filter(s => s.counts[p.id]).map(s => s.date)); return st.cur >= 2 ? `<span class="pflame">${ic('flame')}${st.cur}</span>` : ''; })()}${p.user_id ? ' <span class="tag">Linked</span>' : ''}<small>${bmap[p.id] ? `Level ${bmap[p.id].level}, ${bmap[p.id].badges} badge${bmap[p.id].badges===1?'':'s'}, ` : ''}${x.a} shot${x.a===1?'':'s'}</small></span>
           <b>${pct(x.m,x.a)}</b></button>
         ${open ? playerDetail(p) : ''}</li>`; }).join('')}</ul>
@@ -1014,6 +1031,7 @@ function playerDetail(p){
     ${anyZone ? `<p class="minihead">Shooting by spot</p>${courtSVG('heat', zv)}<div class="heatkey"><span><i style="background:#3F86E0"></i>Under 35%</span><span><i style="background:#F0A93B"></i>35–49%</span><span><i style="background:#E8522B"></i>50%+</span></div>` : ''}
     ${rows ? `<table><tr><th>By drill</th><th>Shots</th><th>Rate</th></tr>${rows}</table>` : '<p class="muted">No shots logged yet.</p>'}
     ${recent ? `<table><tr><th>Last 5 drills</th><th>Shots</th><th>Rate</th></tr>${recent}</table>` : ''}
+    ${avatarUrl(state.teamId, p.id) ? `<div class="invite"><div><small>Profile photo</small><img class="pcav" src="${avatarUrl(state.teamId, p.id)}" alt="" style="width:44px;height:44px;margin-top:4px"></div><button class="ghost danger" data-rmplayerphoto="${p.id}">Remove photo</button></div>` : ''}
     <div id="cf-${p.id}"></div>
     <div class="row"><button class="ghost" data-rename="${p.id}">Rename</button><button class="ghost danger" data-delp="${p.id}">Remove player</button></div>
   </div>`;
@@ -1055,7 +1073,7 @@ async function loadPlayer(){
   show('loading'); ['drill','board','players','cprofile'].forEach(id => $('#'+id).innerHTML = '');
   const ids = myPlayers.map(p => p.id), tids = [...new Set(myPlayers.map(p => p.team_id))];
   const [t, r] = await Promise.all([
-    sb.from('teams').select('id,name,drills,suburb,state,age_group,division,public_boards').in('id', tids),
+    sb.from('teams').select('id,name,drills,suburb,state,age_group,division,public_boards,allow_photos').in('id', tids),
     sb.from('session_results').select('player_id,made,attempts,sessions(id,drill,started_at,kind)').in('player_id', ids),
   ]);
   if(t.error || r.error) return fail();
@@ -1066,7 +1084,7 @@ async function loadPlayer(){
   if(ui.meIdx >= myPlayers.length) ui.meIdx = 0;
   pdata.compete = {};
   await Promise.all(tids.map(async t => { try{ pdata.compete[t] = await loadCompete(t); }catch(_){ pdata.compete[t] = { board:[], potw:[], challenges:[], badges:[] }; } }));
-  await Promise.all(myPlayers.map(q => loadFollows(q.id)));
+  await Promise.all(myPlayers.map(q => loadFollows(q.id)).concat(tids.map(t => loadTeamAvatars(t))));
   renderHeader(); show('player'); renderPlayerView(); enter($('#player')); checkNewBadges();
 }
 function renderPlayerView(){ renderPlayerViewInner(); $('#player').insertAdjacentHTML('afterbegin', previewBanner()); $('#player').classList.toggle('previewing', !!ui.preview); countUp($('#player'));
@@ -1490,7 +1508,7 @@ async function loadBoards(team){
   const note = { makes:'All shots count, including practice.', pct:'Coach-run drills only, 30+ shots.', ft:'Coach-run drills only, 20+ free throws.', three:'Coach-run drills only, 20+ threes.' }[ui.lbMetric];
   const tappable = r => mode === 'player' && !ui.preview && !r.is_me && r.visible && r.display;
   const row = r => `<li class="${r.is_me ? 'me' : ''}"${tappable(r) ? ` data-prow="${r.player_id}" data-pname="${esc(r.display)}" data-pteam="${esc(r.team_name)}" data-psub="${esc(r.suburb || '')}" data-pval="${r.value}${unit}"` : ''}><span class="n">${r.rank}</span>
-      <div class="who">${esc(r.is_me ? (r.display || 'You') + ' (you)' : (r.display || 'Teammate'))}${ui.lbScope !== 'team' ? `<small>${r.is_me ? '' : relation(myPlayers[ui.meIdx]?.id, r.player_id) === 'accepted' && ui.lbScope !== 'following' ? 'Following, ' : ''}${esc(r.team_name)}${ui.lbScope === 'state' ? `, ${esc(r.suburb || '')}` : ''}</small>` : `<small>${r.made}/${r.attempts} shots</small>`}</div>
+      <div class="who">${(ui.lbScope === 'team' || r.is_my_team) && avatarUrl(team.id, r.player_id) ? `<img class="lav" src="${avatarUrl(team.id, r.player_id)}" alt="">` : ''}${esc(r.is_me ? (r.display || 'You') + ' (you)' : (r.display || 'Teammate'))}${ui.lbScope !== 'team' ? `<small>${r.is_me ? '' : relation(myPlayers[ui.meIdx]?.id, r.player_id) === 'accepted' && ui.lbScope !== 'following' ? 'Following, ' : ''}${esc(r.team_name)}${ui.lbScope === 'state' ? `, ${esc(r.suburb || '')}` : ''}</small>` : `<small>${r.made}/${r.attempts} shots</small>`}</div>
       <b>${r.value}${unit}</b></li>`;
   $('#lbBox').innerHTML = `<div class="lbhead"><div><b>${esc(where)}</b><small>${monthName()} season. ${note}</small></div>
       ${me && !isCoach ? `<div class="mypos"><span>${ordinal(me.rank)}</span><small>of ${total}</small></div>` : ''}</div>
@@ -1678,7 +1696,7 @@ function renderCoachProfile(){
   const drills = state.sessions.filter(s => s.kind !== 'solo').length;
   const linked = state.players.filter(p => p.user_id).length;
   el.innerHTML = `<div class="prof">
-      <div class="bigav coach">${esc(initials(me?.email?.split('@')[0]?.replace(/[._-]+/g,' ')))}</div>
+      <button class="bigav coach" data-photo="coach" aria-label="Profile photo">${avatarUrl(state.teamId, null) ? `<img class="avimg" src="${avatarUrl(state.teamId, null)}" alt="">` : `<span>${esc(initials(me?.email?.split('@')[0]?.replace(/[._-]+/g,' ')))}</span>`}<i class="camb">${ic('camera','')}</i></button>
       <div class="pstats">${[[state.players.length,'Players'],[linked,'Linked'],[drills,'Drills']].map(([n,l]) => `<div><b>${numUp(n)}</b><small>${l}</small></div>`).join('')}</div>
     </div>
     <p class="pname2">Coach<small>${esc(state.team)}${coachTeam.suburb ? `, ${esc(coachTeam.suburb)}` : ''}${coachTeam.age_group ? `, ${esc(coachTeam.age_group)}` : ''}</small></p>
@@ -1686,6 +1704,9 @@ function renderCoachProfile(){
     <div class="panel switch" style="margin-bottom:16px"><div><b>Show names to teammates</b>
       <small>${state.showNames ? 'Players can see each other’s names on the team ladder, challenges and player of the week.' : 'Players see their own stats. Teammates show as “Teammate”.'}</small></div>
       <button class="tog" role="switch" aria-checked="${!!state.showNames}" aria-label="Show names to teammates" data-shownames></button></div>
+    <div class="panel switch" style="margin-bottom:16px"><div><b>Allow player photos</b>
+      <small>${coachTeam.allow_photos !== false ? 'Players can add a profile photo. Only the team can see it.' : 'Player photos are off and hidden.'}</small></div>
+      <button class="tog" role="switch" aria-checked="${coachTeam.allow_photos !== false}" aria-label="Allow player photos" data-allowphotos></button></div>
     ${accountBlock()}`;
 }
 function renderPlayerProfile(p, team, C, meRow){
@@ -1695,7 +1716,7 @@ function renderPlayerProfile(p, team, C, meRow){
   const cnt = {}; C.badges.filter(b => b.player_id === p.id).forEach(b => { const k = badgeKey(b.badge); cnt[k] = (cnt[k] || 0) + 1; });
   const earned = Object.keys(BADGES).filter(k => cnt[k]);
   return `<div class="prof">
-      <div class="bigav"><span>${esc(initials(p.nickname || p.name))}</span><i class="lvring">Lv ${L.lv}</i></div>
+      <button class="bigav" data-photo="player" aria-label="Profile photo">${avatarUrl(p.team_id, p.id) ? `<img class="avimg" src="${avatarUrl(p.team_id, p.id)}" alt="">` : `<span>${esc(initials(p.nickname || p.name))}</span>`}<i class="lvring">Lv ${L.lv}</i>${ui.preview ? '' : `<i class="camb">${ic('camera','')}</i>`}</button>
       <div class="pstats">
         <button data-jump="badgeSec"><b>${numUp(earned.length)}</b><small>Badges</small></button>
         <button data-plistgo="followers"><b>${numUp(followers)}</b><small>Followers</small></button>
@@ -1713,6 +1734,76 @@ function renderPlayerProfile(p, team, C, meRow){
       : `<p class="note" style="margin:10px 2px 8px">Earn your first badge by logging shots at training or in Practice.</p>`}
     ${Object.keys(BADGES).length > earned.length ? `<h3 class="sub3">Still to unlock</h3><div class="bgrid locked">${Object.keys(BADGES).filter(k => !cnt[k]).map(k => `<button data-lockinfo="${k}" title="${esc(BADGES[k].desc)}">${bigMedal(k).replace('class="bigmedal"', 'class="gmedal"')}<small>${esc(BADGES[k].name)}</small><em>${esc(BADGES[k].desc)}</em></button>`).join('')}</div>` : ''}
     ${accountBlock()}`;
+}
+
+/* ---------- profile photos ---------- */
+ICONS.camera = '<path d="M4 8h3l1.6-2.5h6.8L17 8h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/>';
+const avatarUrls = {}, avatarVer = {};
+const avPath = (teamId, pid) => `${teamId}/${pid || 'coach'}.jpg`;
+async function signAvatars(teamId, list){
+  const need = list.filter(x => x.v && !avatarUrls[avPath(teamId, x.pid) + '?' + x.v]);
+  if(!need.length) return;
+  const { data } = await sb.storage.from('avatars').createSignedUrls(need.map(x => avPath(teamId, x.pid)), 60 * 60 * 12);
+  (data || []).forEach((d, i) => { if(d && d.signedUrl) avatarUrls[avPath(teamId, need[i].pid) + '?' + need[i].v] = d.signedUrl; });
+}
+async function loadTeamAvatars(teamId){
+  try{
+    const { data } = await sb.rpc('team_avatars', { p_team: teamId });
+    const m = {}; (data || []).forEach(r => m[r.player_id || 'coach'] = r.avatar_v); avatarVer[teamId] = m;
+    await signAvatars(teamId, Object.entries(m).map(([k, v]) => ({ pid: k === 'coach' ? null : k, v })));
+  }catch(_){}
+}
+function avatarUrl(teamId, pid){ const v = avatarVer[teamId]?.[pid || 'coach']; return v ? avatarUrls[avPath(teamId, pid) + '?' + v] || null : null; }
+function avFace(teamId, pid, text, cls = 'avimg'){ const u = avatarUrl(teamId, pid); return u ? `<img class="${cls}" src="${u}" alt="">` : esc(text); }
+function pickPhoto(){ return new Promise(res => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = () => res(i.files[0] || null); i.click(); }); }
+async function squareJpeg(file){
+  let src;
+  try{ src = await createImageBitmap(file, { imageOrientation:'from-image' }); }
+  catch(_){ src = await new Promise((r, j) => { const im = new Image(); im.onload = () => r(im); im.onerror = j; im.src = URL.createObjectURL(file); }); }
+  const w = src.width, h = src.height, s = Math.min(w, h), c = document.createElement('canvas'); c.width = c.height = 400;
+  c.getContext('2d').drawImage(src, (w - s) / 2, (h - s) / 2, s, s, 0, 0, 400, 400);
+  return new Promise(r => c.toBlob(r, 'image/jpeg', .85));
+}
+function photoTarget(kind){ return kind === 'coach' ? { teamId: state.teamId, pid: null } : { teamId: myPlayers[ui.meIdx].team_id, pid: myPlayers[ui.meIdx].id }; }
+function rerenderAvatars(){ renderHeader(); if(mode === 'coach'){ renderCoachProfile(); renderPlayers(); } else renderPlayerView(); }
+async function uploadAvatar(kind){
+  $('#sheet').hidden = true; $('#sheet').innerHTML = '';
+  const file = await pickPhoto(); if(!file) return;
+  toast('Uploading photo…');
+  let blob; try{ blob = await squareJpeg(file); }catch(_){ return toast('That photo couldn’t be read. Try a different one.'); }
+  const { teamId, pid } = photoTarget(kind);
+  const up = await sb.storage.from('avatars').upload(avPath(teamId, pid), blob, { upsert:true, contentType:'image/jpeg' });
+  if(up.error) return toast(/policy|row-level/i.test(up.error.message) ? 'Your coach has turned off profile photos for this team.' : 'Upload failed. Check your connection.');
+  const v = Date.now();
+  const r = kind === 'coach' ? await sb.from('teams').update({ coach_avatar_v: v }).eq('id', teamId) : await sb.rpc('set_my_avatar', { p_player: pid, p_version: v });
+  if(r.error) return toast(r.error.message || 'Couldn’t save your photo.');
+  if(kind === 'coach') coachTeam.coach_avatar_v = v;
+  avatarVer[teamId] = { ...(avatarVer[teamId] || {}), [pid || 'coach']: v };
+  await signAvatars(teamId, [{ pid, v }]); rerenderAvatars(); toast('Photo updated');
+}
+async function removeAvatar(kind, otherPid){
+  $('#sheet').hidden = true; $('#sheet').innerHTML = '';
+  const t = otherPid ? { teamId: state.teamId, pid: otherPid } : photoTarget(kind);
+  await sb.storage.from('avatars').remove([avPath(t.teamId, t.pid)]);
+  const r = !t.pid ? await sb.from('teams').update({ coach_avatar_v: null }).eq('id', t.teamId)
+    : otherPid ? await sb.from('players').update({ avatar_v: null }).eq('id', t.pid)
+    : await sb.rpc('set_my_avatar', { p_player: t.pid, p_version: null });
+  if(r.error) return toast('Couldn’t remove the photo. Check your connection.');
+  if(!t.pid) coachTeam.coach_avatar_v = null;
+  if(avatarVer[t.teamId]) delete avatarVer[t.teamId][t.pid || 'coach'];
+  rerenderAvatars(); toast('Photo removed');
+}
+function photoSheet(kind){
+  if(ui.preview) return toast('Read-only in preview.');
+  const { teamId, pid } = photoTarget(kind), has = !!avatarUrl(teamId, pid);
+  if(kind === 'player' && pdata.teams[teamId]?.allow_photos === false && !has) return toast('Your coach has turned off profile photos for this team.');
+  $('#sheet').innerHTML = `<div class="cele-card picker" role="dialog" aria-label="Profile photo">
+    <div class="avatar big2">${avFace(teamId, pid, initials(kind === 'coach' ? me.email : (myPlayers[ui.meIdx].nickname || myPlayers[ui.meIdx].name)), 'avimg')}</div>
+    <h2>Profile photo</h2><p class="d">Only your ${kind === 'coach' ? 'players' : 'teammates and coach'} can see it. It never appears on suburb or state leaderboards.</p>
+    <button class="primary" data-upphoto="${kind}">${ic('camera')}${has ? 'Change photo' : 'Choose photo'}</button>
+    ${has ? `<button class="ghost center" data-rmphoto="${kind}" style="color:#E8826A">Remove photo</button>` : ''}
+    <button class="ghost center" data-closesheet style="color:#C9CFC9">Cancel</button></div>`;
+  $('#sheet').hidden = false;
 }
 
 /* ---------- events ---------- */
@@ -1802,6 +1893,16 @@ document.addEventListener('click', async e => {
   // coach
   if(d.tab){ showTab(d.tab); return; }
   if('celenext' in d){ nextCele(); return; }
+  if(d.photo){ photoSheet(d.photo); return; }
+  if(d.upphoto){ uploadAvatar(d.upphoto); return; }
+  if(d.rmphoto){ removeAvatar(d.rmphoto); return; }
+  if(d.rmplayerphoto){ if(confirm('Remove this player’s profile photo?')) removeAvatar('coach', d.rmplayerphoto); return; }
+  if('allowphotos' in d){
+    const next = coachTeam.allow_photos === false;
+    const { error } = await sb.from('teams').update({ allow_photos: next }).eq('id', state.teamId);
+    if(error) return toast('Couldn’t change the setting. Check your connection.');
+    coachTeam.allow_photos = next; await loadTeamAvatars(state.teamId); renderCoachProfile(); renderPlayers(); toast(next ? 'Player photos on' : 'Player photos off and hidden'); return;
+  }
   if(d.jump){ document.getElementById(d.jump)?.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
   if(d.lockinfo){ toast(`${BADGES[d.lockinfo].name}: ${BADGES[d.lockinfo].desc}`); return; }
   if('editprof' in d){ ui.editProf = !ui.editProf; renderPlayerView(); return; }
