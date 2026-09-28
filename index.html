@@ -313,6 +313,60 @@ button.medal{font:inherit;color:inherit;cursor:pointer;width:100%}
 .grid3 select{margin:0 0 12px;padding:11px 8px}
 #profForm input,#teamProf input{width:100%}
 
+/* ---- preview ---- */
+.pvbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + 82px);z-index:25;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:var(--brass);color:var(--brass-ink);border-radius:12px;padding:9px 12px;margin:-6px 0 16px;font-size:.88rem;box-shadow:var(--shadow)}
+.pvbar .ic{margin-right:6px}
+.pvbar button{border:0;background:var(--brass-ink);color:var(--brass);font:700 .85rem var(--body);padding:6px 14px;border-radius:999px;cursor:pointer}
+.picker{max-width:360px;width:100%}
+.picker h2{font:800 2rem/1 var(--display);color:#fff;margin:0 0 8px}
+.plist2{display:grid;gap:8px;max-height:52vh;overflow:auto;margin-bottom:6px;text-align:left}
+.plist2 button{display:flex;align-items:center;gap:12px;border:1px solid rgba(239,231,214,.18);background:rgba(239,231,214,.06);color:#EFE7D6;border-radius:14px;padding:10px 12px;font:600 1rem var(--body);cursor:pointer}
+.plist2 .num{width:2.2rem;height:2.2rem;font-size:1rem;background:rgba(210,174,99,.18);color:#D2AE63}
+.previewing .sharebtn,.previewing #profForm .primary{opacity:.5;pointer-events:none}
+
+/* ---- following ---- */
+.people{margin-top:12px;padding:14px 16px}
+.people .ph{display:block;margin-bottom:6px}
+.people.req{border-color:var(--brass)}
+.cnt{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:999px;background:var(--brass);color:var(--brass-ink);font-size:.72rem;padding:0 6px;margin-left:4px}
+.prow2{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.prow2:first-of-type{border-top:0}
+.pp{min-width:0}.pp b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pp small{color:var(--muted);font-size:.78rem}
+.pbtns{display:flex;gap:6px;align-items:center;flex:none}
+.chip.on{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}
+.ladder.lbl li[data-prow]{cursor:pointer}
+.ladder.lbl li[data-prow]:active{background:var(--faint)}
+.tabbar button{position:relative}
+.tabbar .dot{position:absolute;top:4px;left:calc(50% + 8px);min-width:16px;height:16px;border-radius:999px;background:#E8522B;color:#fff;font:700 .62rem/16px var(--body);padding:0 4px}
+.avatar{width:72px;height:72px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:rgba(210,174,99,.18);color:#D2AE63;font:800 1.8rem var(--display);border:1.5px solid #D2AE63}
+
+/* ---- profile ---- */
+.prof{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin:4px 0 12px}
+.bigav{position:relative;width:88px;height:88px;border-radius:50%;display:grid;place-items:center;font:800 2.2rem var(--display);color:var(--brass);
+  background:radial-gradient(circle at 30% 25%,var(--raised),var(--bg2));box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--brass),var(--shadow)}
+.bigav.coach{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ink),var(--shadow);color:var(--ink)}
+.lvring{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font:800 .72rem var(--display);font-style:normal;background:var(--brass);color:var(--brass-ink);padding:2px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 0 0 2px var(--bg)}
+.pstats{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+.pstats > *{background:none;border:0;color:var(--ink);cursor:pointer;padding:4px 0;font:inherit}
+.pstats b{display:block;font:800 1.7rem/1 var(--display);font-variant-numeric:tabular-nums}
+.pstats small{font-size:.78rem;color:var(--muted)}
+.pname2{font:800 1.5rem/1.1 var(--display);margin:6px 0 12px}
+.pname2 small{display:block;font:500 .85rem var(--body);color:var(--muted);margin-top:4px}
+.pactions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.pactions button{border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:11px;padding:10px;font:600 .9rem var(--body);cursor:pointer;display:flex;justify-content:center;align-items:center}
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:14px;overflow:hidden}
+.bgrid button{aspect-ratio:1;border:0;background:var(--surface);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;color:var(--ink)}
+.gmedal{width:52%;height:auto}
+.bgrid small{font-size:.68rem;font-weight:600;color:var(--muted);text-align:center;line-height:1.2}
+.acctlist{padding:4px 0}
+.acctlist > *{display:flex;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);color:var(--ink);font:500 .95rem var(--body);padding:13px 16px;cursor:pointer}
+.acctlist > :first-child{border-top:0;cursor:default;flex-direction:column;align-items:flex-start;gap:2px}
+.acctlist .muted{font-size:.78rem}
+.acctlist b{word-break:break-all}
+.acctlist .danger{color:var(--miss)}
+.tabbar span{white-space:nowrap}
+
 /* ---- competition ---- */
 .medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
 .medal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
@@ -437,6 +491,7 @@ input[type=email],input[type=password]{font:500 1rem var(--body);padding:12px 14
     <section id="drill"></section>
     <section id="board" hidden></section>
     <section id="players" hidden></section>
+    <section id="cprofile" hidden></section>
   </div>
 
   <div id="player" hidden></div>
@@ -572,7 +627,9 @@ async function loadRoles(){
   if(t.error) throw t.error; if(p.error) throw p.error;
   coachTeam = t.data[0] || null; myPlayers = p.data || [];
 }
+function clearCaches(){ Object.keys(lbCache).forEach(k => delete lbCache[k]); Object.keys(feedCache).forEach(k => delete feedCache[k]); Object.keys(followState).forEach(k => delete followState[k]); }
 function route(prefer){
+  clearCaches();
   mode = prefer || (coachTeam ? 'coach' : myPlayers.length ? 'player' : null);
   ui.menu = false;
   if(!mode){ renderOnboard(); show('onboard'); return; }
@@ -621,13 +678,15 @@ function renderHeader(){
   $('#crest').textContent = initials(teamName);
   $('#teamName').innerHTML = esc(teamName) + (mode === 'coach' ? ic('edit') : '');
   $('#teamName').disabled = mode !== 'coach';
-  $('#appLabel').textContent = mode === 'coach' ? 'Coach view' : 'Player view';
+  $('#appLabel').textContent = mode === 'coach' ? 'Coach view' : ui.preview ? 'Player preview' : 'Player view';
   $('#acct').textContent = initials(me?.email?.split('@')[0]?.replace(/[._-]+/g,' '));
   const m = $('#menu');
   m.hidden = !ui.menu;
   m.innerHTML = `<p class="who">Signed in as<br><strong>${esc(me?.email)}</strong></p>
-    ${coachTeam && myPlayers.length ? `<button data-switch="${mode==='coach'?'player':'coach'}">Switch to ${mode==='coach'?'player':'coach'} view</button>` : ''}
-    <button data-joinmore>${mode==='coach' && !myPlayers.length ? 'Join a team as a player' : coachTeam ? 'Join another team' : 'Join another team or set one up'}</button>
+    ${ui.preview ? `<button data-exitpreview>Exit player preview</button>` : ''}
+    ${mode === 'coach' && coachTeam ? `<button data-previewpick>Preview as a player</button>` : ''}
+    ${coachTeam && myPlayers.length && !ui.preview ? `<button data-switch="${mode==='coach'?'player':'coach'}">Switch to ${mode==='coach'?'player':'coach'} view</button>` : ''}
+    ${ui.preview ? '' : `<button data-joinmore>${mode==='coach' && !myPlayers.length ? 'Join a team as a player' : coachTeam ? 'Join another team' : 'Join another team or set one up'}</button>`}
     <button data-signout class="danger">Sign out</button>`;
 }
 
@@ -903,10 +962,7 @@ function renderPlayers(){
   const el = $('#players');
   const all = totals('all','all',true);
   const bmap = Object.fromEntries((state.compete?.board || []).map(r => [r.player_id, r]));
-  el.innerHTML = teamProfileCard() + `<div class="panel switch" style="margin-bottom:16px"><div><b>Show names to teammates</b>
-      <small>${state.showNames ? 'Players can see each other’s names on the team ladder, challenges and player of the week.' : 'Players see their own stats. Teammates show as “Teammate”.'}</small></div>
-      <button class="tog" role="switch" aria-checked="${!!state.showNames}" aria-label="Show names to teammates" data-shownames></button></div>
-    <form class="addp" id="addForm">
+  el.innerHTML = `<form class="addp" id="addForm">
       <input type="text" id="pName" placeholder="Player name" aria-label="Player name" maxlength="40" autocomplete="off" required>
       <input type="number" id="pNum" placeholder="No." aria-label="Jersey number" min="0" max="999" inputmode="numeric">
       <button type="submit">Add</button>
@@ -948,14 +1004,15 @@ function playerDetail(p){
     ${anyZone ? `<p class="minihead">Shooting by spot</p>${courtSVG('heat', zv)}<div class="heatkey"><span><i style="background:#3F86E0"></i>Under 35%</span><span><i style="background:#F0A93B"></i>35–49%</span><span><i style="background:#E8522B"></i>50%+</span></div>` : ''}
     ${rows ? `<table><tr><th>By drill</th><th>Shots</th><th>Rate</th></tr>${rows}</table>` : '<p class="muted">No shots logged yet.</p>'}
     ${recent ? `<table><tr><th>Last 5 drills</th><th>Shots</th><th>Rate</th></tr>${recent}</table>` : ''}
+    <div id="cf-${p.id}"></div>
     <div class="row"><button class="ghost" data-rename="${p.id}">Rename</button><button class="ghost danger" data-delp="${p.id}">Remove player</button></div>
   </div>`;
 }
-function render(){ renderDrill(); renderBoard(); renderPlayers(); }
+function render(){ renderDrill(); renderBoard(); renderPlayers(); renderCoachProfile(); }
 function showTab(t){
   ui.ctab = t;
   document.querySelectorAll('#coach > section').forEach(s => s.hidden = s.id !== t);
-  renderTabbar(); enter($('#'+t)); if(t === 'board') countUp($('#board'));
+  renderTabbar(); enter($('#'+t)); if(t === 'board') countUp($('#board')); if(t === 'cprofile'){ renderCoachProfile(); countUp($('#cprofile')); }
   window.scrollTo(0,0);
 }
 
@@ -985,7 +1042,7 @@ async function importLocal(btn){
 
 /* ---------- player view ---------- */
 async function loadPlayer(){
-  show('loading'); ['drill','board','players'].forEach(id => $('#'+id).innerHTML = '');
+  show('loading'); ['drill','board','players','cprofile'].forEach(id => $('#'+id).innerHTML = '');
   const ids = myPlayers.map(p => p.id), tids = [...new Set(myPlayers.map(p => p.team_id))];
   const [t, r] = await Promise.all([
     sb.from('teams').select('id,name,drills,suburb,state,age_group,division,public_boards').in('id', tids),
@@ -999,10 +1056,13 @@ async function loadPlayer(){
   if(ui.meIdx >= myPlayers.length) ui.meIdx = 0;
   pdata.compete = {};
   await Promise.all(tids.map(async t => { try{ pdata.compete[t] = await loadCompete(t); }catch(_){ pdata.compete[t] = { board:[], potw:[], challenges:[], badges:[] }; } }));
+  await Promise.all(myPlayers.map(q => loadFollows(q.id)));
   renderHeader(); show('player'); renderPlayerView(); enter($('#player')); checkNewBadges();
 }
-function renderPlayerView(){ renderPlayerViewInner(); countUp($('#player'));
-  if((ui.ptab || 'me') === 'team'){ const p = myPlayers[ui.meIdx]; loadBoards(pdata.teams[p.team_id]); loadFeed(p.team_id); } }
+function renderPlayerView(){ renderPlayerViewInner(); $('#player').insertAdjacentHTML('afterbegin', previewBanner()); $('#player').classList.toggle('previewing', !!ui.preview); countUp($('#player'));
+  if((ui.ptab || 'me') === 'team'){ const p = myPlayers[ui.meIdx]; loadBoards(pdata.teams[p.team_id]); loadFeed(p.team_id);
+    (followState[p.id] ? Promise.resolve() : loadFollows(p.id)).then(() => { loadFollowFeed(p.id); renderTabbar(); }); }
+  if(ui.ptab === 'profile'){ const p = myPlayers[ui.meIdx]; (followState[p.id] ? Promise.resolve() : loadFollows(p.id)).then(() => renderPeople(p.id)); } }
 function renderPlayerViewInner(){
   const p = myPlayers[ui.meIdx], team = pdata.teams[p.team_id] || { name:'', drills:ZONE_NAMES };
   const res = pdata.results.filter(x => x.pid === p.id);
@@ -1022,10 +1082,11 @@ function renderPlayerViewInner(){
   const tabsOld = `<div class="seg full ptabs" style="grid-template-columns:repeat(3,1fr)">${[['me','My stats'],['team','Team'],['badges','Badges']].map(([v,l]) => `<button data-ptab="${v}" aria-pressed="${tab===v}">${l}</button>`).join('')}</div>`;
   const tabs = '';
   const picker = myPlayers.length > 1 ? `<div class="chips">${myPlayers.map((q,i) => `<button class="chip" data-meidx="${i}" aria-pressed="${i===ui.meIdx}">${esc(q.name)}, ${esc(pdata.teams[q.team_id]?.name || '')}</button>`).join('')}</div>` : '';
-  if(tab === 'practice'){ $('#player').innerHTML = picker + renderPractice(p, team, res, zv); return; }
+  if(tab === 'profile'){ $('#player').innerHTML = picker + renderPlayerProfile(p, team, C, meRow); return; }
+  if(tab === 'practice'){ $('#player').innerHTML = picker + renderPractice(p, team, res, zv).replace('<button class="primary" data-sstart>', ui.preview ? '<p class="note">Players log their own practice here. It’s read-only in preview.</p><button class="primary" disabled>' : '<button class="primary" data-sstart>'); return; }
   if(tab === 'team'){
     const hidden = C.board.some(r => !r.name);
-    $('#player').innerHTML = picker + tabs + `<h2 style="margin-top:0">Leaderboards</h2>${boardsShell()}${profileCard(p)}<h2>Team activity</h2>${feedShell()}<h2>This week</h2>` + potwCard(C.potw) +
+    $('#player').innerHTML = picker + tabs + `<h2 style="margin-top:0">Leaderboards</h2>${boardsShell()}<div id="ffBox"></div><h2>Team activity</h2>${feedShell()}<h2>This week</h2>` + potwCard(C.potw) +
       `<h2>Challenges</h2>${C.challenges.length ? C.challenges.map(c => challengeCard(c, false)).join('') : `<div class="panel emptybox">${emptyArt()}<p class="muted" style="margin:0">No challenges right now. Your coach can start one.</p></div>`}
       <h2>Team ladder</h2>
       <ol class="ladder">${C.board.map((r,i) => `<li class="${r.is_me ? 'me' : ''}"><span class="n">${i+1}</span>
@@ -1068,7 +1129,7 @@ function renderPlayerViewInner(){
 }
 async function loadRank(p){
   const box = $('#rankBox'); if(!box) return;
-  const { data, error } = await sb.rpc('my_rank', { p_drill: ui.meDrill === 'all' ? null : ui.meDrill, p_days: ui.mePeriod === 'all' ? null : +ui.mePeriod });
+  const { data, error } = ui.preview ? { data:[previewRank(p.id)], error:null } : await sb.rpc('my_rank', { p_drill: ui.meDrill === 'all' ? null : ui.meDrill, p_days: ui.mePeriod === 'all' ? null : +ui.mePeriod });
   if(error){ box.innerHTML = '<p class="muted" style="margin:0">Couldn’t load your rank right now.</p>'; return; }
   const row = (data || []).find(x => x.player_id === p.id) || { rank:null, ranked:0, made:0, attempts:0 };
   box.innerHTML = row.rank
@@ -1189,11 +1250,12 @@ function emptyArt(){
 }
 function renderTabbar(){
   const items = mode === 'coach'
-    ? [['drill','Drill','drill'],['board','Leaderboard','board'],['players','Players','players']]
-    : [['me','My stats','stats'],['practice','Practice','drill'],['team','Team','board'],['badges','Badges','badge']];
+    ? [['drill','Drill','drill'],['board','Leaderboard','board'],['players','Players','players'],['cprofile','Profile','profile']]
+    : [['me','Stats','stats'],['practice','Practice','drill'],['team','Team','board'],['badges','Badges','badge'],['profile','Profile','profile']];
   const cur = mode === 'coach' ? (ui.ctab || 'drill') : (ui.ptab || 'me');
   $('#tabbar').style.setProperty('--n', items.length);
-  $('#tabbar').innerHTML = items.map(([v,l,n]) => `<button ${mode === 'coach' ? 'data-tab' : 'data-ptab'}="${v}" role="tab" aria-selected="${v === cur}">${ic(n,'')}<span>${l}</span></button>`).join('');
+  const reqs = mode === 'player' && !ui.preview && myPlayers[ui.meIdx] ? pendingIn(myPlayers[ui.meIdx].id).length : 0;
+  $('#tabbar').innerHTML = items.map(([v,l,n]) => `<button ${mode === 'coach' ? 'data-tab' : 'data-ptab'}="${v}" role="tab" aria-selected="${v === cur}">${ic(n,'')}<span>${l}</span>${v === 'profile' && reqs ? `<i class="dot" aria-label="${reqs} follow request${reqs>1?'s':''}">${reqs}</i>` : ''}</button>`).join('');
 }
 function skeleton(){
   return `<div class="skel" style="height:56px;margin-bottom:22px"></div><div class="skel" style="height:190px;margin-bottom:14px"></div>
@@ -1239,6 +1301,7 @@ function confetti(cv){
   })(t0);
 }
 function checkNewBadges(){
+  if(ui.preview) return;
   const items = [];
   myPlayers.forEach(p => {
     const C = pdata.compete[p.team_id]; if(!C) return;
@@ -1389,7 +1452,9 @@ const monthName = () => new Date().toLocaleDateString(undefined, { month:'long',
 function ago(t){ const s = (Date.now() - Date.parse(t)) / 1000; return s < 3600 ? `${Math.max(1, Math.round(s/60))}m` : s < 86400 ? `${Math.round(s/3600)}h` : `${Math.round(s/86400)}d`; }
 function boardsShell(){
   ui.lbScope = ui.lbScope || 'team'; ui.lbMetric = ui.lbMetric || 'makes';
-  return `<div class="seg full" style="grid-template-columns:repeat(3,1fr)">${[['team','Team'],['suburb','Suburb'],['state','State']].map(([v,l]) => `<button data-lbscope="${v}" aria-pressed="${ui.lbScope===v}">${l}</button>`).join('')}</div>
+  const scopes = [['team','Team'],['suburb','Suburb'],['state','State']].concat(mode === 'player' ? [['following','Following']] : []);
+  if(mode === 'coach' && ui.lbScope === 'following') ui.lbScope = 'team';
+  return `<div class="seg full" style="grid-template-columns:repeat(${scopes.length},1fr)">${scopes.map(([v,l]) => `<button data-lbscope="${v}" aria-pressed="${ui.lbScope===v}">${l}</button>`).join('')}</div>
     <div class="chips">${METRICS.map(([v,l]) => `<button class="chip" data-lbmetric="${v}" aria-pressed="${ui.lbMetric===v}">${l}</button>`).join('')}</div>
     <div id="lbBox" class="panel lb"><div class="skel" style="height:140px;border:0"></div></div>`;
 }
@@ -1401,6 +1466,7 @@ async function loadBoards(team){
   else { const r = await sb.rpc('leaderboard', { p_team: team.id, p_scope: ui.lbScope, p_metric: ui.lbMetric }); rows = r.data; err = r.error; if(!err) lbCache[key] = { t: Date.now(), rows }; }
   if(!$('#lbBox')) return;
   const isCoach = mode === 'coach';
+  if(ui.preview && rows) rows = rows.map(r => ({ ...r, is_me: r.player_id === ui.preview, visible: r.player_id === ui.preview ? true : r.visible }));
   if(err){
     const setup = /location|age group/i.test(err.message);
     $('#lbBox').innerHTML = `<div class="emptybox">${emptyArt()}<p class="muted" style="margin:0">${setup
@@ -1408,14 +1474,16 @@ async function loadBoards(team){
       : 'Couldn’t load this leaderboard right now.'}</p></div>`; return;
   }
   const unit = ui.lbMetric === 'makes' ? '' : '%';
-  const where = ui.lbScope === 'team' ? team.name : ui.lbScope === 'suburb' ? `${team.suburb}, ${team.age_group}${team.division ? ' ' + team.division : ''}` : `${team.state}, ${team.age_group}${team.division ? ' ' + team.division : ''}`;
+  const where = ui.lbScope === 'following' ? 'You and people you follow' : ui.lbScope === 'team' ? team.name : ui.lbScope === 'suburb' ? `${team.suburb}, ${team.age_group}${team.division ? ' ' + team.division : ''}` : `${team.state}, ${team.age_group}${team.division ? ' ' + team.division : ''}`;
   const me = rows.find(r => r.is_me), top = rows.filter(r => r.rank <= 50), total = rows[0]?.total || 0;
   const note = { makes:'All shots count, including practice.', pct:'Coach-run drills only, 30+ shots.', ft:'Coach-run drills only, 20+ free throws.', three:'Coach-run drills only, 20+ threes.' }[ui.lbMetric];
-  const row = r => `<li class="${r.is_me ? 'me' : ''}"><span class="n">${r.rank}</span>
-      <div class="who">${esc(r.is_me ? (r.display || 'You') + ' (you)' : (r.display || 'Teammate'))}${ui.lbScope !== 'team' ? `<small>${esc(r.team_name)}${ui.lbScope === 'state' ? `, ${esc(r.suburb || '')}` : ''}</small>` : `<small>${r.made}/${r.attempts} shots</small>`}</div>
+  const tappable = r => mode === 'player' && !ui.preview && !r.is_me && r.visible && r.display;
+  const row = r => `<li class="${r.is_me ? 'me' : ''}"${tappable(r) ? ` data-prow="${r.player_id}" data-pname="${esc(r.display)}" data-pteam="${esc(r.team_name)}" data-psub="${esc(r.suburb || '')}" data-pval="${r.value}${unit}"` : ''}><span class="n">${r.rank}</span>
+      <div class="who">${esc(r.is_me ? (r.display || 'You') + ' (you)' : (r.display || 'Teammate'))}${ui.lbScope !== 'team' ? `<small>${r.is_me ? '' : relation(myPlayers[ui.meIdx]?.id, r.player_id) === 'accepted' && ui.lbScope !== 'following' ? 'Following, ' : ''}${esc(r.team_name)}${ui.lbScope === 'state' ? `, ${esc(r.suburb || '')}` : ''}</small>` : `<small>${r.made}/${r.attempts} shots</small>`}</div>
       <b>${r.value}${unit}</b></li>`;
   $('#lbBox').innerHTML = `<div class="lbhead"><div><b>${esc(where)}</b><small>${monthName()} season. ${note}</small></div>
       ${me && !isCoach ? `<div class="mypos"><span>${ordinal(me.rank)}</span><small>of ${total}</small></div>` : ''}</div>
+    ${ui.lbScope === 'following' && total <= 1 ? `<p class="muted" style="margin:6px 0 10px">Follow players from the Team, Suburb or State boards to compare with them here.</p>` : ''}
     ${top.length ? `<ol class="ladder lbl">${top.map(row).join('')}${me && me.rank > 50 ? `<li class="gap">…</li>${row(me)}` : ''}</ol>` : `<p class="muted" style="margin:10px 0 0">Nobody qualifies yet this month.</p>`}
     ${!isCoach && ui.lbScope !== 'team' && me && !me.visible ? `<p class="note">Others can’t see you here yet. ${team.public_boards ? 'Add a nickname and switch on public leaderboards below.' : 'Your coach hasn’t put the team on public leaderboards.'}</p>` : ''}`;
 }
@@ -1465,16 +1533,185 @@ function teamProfileCard(){
     <button class="primary" type="submit">Save team profile</button></form>`;
 }
 
+/* ---------- coach: preview as a player ---------- */
+let coachPlayersBackup = null;
+function openPreviewPicker(){
+  if(!state.players.length) return toast('Add a player first, then you can preview their view.');
+  $('#sheet').innerHTML = `<div class="cele-card picker" role="dialog" aria-label="Preview as a player">
+    <h2>Preview as a player</h2><p class="d">See the app exactly as a player sees it. Nothing you do here changes their data.</p>
+    <div class="plist2">${state.players.map(p => `<button data-previewas="${p.id}"><span class="num">${p.num ? esc(p.num) : esc(initials(p.name))}</span>${esc(p.name)}</button>`).join('')}</div>
+    <button class="ghost center" data-closesheet style="color:#C9CFC9">Cancel</button></div>`;
+  $('#sheet').hidden = false;
+}
+function startPreview(pid){
+  const p = player(pid); if(!p) return;
+  $('#sheet').hidden = true; $('#sheet').innerHTML = '';
+  coachPlayersBackup = myPlayers;
+  myPlayers = [{ id:p.id, name:p.name, num:p.num, team_id:state.teamId, nickname:p.nickname, public_opt_in:p.public_opt_in }];
+  ui.preview = pid; ui.meIdx = 0; ui.ptab = 'me'; ui.menu = false;
+  route('player');
+}
+function exitPreview(){
+  myPlayers = coachPlayersBackup || []; coachPlayersBackup = null; ui.preview = null; ui.meIdx = 0;
+  route('coach');
+}
+function previewBanner(){
+  return ui.preview ? `<div class="pvbar"><span>${ic('players')}Previewing <b>${esc(myPlayers[0]?.name || '')}</b>’s view</span><button data-exitpreview>Exit</button></div>` : '';
+}
+function previewRank(pid){
+  const since = ui.mePeriod === '30' ? Date.now() - 30*864e5 : ui.mePeriod === '7' ? Date.now() - 7*864e5 : 0;
+  const t = {};
+  state.sessions.forEach(s => {
+    if(s.kind === 'solo' || s.date < since || (ui.meDrill !== 'all' && s.drill !== ui.meDrill)) return;
+    Object.entries(s.counts).forEach(([p,c]) => { t[p] = t[p] || { m:0, a:0 }; t[p].m += c.m; t[p].a += c.a; });
+  });
+  const ranked = Object.entries(t).filter(([,x]) => x.a >= MIN_ATT).sort((a,b) => b[1].m/b[1].a - a[1].m/a[1].a);
+  const i = ranked.findIndex(([p]) => p === pid), mine = t[pid] || { m:0, a:0 };
+  return { player_id: pid, rank: i < 0 ? null : i + 1, ranked: ranked.length, made: mine.m, attempts: mine.a };
+}
+
+/* ---------- following ---------- */
+const followState = {};   // player id -> rows from follow_list
+async function loadFollows(pid){
+  const r = await sb.rpc('follow_list', { p_player: pid });
+  followState[pid] = r.error ? [] : r.data; return followState[pid];
+}
+const pendingIn = pid => (followState[pid] || []).filter(f => f.direction === 'follower' && f.status === 'pending');
+function relation(pid, other){
+  const f = (followState[pid] || []).find(x => x.other === other && x.direction === 'following');
+  return f ? f.status : null;
+}
+function peopleShell(){ return `<div id="peopleBox"></div>`; }
+function renderPeople(pid){
+  const box = $('#peopleBox'); if(!box) return;
+  const rows = followState[pid] || [];
+  const req = rows.filter(f => f.direction === 'follower' && f.status === 'pending');
+  const following = rows.filter(f => f.direction === 'following');
+  const followers = rows.filter(f => f.direction === 'follower' && f.status === 'accepted');
+  const who = f => `<div class="pp"><b>${esc(f.display)}</b><small>${esc(f.team_name)}${f.suburb && !f.same_team ? `, ${esc(f.suburb)}` : ''}${f.same_team ? ', teammate' : ''}</small></div>`;
+  box.innerHTML = `
+    ${req.length ? `<div class="panel people req"><b class="ph">Follow requests <span class="cnt">${req.length}</span></b>
+      ${req.map(f => `<div class="prow2">${who(f)}<div class="pbtns"><button class="chip on" data-facc="${f.other}">Accept</button><button class="chip" data-fdec="${f.other}">Decline</button></div></div>`).join('')}</div>` : ''}
+    <div class="panel people">
+      <div class="seg full" style="grid-template-columns:1fr 1fr;margin-bottom:10px">
+        <button data-plist="following" aria-pressed="${(ui.plist||'following')==='following'}">Following ${following.filter(f=>f.status==='accepted').length}</button>
+        <button data-plist="followers" aria-pressed="${ui.plist==='followers'}">Followers ${followers.length}</button></div>
+      ${(ui.plist||'following') === 'following'
+        ? (following.length ? following.map(f => `<div class="prow2">${who(f)}<div class="pbtns">${f.status === 'pending' ? '<span class="tag">Requested</span>' : ''}<button class="ghost" data-funf="${f.other}">${f.status === 'pending' ? 'Cancel' : 'Unfollow'}</button></div></div>`).join('')
+          : '<p class="muted" style="margin:4px 0">Tap anyone on a leaderboard to ask to follow them.</p>')
+        : (followers.length ? followers.map(f => `<div class="prow2">${who(f)}<div class="pbtns"><button class="ghost" data-frem="${f.other}">Remove</button><button class="ghost danger" data-fblock="${f.other}">Block</button></div></div>`).join('')
+          : '<p class="muted" style="margin:4px 0">When someone asks to follow you, you’ll approve it here.</p>')}
+    </div>`;
+}
+async function loadFollowFeed(pid){
+  const box = $('#ffBox'); if(!box) return;
+  const hasFollowing = (followState[pid] || []).some(f => f.direction === 'following' && f.status === 'accepted');
+  if(!hasFollowing){ box.innerHTML = ''; return; }
+  const r = await sb.rpc('following_feed', { p_player: pid });
+  if(!$('#ffBox')) return;
+  const rows = r.error ? [] : r.data;
+  $('#ffBox').innerHTML = `<h2>From people you follow</h2>` + (rows.length ? `<ul class="feed">${rows.slice(0,12).map(f => `<li>
+      <span class="fi ${f.kind === 'badge' ? 'badge' : 'practice'}">${ic(f.kind === 'badge' ? 'badge' : 'stats', '')}</span>
+      <div><p>${f.kind === 'badge' ? `<b>${esc(f.who)}</b> earned <b>${esc(BADGES[badgeKey(f.detail)]?.name || 'a badge')}</b>`
+        : `<b>${esc(f.who)}</b> set a personal best: <b>${pct(f.made, f.attempts)}</b> on ${esc(f.detail)} (${f.made}/${f.attempts})`}</p>
+      <div class="rx"><small style="margin-left:0">${esc(f.team_name)}, ${ago(f.at)} ago</small></div></div></li>`).join('')}</ul>`
+    : `<p class="muted">Nothing new from people you follow yet.</p>`);
+}
+function openProfileSheet(r){
+  const pid = myPlayers[ui.meIdx].id, rel = relation(pid, r.id);
+  $('#sheet').innerHTML = `<div class="cele-card picker" role="dialog" aria-label="${esc(r.name)}">
+    <div class="avatar">${esc(initials(r.name))}</div><h2>${esc(r.name)}</h2>
+    <p class="d">${esc(r.team)}${r.suburb ? `, ${esc(r.suburb)}` : ''}${r.value ? `. ${esc(r.value)} this month.` : ''}</p>
+    ${rel === 'accepted' ? `<button class="primary" disabled>Following</button><button class="ghost center" data-funf="${r.id}" style="color:#C9CFC9">Unfollow</button>`
+      : rel === 'pending' ? `<button class="primary" disabled>Request sent</button><button class="ghost center" data-funf="${r.id}" style="color:#C9CFC9">Cancel request</button>`
+      : `<button class="primary" data-freq="${r.id}">Ask to follow</button><p class="d" style="margin:10px 0 0;font-size:.82rem">They’ll need to approve it. Followers only see nicknames, badges and personal bests.</p>`}
+    <button class="ghost center" data-closesheet style="color:#C9CFC9">Close</button></div>`;
+  $('#sheet').hidden = false;
+}
+async function followAction(kind, other){
+  if(ui.preview) return toast('Read-only in preview.');
+  const pid = myPlayers[ui.meIdx].id;
+  const call = kind === 'req' ? sb.rpc('request_follow', { p_from: pid, p_to: other })
+    : kind === 'acc' ? sb.rpc('respond_follow', { p_me: pid, p_from: other, p_accept: true })
+    : kind === 'dec' ? sb.rpc('respond_follow', { p_me: pid, p_from: other, p_accept: false })
+    : kind === 'unf' ? sb.rpc('unfollow', { p_me: pid, p_other: other })
+    : sb.rpc('remove_follower', { p_player: pid, p_follower: other, p_block: kind === 'block' });
+  const { error } = await call;
+  if(error) return toast(/follow|nickname|tomorrow|profile/i.test(error.message) ? error.message : 'Couldn’t update. Check your connection.');
+  toast({ req:'Follow request sent', acc:'Request accepted', dec:'Request declined', unf:'Done', rem:'Follower removed', block:'Blocked' }[kind]);
+  $('#sheet').hidden = true; $('#sheet').innerHTML = '';
+  await loadFollows(pid); renderPeople(pid); renderTabbar(); loadFollowFeed(pid);
+  Object.keys(lbCache).forEach(k => { if(k.endsWith('following') || k.includes('|following|')) delete lbCache[k]; });
+}
+async function loadCoachFollowers(pid){
+  const box = document.getElementById('cf-' + pid); if(!box) return;
+  const rows = (await loadFollows(pid)).filter(f => f.direction === 'follower');
+  if(!document.getElementById('cf-' + pid)) return;
+  box.innerHTML = rows.length ? `<p class="minihead">Followers</p>${rows.map(f => `<div class="prow2"><div class="pp"><b>${esc(f.display)}</b><small>${esc(f.team_name)}${f.status === 'pending' ? ', request pending' : ''}</small></div>
+      <div class="pbtns"><button class="ghost danger" data-cfrem="${pid}|${f.other}">Remove and block</button></div></div>`).join('')}` : '';
+}
+
+/* ---------- profile tab ---------- */
+ICONS.profile = '<circle cx="12" cy="8.5" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>';
+function accountBlock(){
+  return `<h2>Account</h2><div class="panel acctlist">
+    <div class="acctrow"><span class="muted">Signed in as</span><b>${esc(me?.email)}</b></div>
+    ${ui.preview ? `<button data-exitpreview>${ic('undo')}Exit player preview</button>` : ''}
+    ${mode === 'coach' ? `<button data-previewpick>${ic('players')}Preview as a player</button>` : ''}
+    ${coachTeam && myPlayers.length && !ui.preview ? `<button data-switch="${mode === 'coach' ? 'player' : 'coach'}">${ic('undo')}Switch to ${mode === 'coach' ? 'player' : 'coach'} view</button>` : ''}
+    ${ui.preview ? '' : `<button data-joinmore>${ic('plus')}${mode === 'coach' && !myPlayers.length ? 'Join a team as a player' : 'Join another team'}</button>`}
+    <button data-signout class="danger">${ic('undo')}Sign out</button></div>`;
+}
+function renderCoachProfile(){
+  const el = $('#cprofile'); if(!el) return;
+  const drills = state.sessions.filter(s => s.kind !== 'solo').length;
+  const linked = state.players.filter(p => p.user_id).length;
+  el.innerHTML = `<div class="prof">
+      <div class="bigav coach">${esc(initials(me?.email?.split('@')[0]?.replace(/[._-]+/g,' ')))}</div>
+      <div class="pstats">${[[state.players.length,'Players'],[linked,'Linked'],[drills,'Drills']].map(([n,l]) => `<div><b>${numUp(n)}</b><small>${l}</small></div>`).join('')}</div>
+    </div>
+    <p class="pname2">Coach<small>${esc(state.team)}${coachTeam.suburb ? `, ${esc(coachTeam.suburb)}` : ''}${coachTeam.age_group ? `, ${esc(coachTeam.age_group)}` : ''}</small></p>
+    ${teamProfileCard()}
+    <div class="panel switch" style="margin-bottom:16px"><div><b>Show names to teammates</b>
+      <small>${state.showNames ? 'Players can see each other’s names on the team ladder, challenges and player of the week.' : 'Players see their own stats. Teammates show as “Teammate”.'}</small></div>
+      <button class="tog" role="switch" aria-checked="${!!state.showNames}" aria-label="Show names to teammates" data-shownames></button></div>
+    ${accountBlock()}`;
+}
+function renderPlayerProfile(p, team, C, meRow){
+  const L = levelInfo(meRow.xp), rows = followState[p.id] || [];
+  const followers = rows.filter(f => f.direction === 'follower' && f.status === 'accepted').length;
+  const following = rows.filter(f => f.direction === 'following' && f.status === 'accepted').length;
+  const cnt = {}; C.badges.filter(b => b.player_id === p.id).forEach(b => { const k = badgeKey(b.badge); cnt[k] = (cnt[k] || 0) + 1; });
+  const earned = Object.keys(BADGES).filter(k => cnt[k]);
+  return `<div class="prof">
+      <div class="bigav"><span>${esc(initials(p.nickname || p.name))}</span><i class="lvring">Lv ${L.lv}</i></div>
+      <div class="pstats">
+        <button data-ptab="badges"><b>${numUp(earned.length)}</b><small>Badges</small></button>
+        <button data-plistgo="followers"><b>${numUp(followers)}</b><small>Followers</small></button>
+        <button data-plistgo="following"><b>${numUp(following)}</b><small>Following</small></button>
+      </div>
+    </div>
+    <p class="pname2">${esc(p.nickname || p.name)}<small>${p.nickname ? esc(p.name) + ', ' : ''}${p.num ? `#${esc(p.num)}, ` : ''}${esc(team.name)}${team.suburb ? `, ${esc(team.suburb)}` : ''}</small></p>
+    <div class="pactions"><button data-editprof>${ui.editProf ? 'Done' : 'Edit profile'}</button><button data-sharestats>${ic('share')}Share</button></div>
+    ${ui.editProf ? profileCard(p) : ''}
+    <div id="peopleBox"></div>
+    <h2>Badges</h2>
+    ${earned.length ? `<div class="bgrid">${earned.map(k => `<button data-sharebadge="${k}" title="${esc(BADGES[k].name)}">${bigMedal(k).replace('class="bigmedal"', 'class="gmedal"')}<small>${esc(BADGES[k].name)}${cnt[k] > 1 ? ` ×${cnt[k]}` : ''}</small></button>`).join('')}</div>`
+      : `<div class="panel emptybox">${emptyArt()}<p class="muted" style="margin:0">Badges you earn show up here.</p></div>`}
+    ${accountBlock()}`;
+}
+
 /* ---------- events ---------- */
 function pickZone(name){ if(mode === 'player'){ ui.soloDrill = name; renderPlayerView(); return; } ui.drill = name; renderDrill(); }
 document.addEventListener('submit', async e => {
   if(e.target.id === 'profForm'){
     e.preventDefault();
+    if(ui.preview) return toast('Players set their own profile. This is read-only in preview.');
     const p = myPlayers[ui.meIdx], nick = $('#nick').value.trim(), on = $('[data-togpub]').getAttribute('aria-checked') === 'true';
     const { error } = await sb.rpc('set_public_profile', { p_player: p.id, p_nickname: nick, p_opt_in: on });
     if(error) return toast(/nickname|profile/i.test(error.message) ? error.message : 'Couldn’t save. Check your connection.');
     p.nickname = nick || null; p.public_opt_in = on && !!nick; Object.keys(lbCache).forEach(k => delete lbCache[k]);
-    toast(p.public_opt_in ? 'Saved. You’re on public leaderboards.' : 'Profile saved'); renderPlayerView(); return;
+    toast(p.public_opt_in ? 'Saved. You’re on public leaderboards.' : 'Profile saved'); ui.editProf = false; renderPlayerView(); return;
   }
   if(e.target.id === 'teamProf'){
     e.preventDefault();
@@ -1483,7 +1720,7 @@ document.addEventListener('submit', async e => {
     if(patch.public_boards && (!patch.suburb || !patch.state || !patch.age_group)) return toast('Add suburb, state and age group to join public leaderboards.');
     const { error } = await sb.from('teams').update(patch).eq('id', state.teamId);
     if(error) return toast('Couldn’t save. Check your connection.');
-    Object.assign(coachTeam, patch); Object.keys(lbCache).forEach(k => delete lbCache[k]); toast('Team profile saved'); renderPlayers(); return;
+    Object.assign(coachTeam, patch); Object.keys(lbCache).forEach(k => delete lbCache[k]); toast('Team profile saved'); renderCoachProfile(); return;
   }
   if(e.target.id !== 'chalForm') return;
   e.preventDefault();
@@ -1504,6 +1741,7 @@ document.addEventListener('keydown', e => {
 document.addEventListener('click', async e => {
   if(ui.menu && !e.target.closest('#menu') && !e.target.closest('#acct')){ ui.menu = false; $('#menu').hidden = true; }
   const zp = e.target.closest('[data-zonepick]'); if(zp){ pickZone(zp.dataset.zonepick); return; }
+  const pr = e.target.closest('[data-prow]'); if(pr){ openProfileSheet({ id: pr.dataset.prow, name: pr.dataset.pname, team: pr.dataset.pteam, suburb: pr.dataset.psub, value: pr.dataset.pval }); return; }
   const b = e.target.closest('button'); if(!b) return;
   const d = b.dataset;
   // auth & account
@@ -1515,7 +1753,7 @@ document.addEventListener('click', async e => {
     return renderAuth(error ? niceAuthError(error) : `If there’s an account for ${email}, a reset link is on its way.`, error ? 'err' : 'ok');
   }
   if('signout' in d){ await sb.auth.signOut(); me = null; coachTeam = null; myPlayers = []; ui.authTab = 'in'; renderAuth(); show('auth'); return; }
-  if(b.id === 'acct'){ ui.menu = !ui.menu; renderHeader(); return; }
+  if(b.id === 'acct'){ if(mode === 'coach') showTab('cprofile'); else { ui.ptab = 'profile'; renderTabbar(); renderPlayerView(); enter($('#player')); window.scrollTo(0,0); } return; }
   if(d.switch){ route(d.switch); return; }
   if('joinmore' in d){ ui.menu = false; renderOnboard(); show('onboard'); return; }
   if('back' in d){ route(mode); return; }
@@ -1532,7 +1770,7 @@ document.addEventListener('click', async e => {
     const next = !state.showNames;
     const { error } = await sb.from('teams').update({ show_names: next }).eq('id', state.teamId);
     if(error) return toast('Couldn’t change the setting. Check your connection.');
-    state.showNames = coachTeam.show_names = next; renderPlayers(); toast(next ? 'Names now visible to teammates' : 'Names hidden from teammates'); return;
+    state.showNames = coachTeam.show_names = next; renderPlayers(); renderCoachProfile(); toast(next ? 'Names now visible to teammates' : 'Names hidden from teammates'); return;
   }
   if('newchal' in d){ ui.newChal = true; renderBoard(); return; }
   if('cancelchal' in d){ ui.newChal = false; renderBoard(); return; }
@@ -1550,6 +1788,21 @@ document.addEventListener('click', async e => {
   // coach
   if(d.tab){ showTab(d.tab); return; }
   if('celenext' in d){ nextCele(); return; }
+  if('editprof' in d){ ui.editProf = !ui.editProf; renderPlayerView(); return; }
+  if(d.plistgo){ ui.plist = d.plistgo; renderPeople(myPlayers[ui.meIdx].id); $('#peopleBox')?.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
+  if(d.plist){ ui.plist = d.plist; renderPeople(myPlayers[ui.meIdx].id); return; }
+  if(d.freq){ followAction('req', d.freq); return; }
+  if(d.facc){ followAction('acc', d.facc); return; }
+  if(d.fdec){ followAction('dec', d.fdec); return; }
+  if(d.funf){ followAction('unf', d.funf); return; }
+  if(d.frem){ followAction('rem', d.frem); return; }
+  if(d.fblock){ if(confirm('Block this player? They’ll be removed and can’t ask to follow you again.')) followAction('block', d.fblock); return; }
+  if(d.cfrem){ const [pl, fo] = d.cfrem.split('|'); if(!confirm('Remove this follower and block them from following this player again?')) return;
+    const { error } = await sb.rpc('remove_follower', { p_player: pl, p_follower: fo, p_block: true });
+    if(error) return toast('Couldn’t update. Check your connection.'); toast('Follower removed'); loadCoachFollowers(pl); return; }
+  if('previewpick' in d){ ui.menu = false; $('#menu').hidden = true; openPreviewPicker(); return; }
+  if(d.previewas){ startPreview(d.previewas); return; }
+  if('exitpreview' in d){ exitPreview(); return; }
   if(d.lbscope){ ui.lbScope = d.lbscope; b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); loadBoards(mode === 'coach' ? coachTeam : pdata.teams[myPlayers[ui.meIdx].team_id]); return; }
   if(d.lbmetric){ ui.lbMetric = d.lbmetric; b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); loadBoards(mode === 'coach' ? coachTeam : pdata.teams[myPlayers[ui.meIdx].team_id]); return; }
   if(d.react){ react(mode === 'coach' ? state.teamId : myPlayers[ui.meIdx].team_id, d.react, d.emoji, b); return; }
@@ -1590,7 +1843,7 @@ document.addEventListener('click', async e => {
     const { error } = await sb.rpc('log_solo', { p_player: p.id, p_drill: so.drill, p_made: so.log.filter(x => x).length, p_attempts: so.log.length, p_best_streak: best, p_started: new Date(so.started).toISOString() });
     ui.busy = false;
     if(error){ renderPlayerView(); return toast(/practice|shots|Makes|Pick|tomorrow/i.test(error.message) ? error.message : 'Couldn’t save. Your shots are kept on this phone. Try again.'); }
-    saveSolo(p.id, null); ui.ptab = 'me';
+    saveSolo(p.id, null); ui.ptab = 'me'; clearCaches();
     await loadPlayer();
     const after = dayStreak(pdata.results.filter(x => x.pid === p.id).map(x => x.date)).cur;
     toast(after > before && after >= 2 ? `Practice saved. ${after}-day streak!` : 'Practice saved');
@@ -1632,7 +1885,7 @@ document.addEventListener('click', async e => {
       const r = await sb.from('session_results').insert(rows);
       if(r.error){ await sb.from('sessions').delete().eq('id', s.data.id); throw r.error; }
       state.sessions.push({ id: s.data.id, drill: a.drill, kind:'team', date: a.started, counts: c });
-      state.active = null; saveActive();
+      state.active = null; saveActive(); clearCaches();
       ui.busy = false; ui.boardDrill = a.drill; ui.period = 'all';
       const before = new Set((state.compete?.badges || []).map(b => b.player_id + b.badge));
       try{ state.compete = await loadCompete(state.teamId); }catch(_){}
@@ -1660,7 +1913,7 @@ document.addEventListener('click', async e => {
     if(error) return toast('Couldn’t delete. Check your connection.');
     state.sessions = state.sessions.filter(s => s.id !== d.delsess); render(); return;
   }
-  if(d.open){ ui.open = ui.open === d.open ? null : d.open; renderPlayers(); return; }
+  if(d.open){ ui.open = ui.open === d.open ? null : d.open; renderPlayers(); if(ui.open) loadCoachFollowers(ui.open); return; }
   if(d.rename){
     const p = player(d.rename); const n = (prompt('Player name', p.name) || '').trim().slice(0,40);
     if(n && n !== p.name){ const { error } = await sb.from('players').update({ name:n }).eq('id', p.id);
