@@ -156,24 +156,29 @@ p{margin:0 0 10px}
 .x{background:none;border:0;color:var(--muted);font-size:1.3rem;line-height:1;padding:4px 6px;cursor:pointer;border-radius:8px}
 
 /* court */
-.court{display:block;width:100%;height:auto;border-radius:16px;border:1px solid var(--line);margin:0 0 14px;touch-action:manipulation;overflow:hidden;box-shadow:var(--shadow)}
-.court .wood line{stroke:rgba(110,60,20,.22);stroke-width:.6}
-.court .grain line{stroke:rgba(110,60,20,.28);stroke-width:.5}
-.court .keypaint{fill:#23508F}
-.court .apron{fill:#23508F}
-.court .zone{fill:transparent;cursor:pointer;transition:fill .15s}
+.court{display:block;width:100%;height:auto;border-radius:18px;margin:0 0 14px;touch-action:manipulation;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(0,0,0,.18),0 18px 40px -18px rgba(40,20,5,.55),inset 0 0 0 1px rgba(255,255,255,.08)}
+.court .joint{stroke:rgba(90,45,12,.28);stroke-width:.5}
+.court .grain{stroke:rgba(120,62,18,.13);stroke-width:.35}
+.court .seam{stroke:rgba(80,40,10,.32);stroke-width:.45}
+.court .zone{fill:transparent;cursor:pointer;transition:fill .2s}
 .court .zone:focus{outline:none}
 .court .zone:focus-visible{stroke:#FFD34D;stroke-width:2.5}
-.court .zone.sel{fill:rgba(255,255,255,.26);stroke:#FFD34D;stroke-width:3}
+.court .zone.sel{fill:rgba(255,236,190,.14);stroke:#FFD86A;stroke-width:2.6;filter:drop-shadow(0 0 4px rgba(255,205,90,.9));animation:selpulse 2.2s ease-in-out infinite}
+@keyframes selpulse{50%{fill:rgba(255,236,190,.04)}}
 .court.heat .zone{cursor:default}
-.court .ln{fill:none;stroke:#FFFFFF;stroke-width:2;pointer-events:none}
-.court .board{stroke:#FFFFFF;stroke-width:3;stroke-linecap:round}
-.court .neck{stroke:#FFFFFF;stroke-width:1.5}
-.court .rim{fill:none;stroke:#F26B1D;stroke-width:2.2;pointer-events:none}
-.court text{fill:#2A1A0C;font-family:var(--display);pointer-events:none;paint-order:stroke;stroke:rgba(255,236,208,.75);stroke-width:3px;stroke-linejoin:round}
-.court text.lt{fill:#FFFFFF;stroke:rgba(10,25,50,.45)}
-.court .zn{font-family:var(--body);font-size:9.5px;font-weight:700}
-.court .zv{font-size:19px;font-weight:800}
+.court .ln{fill:none;stroke:#FFFFFF;stroke-opacity:.96;stroke-width:1.9;stroke-linecap:round;pointer-events:none}
+.court text,.court .chipg{pointer-events:none}
+.court .chipg rect{fill:rgba(14,26,22,.78);stroke:rgba(255,255,255,.14);stroke-width:.6}
+.court .chipg .cn{font:600 6.6px var(--body);fill:rgba(239,231,214,.72);letter-spacing:.1px}
+.court .chipg .cv{font:800 14px var(--display);fill:#FFFFFF}
+.court .chipg.muted .cv{fill:rgba(239,231,214,.45)}
+.court .chipg.on rect{fill:#FFD86A;stroke:#FFF1C4}
+.court .chipg.on .cn{fill:rgba(18,36,31,.75)}
+.court .chipg.on .cv{fill:#12241F}
+.heatkey{display:flex;align-items:center;gap:10px;justify-content:flex-end;font-size:.75rem;color:var(--muted);margin:-6px 2px 12px}
+.heatkey i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+@media (prefers-reduced-motion: reduce){.court .zone.sel{animation:none}}
 .minihead{font-size:.85rem;color:var(--muted);font-weight:500;margin:4px 0 8px}
 
 /* players */
@@ -277,6 +282,36 @@ button.medal{font:inherit;color:inherit;cursor:pointer;width:100%}
 .pflame{display:inline-flex;align-items:center;color:#F26B1D;font-weight:700;font-size:.8rem;margin-left:6px}
 .pflame .ic{width:14px;height:14px;margin-right:2px;fill:#F26B1D;stroke:#F26B1D}
 .hist .tagsolo{font-size:.68rem;font-weight:700;color:var(--muted);background:var(--bg2);padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+
+/* ---- leaderboards & feed ---- */
+.lb{padding:14px 16px}
+.lbhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.lbhead b{font:800 1.3rem/1.1 var(--display)}
+.lbhead small{display:block;color:var(--muted);font-size:.78rem;margin-top:3px}
+.mypos{text-align:right;flex:none}
+.mypos span{display:block;font:800 2rem/1 var(--display);color:var(--brass)}
+.mypos small{font-size:.75rem;color:var(--muted)}
+.ladder.lbl{box-shadow:none;border:0;background:none;margin:0 -16px}
+.ladder.lbl li{padding:10px 16px}
+.ladder .who small{display:block;color:var(--muted);font-size:.76rem;font-weight:400}
+.ladder .gap{display:block;text-align:center;color:var(--muted);padding:4px}
+.feed{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.feed li{display:grid;grid-template-columns:36px 1fr;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.feed li:first-child{border-top:0}
+.feed p{margin:0;font-size:.92rem;line-height:1.35}
+.fi{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--bg2)}
+.fi svg{width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fi.badge{background:var(--brass-soft)} .fi.badge svg{stroke:var(--brass)}
+.fi.practice svg{stroke:#F26B1D}
+.rx{display:flex;align-items:center;gap:6px;margin-top:8px}
+.rx button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:3px 9px;font-size:.85rem;cursor:pointer;color:var(--ink);transition:transform .1s}
+.rx button:active{transform:scale(.9)}
+.rx button[aria-pressed="true"]{border-color:var(--brass);background:var(--brass-soft)}
+.rx button span{font-size:.75rem;font-weight:700}
+.rx small{margin-left:auto;color:var(--muted);font-size:.75rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.grid3 select{margin:0 0 12px;padding:11px 8px}
+#profForm input,#teamProf input{width:100%}
 
 /* ---- competition ---- */
 .medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
@@ -531,8 +566,8 @@ async function boot(){
 }
 async function loadRoles(){
   const [t, p] = await Promise.all([
-    sb.from('teams').select('id,name,drills,show_names').eq('coach_id', me.id).order('created_at').limit(1),
-    sb.from('players').select('id,name,num,team_id').eq('user_id', me.id).order('created_at'),
+    sb.from('teams').select('id,name,drills,show_names,suburb,state,age_group,division,public_boards').eq('coach_id', me.id).order('created_at').limit(1),
+    sb.from('players').select('id,name,num,team_id,nickname,public_opt_in').eq('user_id', me.id).order('created_at'),
   ]);
   if(t.error) throw t.error; if(p.error) throw p.error;
   coachTeam = t.data[0] || null; myPlayers = p.data || [];
@@ -601,10 +636,10 @@ function activeKey(){ return 'drillboard-active-' + state.teamId; }
 function saveActive(){ try{ state.active ? localStorage.setItem(activeKey(), JSON.stringify(state.active)) : localStorage.removeItem(activeKey()); }catch(_){} }
 function loadActive(){ try{ return JSON.parse(localStorage.getItem(activeKey()) || 'null'); }catch(_){ return null; } }
 async function loadCoach(){
-  show('loading');
+  show('loading'); $('#player').innerHTML = '';
   const id = coachTeam.id;
   const [p, s] = await Promise.all([
-    sb.from('players').select('id,name,num,invite_code,user_id').eq('team_id', id).order('created_at'),
+    sb.from('players').select('id,name,num,invite_code,user_id,nickname,public_opt_in').eq('team_id', id).order('created_at'),
     sb.from('sessions').select('id,drill,started_at,kind,session_results(player_id,made,attempts)').eq('team_id', id).order('started_at'),
   ]);
   if(p.error || s.error) return fail();
@@ -659,66 +694,96 @@ const PATHS = {
 };
 // mode 'pick': tappable, highlights selected drill; mode 'heat': shaded by make rate
 let courtN = 0;
+const WOOD = (() => {
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const tones = ['#DDAA6E','#D6A165','#E2B37A','#D39C5F','#DBA86F','#CF975A','#E0AF74'];
+  const out = [];
+  for(let x = 0; x < 300; x += 10){
+    let y = -rnd() * 60;
+    while(y < 240){
+      const h = 55 + rnd() * 70, t = tones[(rnd() * tones.length) | 0];
+      out.push(`<rect x="${x}" y="${y.toFixed(1)}" width="10" height="${h.toFixed(1)}" fill="${t}"/>`);
+      out.push(`<line x1="${x}" y1="${y.toFixed(1)}" x2="${x+10}" y2="${y.toFixed(1)}" class="joint"/>`);
+      for(let g = 0; g < 2; g++){ const gx = x + 1.5 + rnd() * 7; out.push(`<line x1="${gx.toFixed(1)}" y1="${y.toFixed(1)}" x2="${(gx + (rnd()-.5)*1.2).toFixed(1)}" y2="${(y+h).toFixed(1)}" class="grain"/>`); }
+      y += h;
+    }
+    out.push(`<line x1="${x}" y1="0" x2="${x}" y2="240" class="seam"/>`);
+  }
+  return out.join('');
+})();
+function heatColor(p){ return p < .35 ? '#3F86E0' : p < .5 ? '#F0A93B' : '#E8522B'; }
+function chip(x, y, name, value, opts = {}){
+  const vw = String(value).length * 8.6, nw = name.length * 4.4, w = Math.max(vw, nw) + 14, h = name ? 30 : 20;
+  const cls = 'chipg' + (opts.on ? ' on' : '') + (opts.muted ? ' muted' : '');
+  return `<g class="${cls}" transform="translate(${x},${y})${opts.rot ? ` rotate(${opts.rot})` : ''}">
+    <rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" rx="7"/>
+    ${name ? `<text class="cn" y="${-h/2 + 9.5}" text-anchor="middle">${esc(name)}</text>` : ''}
+    <text class="cv" y="${name ? h/2 - 5 : 5.5}" text-anchor="middle"${opts.color ? ` style="fill:${opts.color}"` : ''}>${esc(value)}</text></g>`;
+}
 function courtSVG(mode, vals, selDrill){
   const k = ++courtN;
   const z = id => ZONES.find(x => x.id === id);
   const v = id => vals[id] || {m:0,a:0};
-  const style = id => {
-    if(mode !== 'heat' || !v(id).a) return '';
-    return ` style="fill:#E4572E;fill-opacity:${(0.10 + (v(id).m/v(id).a)*0.55).toFixed(2)}"`;
+  const p = id => v(id).a ? v(id).m / v(id).a : null;
+  const sel = id => mode === 'pick' && selDrill === z(id).drill;
+  const fill = id => {
+    if(mode !== 'heat' || p(id) == null) return '';
+    return ` style="fill:${heatColor(p(id))};fill-opacity:${(0.28 + Math.min(p(id), .8) * 0.35).toFixed(2)}"`;
   };
-  const zone = (id, key, label, extra='') => `<path class="zone${mode==='pick' && selDrill===z(id).drill ? ' sel' : ''}" d="${PATHS[key]}"${extra}${style(id)}${mode==='pick'
-      ? ` data-zonepick="${esc(z(id).drill)}" role="button" tabindex="0" aria-label="${esc(label)}" aria-pressed="${selDrill===z(id).drill}"` : ''}/>`;
+  const zone = (id, key, label, extra='') => `<path class="zone${sel(id) ? ' sel' : ''}" d="${PATHS[key]}"${extra}${fill(id)}${mode==='pick'
+      ? ` data-zonepick="${esc(z(id).drill)}" role="button" tabindex="0" aria-label="${esc(label)}${v(id).a ? `, ${pct(v(id).m, v(id).a)}` : ''}" aria-pressed="${sel(id)}"` : ''}/>`;
   const val = id => pct(v(id).m, v(id).a);
-  const planks = [];
-  for(let x = 0; x < 300; x += 10){
-    const shade = ['#D9A56C','#D29B61','#DEAD78','#CF975D'][(x/10) % 4];
-    planks.push(`<rect x="${x}" y="0" width="10" height="240" fill="${shade}"/>`);
-    const j = 30 + ((x * 37) % 160);
-    planks.push(`<line x1="${x}" y1="${j}" x2="${x+10}" y2="${j}" />`);
-  }
+  const col = id => mode === 'heat' && p(id) != null ? heatColor(p(id)) : null;
+  const c = (id, x, y, name, o = {}) => chip(x, y, name, val(id), { on: sel(id), muted: !v(id).a, color: sel(id) ? null : col(id), ...o });
   return `<svg class="court${mode==='heat' ? ' heat' : ''}" viewBox="0 0 300 240" role="group" aria-label="Half court shooting spots">
     <defs>
-      <linearGradient id="sheen${k}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/>
-        <stop offset="1" stop-color="#5a2e0e" stop-opacity=".10"/>
-      </linearGradient>
+      <radialGradient id="sheen${k}" cx=".5" cy=".18" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="vig${k}" cx=".5" cy=".45" r=".8"><stop offset=".6" stop-color="#3a1d06" stop-opacity="0"/><stop offset="1" stop-color="#3a1d06" stop-opacity=".32"/></radialGradient>
+      <linearGradient id="paint${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2C5FA6"/><stop offset="1" stop-color="#1E467F"/></linearGradient>
+      <linearGradient id="gloss${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <filter id="glow${k}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="lsh${k}" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy=".5" stdDeviation=".4" flood-color="#5a2e0e" flood-opacity=".35"/></filter>
+      <filter id="csh${k}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#000" flood-opacity=".35"/></filter>
     </defs>
-    <g class="wood">${planks.join('')}</g>
-    <g class="grain"><line x1="0" y1="0" x2="0" y2="240"/>${Array.from({length:30},(_,i)=>`<line x1="${i*10}" y1="0" x2="${i*10}" y2="240"/>`).join('')}</g>
-    <rect x="102" y="10" width="96" height="114" class="keypaint"/>
-    <rect x="0" y="0" width="300" height="10" class="apron"/>
+    <g class="wood">${WOOD}</g>
+    <rect x="102" y="10" width="96" height="114" fill="url(#paint${k})"/>
+    <rect x="102" y="10" width="96" height="114" fill="url(#gloss${k})"/>
+    <rect x="0" y="0" width="300" height="10" fill="url(#paint${k})"/>
     <rect width="300" height="240" fill="url(#sheen${k})" pointer-events="none"/>
+    <rect width="300" height="240" fill="url(#vig${k})" pointer-events="none"/>
     ${zone('arc','arc','Above the break 3')}
     ${zone('corner','cornerL','Corner 3, left side')}
     ${zone('corner','cornerR','Corner 3, right side')}
     ${zone('mid','mid','Mid-range',' fill-rule="evenodd"')}
     ${zone('paint','paint','Paint')}
     ${zone('ft','ft','Free throws')}
-    <g class="ln">
+    <g class="ln" filter="url(#lsh${k})">
       <line x1="0" y1="10" x2="300" y2="10"/>
       <path d="M18,10 V94 A142.5,142.5 0 0 0 282,94 V10"/>
       <rect x="102" y="10" width="96" height="114"/>
       <path d="M114,124 A36,36 0 0 0 186,124"/>
-      <path d="M114,124 A36,36 0 0 1 186,124" stroke-dasharray="5 5"/>
-      <path d="M138,41.5 A12,12 0 0 0 162,41.5" />
-      <line x1="102" y1="55" x2="96" y2="55"/><line x1="198" y1="55" x2="204" y2="55"/>
-      <line x1="102" y1="75" x2="96" y2="75"/><line x1="198" y1="75" x2="204" y2="75"/>
-      <line x1="102" y1="95" x2="96" y2="95"/><line x1="198" y1="95" x2="204" y2="95"/>
+      <path d="M114,124 A36,36 0 0 1 186,124" stroke-dasharray="4.5 4.5"/>
+      <path d="M138,41.5 A12,12 0 0 0 162,41.5"/>
+      <path d="M102,55h-6M198,55h6M102,72h-6M198,72h6M102,89h-6M198,89h6M102,106h-6M198,106h6"/>
     </g>
-    <line x1="132" y1="33" x2="168" y2="33" class="board"/>
-    <line x1="150" y1="33" x2="150" y2="37" class="neck"/>
-    <circle class="rim" cx="150" cy="41.5" r="5"/>
-    <text class="zn lt" x="150" y="72" text-anchor="middle">Paint</text>
-    <text class="zv lt" x="150" y="96" text-anchor="middle">${val('paint')}</text>
-    <text class="zn" x="150" y="141" text-anchor="middle">Free throws</text>
-    <text class="zv" x="150" y="159" text-anchor="middle" style="font-size:15px">${val('ft')}</text>
-    <text class="zn" x="60" y="46" text-anchor="middle">Mid-range</text>
-    <text class="zv" x="60" y="68" text-anchor="middle">${val('mid')}</text>
-    <text class="zn" x="291" y="68" text-anchor="middle" transform="rotate(90 291 68)">Corner 3</text>
-    <text class="zv" x="10" y="68" text-anchor="middle"${v('corner').a ? ' transform="rotate(-90 10 68)"' : ''} style="font-size:13px">${val('corner')}</text>
-    <text class="zn" x="150" y="206" text-anchor="middle">Above the break 3</text>
-    <text class="zv" x="150" y="228" text-anchor="middle">${val('arc')}</text>
+    <g class="hoop" pointer-events="none">
+      <ellipse cx="150" cy="44.5" rx="8" ry="3" fill="#000" opacity=".18"/>
+      <rect x="131" y="30.5" width="38" height="4" rx="1" fill="#F4F6F8"/>
+      <rect x="131" y="33.5" width="38" height="1.2" fill="#9AA3AD"/>
+      <rect x="146" y="31.4" width="8" height="2.2" fill="none" stroke="#E8522B" stroke-width=".7"/>
+      <rect x="149.2" y="34.5" width="1.6" height="3" fill="#C9CFD6"/>
+      <g stroke="#fff" stroke-opacity=".75" stroke-width=".55" fill="none">
+        <path d="M145.2,41.5 147.5,47M147,38.3 148.8,45.5M150,37.5V46M153,38.3 151.2,45.5M154.8,41.5 152.5,47M146.3,44.5h7.4"/>
+      </g>
+      <circle cx="150" cy="41.5" r="4.8" fill="none" stroke="#F26B1D" stroke-width="1.8"/>
+    </g>
+    <g filter="url(#csh${k})">
+      ${c('paint', 150, 90, 'Paint')}
+      ${c('ft', 150, 152, 'Free throws')}
+      ${c('mid', 58, 56, 'Mid-range')}
+      ${c('corner', 24, 116, 'Corner 3')}
+      ${c('arc', 150, 212, 'Above the break 3')}
+    </g>
   </svg>`;
 }
 function zoneVals(pid){
@@ -792,7 +857,7 @@ function renderDrill(){
 }
 
 /* ---------- coach: leaderboard ---------- */
-function renderBoard(){ renderBoardInner(); if(!$('#board').hidden) countUp($('#board')); }
+function renderBoard(){ renderBoardInner(); if(!$('#board').hidden) countUp($('#board')); loadBoards(coachTeam); loadFeed(state.teamId); }
 function renderBoardInner(){
   const el = $('#board');
   const { ranked, low } = ranking();
@@ -802,7 +867,7 @@ function renderBoardInner(){
       <div class="nm">${esc(x.p.name.trim().split(/\s+/)[0])}</div><div class="pc">${numUp(Math.round(x.m/x.a*100),'%')}</div><small>${x.m}/${x.a}</small></div>` : '<div></div>';
   const C = state.compete || { potw:[], challenges:[] };
   const drillOpts = ['', ...state.drills].map(d => `<option value="${esc(d)}">${d ? esc(d) : 'Any drill'}</option>`).join('');
-  const compete = `${potwCard(C.potw)}
+  const compete = `<h2 style="margin-top:0">Rankings</h2>${boardsShell()}<h2>Team activity</h2>${feedShell()}<h2>This week</h2>${potwCard(C.potw)}
     <h2 style="margin-top:6px">Challenges</h2>
     ${C.challenges.map(c => challengeCard(c, true)).join('')}
     ${ui.newChal ? `<form class="panel cform" id="chalForm" style="margin-bottom:12px">
@@ -838,7 +903,7 @@ function renderPlayers(){
   const el = $('#players');
   const all = totals('all','all',true);
   const bmap = Object.fromEntries((state.compete?.board || []).map(r => [r.player_id, r]));
-  el.innerHTML = `<div class="panel switch" style="margin-bottom:16px"><div><b>Show names to teammates</b>
+  el.innerHTML = teamProfileCard() + `<div class="panel switch" style="margin-bottom:16px"><div><b>Show names to teammates</b>
       <small>${state.showNames ? 'Players can see each other’s names on the team ladder, challenges and player of the week.' : 'Players see their own stats. Teammates show as “Teammate”.'}</small></div>
       <button class="tog" role="switch" aria-checked="${!!state.showNames}" aria-label="Show names to teammates" data-shownames></button></div>
     <form class="addp" id="addForm">
@@ -872,6 +937,7 @@ function playerDetail(p){
   const zv = zoneVals(p.id);
   const anyZone = Object.values(zv).some(x => x.a);
   return `<div class="pdetail">
+    ${p.nickname ? `<div class="invite"><div><small>Nickname${p.public_opt_in ? ', on public leaderboards' : ''}</small><strong>${esc(p.nickname)}</strong></div><button class="ghost danger" data-clearnick="${p.id}">Remove</button></div>` : ''}
     <div class="invite">${p.user_id
       ? `<div><strong>Player account linked</strong><small>${esc(p.name)} can sign in and see their own stats.</small></div><button class="ghost" data-unlink="${p.id}">Unlink</button>`
       : `<div><small>Invite code</small><span class="code">${esc(p.invite_code)}</span></div><div class="invbtns"><button class="chip" data-invite="${p.id}">${ic('copy')}Copy invite</button><button class="ghost" data-newcode="${p.id}">New code</button></div>`}
@@ -879,7 +945,7 @@ function playerDetail(p){
     ${(() => { const mine = (state.compete?.badges || []).filter(b => b.player_id === p.id); const cnt = {};
         mine.forEach(b => { const k = badgeKey(b.badge); cnt[k] = (cnt[k] || 0) + 1; });
         return Object.keys(cnt).length ? `<p class="minihead">Badges</p><div class="mstrip">${Object.entries(cnt).map(([k,n]) => `<span class="mb">${esc(BADGES[k]?.name || k)}${n>1?` ×${n}`:''}</span>`).join('')}</div>` : ''; })()}
-    ${anyZone ? `<p class="minihead">Shooting by spot</p>${courtSVG('heat', zv)}` : ''}
+    ${anyZone ? `<p class="minihead">Shooting by spot</p>${courtSVG('heat', zv)}<div class="heatkey"><span><i style="background:#3F86E0"></i>Under 35%</span><span><i style="background:#F0A93B"></i>35–49%</span><span><i style="background:#E8522B"></i>50%+</span></div>` : ''}
     ${rows ? `<table><tr><th>By drill</th><th>Shots</th><th>Rate</th></tr>${rows}</table>` : '<p class="muted">No shots logged yet.</p>'}
     ${recent ? `<table><tr><th>Last 5 drills</th><th>Shots</th><th>Rate</th></tr>${recent}</table>` : ''}
     <div class="row"><button class="ghost" data-rename="${p.id}">Rename</button><button class="ghost danger" data-delp="${p.id}">Remove player</button></div>
@@ -919,10 +985,10 @@ async function importLocal(btn){
 
 /* ---------- player view ---------- */
 async function loadPlayer(){
-  show('loading');
+  show('loading'); ['drill','board','players'].forEach(id => $('#'+id).innerHTML = '');
   const ids = myPlayers.map(p => p.id), tids = [...new Set(myPlayers.map(p => p.team_id))];
   const [t, r] = await Promise.all([
-    sb.from('teams').select('id,name,drills').in('id', tids),
+    sb.from('teams').select('id,name,drills,suburb,state,age_group,division,public_boards').in('id', tids),
     sb.from('session_results').select('player_id,made,attempts,sessions(id,drill,started_at,kind)').in('player_id', ids),
   ]);
   if(t.error || r.error) return fail();
@@ -935,7 +1001,8 @@ async function loadPlayer(){
   await Promise.all(tids.map(async t => { try{ pdata.compete[t] = await loadCompete(t); }catch(_){ pdata.compete[t] = { board:[], potw:[], challenges:[], badges:[] }; } }));
   renderHeader(); show('player'); renderPlayerView(); enter($('#player')); checkNewBadges();
 }
-function renderPlayerView(){ renderPlayerViewInner(); countUp($('#player')); }
+function renderPlayerView(){ renderPlayerViewInner(); countUp($('#player'));
+  if((ui.ptab || 'me') === 'team'){ const p = myPlayers[ui.meIdx]; loadBoards(pdata.teams[p.team_id]); loadFeed(p.team_id); } }
 function renderPlayerViewInner(){
   const p = myPlayers[ui.meIdx], team = pdata.teams[p.team_id] || { name:'', drills:ZONE_NAMES };
   const res = pdata.results.filter(x => x.pid === p.id);
@@ -958,7 +1025,7 @@ function renderPlayerViewInner(){
   if(tab === 'practice'){ $('#player').innerHTML = picker + renderPractice(p, team, res, zv); return; }
   if(tab === 'team'){
     const hidden = C.board.some(r => !r.name);
-    $('#player').innerHTML = picker + tabs + potwCard(C.potw) +
+    $('#player').innerHTML = picker + tabs + `<h2 style="margin-top:0">Leaderboards</h2>${boardsShell()}${profileCard(p)}<h2>Team activity</h2>${feedShell()}<h2>This week</h2>` + potwCard(C.potw) +
       `<h2>Challenges</h2>${C.challenges.length ? C.challenges.map(c => challengeCard(c, false)).join('') : `<div class="panel emptybox">${emptyArt()}<p class="muted" style="margin:0">No challenges right now. Your coach can start one.</p></div>`}
       <h2>Team ladder</h2>
       <ol class="ladder">${C.board.map((r,i) => `<li class="${r.is_me ? 'me' : ''}"><span class="n">${i+1}</span>
@@ -992,7 +1059,7 @@ function renderPlayerViewInner(){
     <div class="seg">${[['all','All time'],['30','30 days'],['7','7 days']].map(([v,l]) => `<button data-meperiod="${v}" aria-pressed="${v===ui.mePeriod}">${l}</button>`).join('')}</div>
     <div class="panel rankbox" id="rankBox"><p class="muted" style="margin:0">Loading your rank…</p></div>
     <h2>By spot</h2>
-    ${courtSVG('heat', zv)}
+    ${courtSVG('heat', zv)}<div class="heatkey"><span><i style="background:#3F86E0"></i>Under 35%</span><span><i style="background:#F0A93B"></i>35–49%</span><span><i style="background:#E8522B"></i>50%+</span></div>
     <h2>Recent form</h2>
     <div class="panel">${bars}</div>
     <h2>Drill history</h2>
@@ -1314,9 +1381,110 @@ async function openShare(o){
   $('#sheet').hidden = false;
 }
 
+/* ---------- public leaderboards & team feed ---------- */
+const STATES = ['VIC','NSW','QLD','SA','WA','TAS','ACT','NT'], AGES = ['U8','U10','U12','U14','U16','U18','U20','Open'], DIVS = ['Boys','Girls','Mixed'];
+const METRICS = [['makes','Makes'],['pct','Accuracy'],['ft','Free throws'],['three','Threes']];
+const lbCache = {}, feedCache = {};
+const monthName = () => new Date().toLocaleDateString(undefined, { month:'long', timeZone:'Australia/Melbourne' });
+function ago(t){ const s = (Date.now() - Date.parse(t)) / 1000; return s < 3600 ? `${Math.max(1, Math.round(s/60))}m` : s < 86400 ? `${Math.round(s/3600)}h` : `${Math.round(s/86400)}d`; }
+function boardsShell(){
+  ui.lbScope = ui.lbScope || 'team'; ui.lbMetric = ui.lbMetric || 'makes';
+  return `<div class="seg full" style="grid-template-columns:repeat(3,1fr)">${[['team','Team'],['suburb','Suburb'],['state','State']].map(([v,l]) => `<button data-lbscope="${v}" aria-pressed="${ui.lbScope===v}">${l}</button>`).join('')}</div>
+    <div class="chips">${METRICS.map(([v,l]) => `<button class="chip" data-lbmetric="${v}" aria-pressed="${ui.lbMetric===v}">${l}</button>`).join('')}</div>
+    <div id="lbBox" class="panel lb"><div class="skel" style="height:140px;border:0"></div></div>`;
+}
+async function loadBoards(team){
+  const box = $('#lbBox'); if(!box || !team) return;
+  const key = `${team.id}|${ui.lbScope}|${ui.lbMetric}`, hit = lbCache[key];
+  let rows, err;
+  if(hit && Date.now() - hit.t < 30000){ rows = hit.rows; }
+  else { const r = await sb.rpc('leaderboard', { p_team: team.id, p_scope: ui.lbScope, p_metric: ui.lbMetric }); rows = r.data; err = r.error; if(!err) lbCache[key] = { t: Date.now(), rows }; }
+  if(!$('#lbBox')) return;
+  const isCoach = mode === 'coach';
+  if(err){
+    const setup = /location|age group/i.test(err.message);
+    $('#lbBox').innerHTML = `<div class="emptybox">${emptyArt()}<p class="muted" style="margin:0">${setup
+      ? (isCoach ? 'Set your team’s suburb, state and age group under Players → Team profile to unlock suburb and state boards.' : 'Your coach needs to set the team’s suburb, state and age group to unlock these boards.')
+      : 'Couldn’t load this leaderboard right now.'}</p></div>`; return;
+  }
+  const unit = ui.lbMetric === 'makes' ? '' : '%';
+  const where = ui.lbScope === 'team' ? team.name : ui.lbScope === 'suburb' ? `${team.suburb}, ${team.age_group}${team.division ? ' ' + team.division : ''}` : `${team.state}, ${team.age_group}${team.division ? ' ' + team.division : ''}`;
+  const me = rows.find(r => r.is_me), top = rows.filter(r => r.rank <= 50), total = rows[0]?.total || 0;
+  const note = { makes:'All shots count, including practice.', pct:'Coach-run drills only, 30+ shots.', ft:'Coach-run drills only, 20+ free throws.', three:'Coach-run drills only, 20+ threes.' }[ui.lbMetric];
+  const row = r => `<li class="${r.is_me ? 'me' : ''}"><span class="n">${r.rank}</span>
+      <div class="who">${esc(r.is_me ? (r.display || 'You') + ' (you)' : (r.display || 'Teammate'))}${ui.lbScope !== 'team' ? `<small>${esc(r.team_name)}${ui.lbScope === 'state' ? `, ${esc(r.suburb || '')}` : ''}</small>` : `<small>${r.made}/${r.attempts} shots</small>`}</div>
+      <b>${r.value}${unit}</b></li>`;
+  $('#lbBox').innerHTML = `<div class="lbhead"><div><b>${esc(where)}</b><small>${monthName()} season. ${note}</small></div>
+      ${me && !isCoach ? `<div class="mypos"><span>${ordinal(me.rank)}</span><small>of ${total}</small></div>` : ''}</div>
+    ${top.length ? `<ol class="ladder lbl">${top.map(row).join('')}${me && me.rank > 50 ? `<li class="gap">…</li>${row(me)}` : ''}</ol>` : `<p class="muted" style="margin:10px 0 0">Nobody qualifies yet this month.</p>`}
+    ${!isCoach && ui.lbScope !== 'team' && me && !me.visible ? `<p class="note">Others can’t see you here yet. ${team.public_boards ? 'Add a nickname and switch on public leaderboards below.' : 'Your coach hasn’t put the team on public leaderboards.'}</p>` : ''}`;
+}
+function feedShell(){ return `<div id="feedBox"><div class="skel" style="height:120px"></div></div>`; }
+const FEEDICON = { badge:'badge', drill:'drill', practice:'flame' };
+async function loadFeed(teamId, force){
+  if(!$('#feedBox')) return;
+  let items = feedCache[teamId];
+  if(force || !items || Date.now() - items.t > 30000){ const r = await sb.rpc('team_feed', { p_team: teamId }); if(r.error){ $('#feedBox').innerHTML = '<p class="muted">Couldn’t load activity.</p>'; return; } items = feedCache[teamId] = { t: Date.now(), rows: r.data }; }
+  if(!$('#feedBox')) return;
+  const txt = f => f.kind === 'badge' ? `<b>${esc(f.is_me ? 'You' : f.who)}</b> earned <b>${esc(BADGES[badgeKey(f.detail)]?.name || 'a badge')}</b>`
+    : f.kind === 'drill' ? `Team drill: <b>${esc(f.detail)}</b>, ${f.made}/${f.attempts} (${pct(f.made, f.attempts)})`
+    : `<b>${esc(f.is_me ? 'You' : f.who)}</b> practised <b>${esc(f.detail)}</b>, ${f.made}/${f.attempts}`;
+  $('#feedBox').innerHTML = items.rows.length ? `<ul class="feed">${items.rows.slice(0, 15).map(f => `<li>
+      <span class="fi ${f.kind}">${ic(FEEDICON[f.kind], '')}</span>
+      <div><p>${txt(f)}</p><div class="rx">${[['fire','🔥'],['clap','👏'],['muscle','💪']].map(([e,g]) =>
+        `<button data-react="${esc(f.item)}" data-emoji="${e}" aria-pressed="${f.mine.includes(e)}" aria-label="${e} reaction">${g}${f[e] ? ` <span>${f[e]}</span>` : ''}</button>`).join('')}<small>${ago(f.at)}</small></div></div></li>`).join('')}</ul>`
+    : `<div class="panel emptybox">${emptyArt()}<p class="muted" style="margin:0">Badges, drills and practice from the last 30 days show up here.</p></div>`;
+}
+async function react(teamId, item, emoji, btn){
+  const on = btn.getAttribute('aria-pressed') === 'true';
+  const rows = feedCache[teamId]?.rows || []; const f = rows.find(x => x.item === item); if(!f) return;
+  const { error } = on ? await sb.from('reactions').delete().eq('item', item).eq('emoji', emoji).eq('user_id', me.id)
+                       : await sb.from('reactions').insert({ team_id: teamId, item, emoji });
+  if(error) return toast('Couldn’t react. Check your connection.');
+  f[emoji] += on ? -1 : 1; f.mine = on ? f.mine.filter(e => e !== emoji) : [...f.mine, emoji]; if(!on) haptic();
+  loadFeed(teamId);
+}
+function profileCard(p){
+  return `<form class="panel" id="profForm" style="margin-top:14px"><b>Your public profile</b>
+    <p class="muted" style="font-size:.85rem;margin:4px 0 10px">Choose a nickname for suburb and state leaderboards. Your real name is never shown there.</p>
+    <input type="text" id="nick" maxlength="16" value="${esc(p.nickname || '')}" placeholder="e.g. SplashBro" aria-label="Nickname" autocomplete="off">
+    <div class="switch" style="margin:12px 0"><div><b style="font-size:.95rem">Show me on public leaderboards</b><small>Only your nickname, team and suburb are shown.</small></div>
+      <button type="button" class="tog" role="switch" aria-checked="${!!p.public_opt_in}" data-togpub aria-label="Show me on public leaderboards"></button></div>
+    <button class="primary" type="submit">Save profile</button></form>`;
+}
+function teamProfileCard(){
+  const t = coachTeam, opt = (arr, v, ph) => `<option value="">${ph}</option>` + arr.map(x => `<option ${x === v ? 'selected' : ''}>${x}</option>`).join('');
+  return `<form class="panel cform" id="teamProf" style="margin-bottom:16px"><b>Team profile</b>
+    <p class="muted" style="font-size:.85rem;margin:4px 0 10px">Used to group your players on suburb and state leaderboards.</p>
+    <input type="text" id="tpSub" maxlength="40" value="${esc(t.suburb || '')}" placeholder="Suburb, e.g. Boronia" aria-label="Suburb">
+    <div class="grid3"><select id="tpState" aria-label="State">${opt(STATES, t.state, 'State')}</select>
+      <select id="tpAge" aria-label="Age group">${opt(AGES, t.age_group, 'Age group')}</select>
+      <select id="tpDiv" aria-label="Division">${opt(DIVS, t.division, 'Division')}</select></div>
+    <div class="switch" style="margin:4px 0 14px"><div><b style="font-size:.95rem">Join public leaderboards</b><small>Players still choose to opt in, and only their nickname is shown.</small></div>
+      <button type="button" class="tog" role="switch" aria-checked="${!!t.public_boards}" data-togteampub aria-label="Join public leaderboards"></button></div>
+    <button class="primary" type="submit">Save team profile</button></form>`;
+}
+
 /* ---------- events ---------- */
 function pickZone(name){ if(mode === 'player'){ ui.soloDrill = name; renderPlayerView(); return; } ui.drill = name; renderDrill(); }
 document.addEventListener('submit', async e => {
+  if(e.target.id === 'profForm'){
+    e.preventDefault();
+    const p = myPlayers[ui.meIdx], nick = $('#nick').value.trim(), on = $('[data-togpub]').getAttribute('aria-checked') === 'true';
+    const { error } = await sb.rpc('set_public_profile', { p_player: p.id, p_nickname: nick, p_opt_in: on });
+    if(error) return toast(/nickname|profile/i.test(error.message) ? error.message : 'Couldn’t save. Check your connection.');
+    p.nickname = nick || null; p.public_opt_in = on && !!nick; Object.keys(lbCache).forEach(k => delete lbCache[k]);
+    toast(p.public_opt_in ? 'Saved. You’re on public leaderboards.' : 'Profile saved'); renderPlayerView(); return;
+  }
+  if(e.target.id === 'teamProf'){
+    e.preventDefault();
+    const patch = { suburb: $('#tpSub').value.trim() || null, state: $('#tpState').value || null, age_group: $('#tpAge').value || null,
+      division: $('#tpDiv').value || null, public_boards: $('[data-togteampub]').getAttribute('aria-checked') === 'true' };
+    if(patch.public_boards && (!patch.suburb || !patch.state || !patch.age_group)) return toast('Add suburb, state and age group to join public leaderboards.');
+    const { error } = await sb.from('teams').update(patch).eq('id', state.teamId);
+    if(error) return toast('Couldn’t save. Check your connection.');
+    Object.assign(coachTeam, patch); Object.keys(lbCache).forEach(k => delete lbCache[k]); toast('Team profile saved'); renderPlayers(); return;
+  }
   if(e.target.id !== 'chalForm') return;
   e.preventDefault();
   const drill = $('#cDrill').value || null, metric = ui.cMetric || 'makes', days = +(ui.cDays || 7);
@@ -1382,6 +1550,16 @@ document.addEventListener('click', async e => {
   // coach
   if(d.tab){ showTab(d.tab); return; }
   if('celenext' in d){ nextCele(); return; }
+  if(d.lbscope){ ui.lbScope = d.lbscope; b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); loadBoards(mode === 'coach' ? coachTeam : pdata.teams[myPlayers[ui.meIdx].team_id]); return; }
+  if(d.lbmetric){ ui.lbMetric = d.lbmetric; b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); loadBoards(mode === 'coach' ? coachTeam : pdata.teams[myPlayers[ui.meIdx].team_id]); return; }
+  if(d.react){ react(mode === 'coach' ? state.teamId : myPlayers[ui.meIdx].team_id, d.react, d.emoji, b); return; }
+  if('togpub' in d || 'togteampub' in d){ b.setAttribute('aria-checked', b.getAttribute('aria-checked') !== 'true'); return; }
+  if(d.clearnick){
+    if(!confirm('Remove this nickname? The player will be taken off public leaderboards until they choose a new one.')) return;
+    const { error } = await sb.from('players').update({ nickname: null, public_opt_in: false }).eq('id', d.clearnick);
+    if(error) return toast('Couldn’t update. Check your connection.');
+    Object.assign(player(d.clearnick), { nickname: null, public_opt_in: false }); renderPlayers(); toast('Nickname removed'); return;
+  }
   if('closesheet' in d){ $('#sheet').hidden = true; $('#sheet').innerHTML = ''; return; }
   if('doshare' in d){ try{ await navigator.share({ files:[shareFile], text:'My shooting on Drill Board' }); }catch(_){} return; }
   if(d.sharebadge){
