@@ -355,7 +355,7 @@ button.medal{font:inherit;color:inherit;cursor:pointer;width:100%}
 .pname2 small{display:block;font:500 .85rem var(--body);color:var(--muted);margin-top:4px}
 .pactions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
 .pactions button{border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:11px;padding:10px;font:600 .9rem var(--body);cursor:pointer;display:flex;justify-content:center;align-items:center}
-.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:14px;overflow:hidden}
+.bgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;border-radius:14px;overflow:hidden}
 .bgrid button{aspect-ratio:1;border:0;background:var(--surface);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;color:var(--ink)}
 .gmedal{width:52%;height:auto}
 .bgrid small{font-size:.68rem;font-weight:600;color:var(--muted);text-align:center;line-height:1.2}
@@ -366,6 +366,16 @@ button.medal{font:inherit;color:inherit;cursor:pointer;width:100%}
 .acctlist b{word-break:break-all}
 .acctlist .danger{color:var(--miss)}
 .tabbar span{white-space:nowrap}
+
+/* ---- profile badges ---- */
+.xpcard{margin-bottom:4px}
+#badgeSec{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 90px)}
+.bgrid button{min-width:0;overflow:hidden}
+.bgrid small,.bgrid em{overflow-wrap:anywhere}
+.sub3{font:700 1.15rem var(--display);margin:18px 2px 8px;color:var(--muted)}
+.bgrid.locked .gmedal{filter:grayscale(1);opacity:.28}
+.bgrid.locked small{color:var(--muted)}
+.bgrid em{font-style:normal;font-size:.62rem;color:var(--muted);text-align:center;line-height:1.2;opacity:.8}
 
 /* ---- competition ---- */
 .medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
@@ -1078,6 +1088,7 @@ function renderPlayerViewInner(){
   const C = pdata.compete[p.team_id] || { board:[], potw:[], challenges:[], badges:[] };
   const meRow = C.board.find(r => r.player_id === p.id) || { xp:0, level:1, badges:0 };
   const L = levelInfo(meRow.xp);
+  if(ui.ptab === 'badges') ui.ptab = 'profile';
   const tab = ui.ptab || 'me';
   const tabsOld = `<div class="seg full ptabs" style="grid-template-columns:repeat(3,1fr)">${[['me','My stats'],['team','Team'],['badges','Badges']].map(([v,l]) => `<button data-ptab="${v}" aria-pressed="${tab===v}">${l}</button>`).join('')}</div>`;
   const tabs = '';
@@ -1251,7 +1262,7 @@ function emptyArt(){
 function renderTabbar(){
   const items = mode === 'coach'
     ? [['drill','Drill','drill'],['board','Leaderboard','board'],['players','Players','players'],['cprofile','Profile','profile']]
-    : [['me','Stats','stats'],['practice','Practice','drill'],['team','Team','board'],['badges','Badges','badge'],['profile','Profile','profile']];
+    : [['me','Stats','stats'],['practice','Practice','drill'],['team','Team','board'],['profile','Profile','profile']];
   const cur = mode === 'coach' ? (ui.ctab || 'drill') : (ui.ptab || 'me');
   $('#tabbar').style.setProperty('--n', items.length);
   const reqs = mode === 'player' && !ui.preview && myPlayers[ui.meIdx] ? pendingIn(myPlayers[ui.meIdx].id).length : 0;
@@ -1686,7 +1697,7 @@ function renderPlayerProfile(p, team, C, meRow){
   return `<div class="prof">
       <div class="bigav"><span>${esc(initials(p.nickname || p.name))}</span><i class="lvring">Lv ${L.lv}</i></div>
       <div class="pstats">
-        <button data-ptab="badges"><b>${numUp(earned.length)}</b><small>Badges</small></button>
+        <button data-jump="badgeSec"><b>${numUp(earned.length)}</b><small>Badges</small></button>
         <button data-plistgo="followers"><b>${numUp(followers)}</b><small>Followers</small></button>
         <button data-plistgo="following"><b>${numUp(following)}</b><small>Following</small></button>
       </div>
@@ -1695,9 +1706,12 @@ function renderPlayerProfile(p, team, C, meRow){
     <div class="pactions"><button data-editprof>${ui.editProf ? 'Done' : 'Edit profile'}</button><button data-sharestats>${ic('share')}Share</button></div>
     ${ui.editProf ? profileCard(p) : ''}
     <div id="peopleBox"></div>
-    <h2>Badges</h2>
-    ${earned.length ? `<div class="bgrid">${earned.map(k => `<button data-sharebadge="${k}" title="${esc(BADGES[k].name)}">${bigMedal(k).replace('class="bigmedal"', 'class="gmedal"')}<small>${esc(BADGES[k].name)}${cnt[k] > 1 ? ` ×${cnt[k]}` : ''}</small></button>`).join('')}</div>`
-      : `<div class="panel emptybox">${emptyArt()}<p class="muted" style="margin:0">Badges you earn show up here.</p></div>`}
+    <h2 id="badgeSec">Badges <span class="muted" style="font:500 .9rem var(--body)">${earned.length} of ${Object.keys(BADGES).length}</span></h2>
+    <div class="panel xpcard"><span class="lvl">Lv ${L.lv}</span><b>${numUp(meRow.xp, ' XP')}</b>
+      <div class="xpbar"><i style="width:${L.pctToNext}%"></i></div><small class="muted">${L.toNext.toLocaleString()} XP to level ${L.lv + 1}. XP: 10 per make, 2 per shot, 100 per badge.</small></div>
+    ${earned.length ? `<p class="note" style="margin:10px 2px 8px">Tap a badge to share it.</p><div class="bgrid">${earned.map(k => `<button data-sharebadge="${k}" title="${esc(BADGES[k].name)}">${bigMedal(k).replace('class="bigmedal"', 'class="gmedal"')}<small>${esc(BADGES[k].name)}${cnt[k] > 1 ? ` ×${cnt[k]}` : ''}</small></button>`).join('')}</div>`
+      : `<p class="note" style="margin:10px 2px 8px">Earn your first badge by logging shots at training or in Practice.</p>`}
+    ${Object.keys(BADGES).length > earned.length ? `<h3 class="sub3">Still to unlock</h3><div class="bgrid locked">${Object.keys(BADGES).filter(k => !cnt[k]).map(k => `<button data-lockinfo="${k}" title="${esc(BADGES[k].desc)}">${bigMedal(k).replace('class="bigmedal"', 'class="gmedal"')}<small>${esc(BADGES[k].name)}</small><em>${esc(BADGES[k].desc)}</em></button>`).join('')}</div>` : ''}
     ${accountBlock()}`;
 }
 
@@ -1788,6 +1802,8 @@ document.addEventListener('click', async e => {
   // coach
   if(d.tab){ showTab(d.tab); return; }
   if('celenext' in d){ nextCele(); return; }
+  if(d.jump){ document.getElementById(d.jump)?.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
+  if(d.lockinfo){ toast(`${BADGES[d.lockinfo].name}: ${BADGES[d.lockinfo].desc}`); return; }
   if('editprof' in d){ ui.editProf = !ui.editProf; renderPlayerView(); return; }
   if(d.plistgo){ ui.plist = d.plistgo; renderPeople(myPlayers[ui.meIdx].id); $('#peopleBox')?.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
   if(d.plist){ ui.plist = d.plist; renderPeople(myPlayers[ui.meIdx].id); return; }
