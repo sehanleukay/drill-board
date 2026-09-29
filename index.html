@@ -635,6 +635,34 @@ input[type=email],input[type=password]{font:500 1rem var(--body);padding:12px 14
 .clubrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border:1px dashed var(--line);border-radius:14px;margin-bottom:14px;font-size:.86rem}
 .clubrow b{font:800 1rem var(--display);letter-spacing:.04em}
 .clubrow span{color:var(--muted);text-align:right}
+
+/* ---- club pricing ---- */
+.ptabs2{display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:3px;margin:0 0 14px}
+.ptabs2 button{border:0;background:none;color:var(--muted);font:700 .88rem var(--body);padding:9px 6px;border-radius:9px;cursor:pointer}
+.ptabs2 button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--shadow)}
+.clubcalc{border:1px solid var(--brass);border-radius:16px;padding:16px;margin-bottom:14px;background:linear-gradient(var(--brass-soft),var(--brass-soft)),var(--surface);box-shadow:0 0 0 1px var(--brass)}
+.clubcalc .pp{display:flex;align-items:baseline;gap:6px}
+.clubcalc .pp b{font:800 2.4rem/1 var(--display)}
+.clubcalc .pp span{color:var(--muted);font-size:.85rem}
+.stepper{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:10px;margin:14px 0 12px}
+.stepper button{height:44px;border-radius:12px;border:1px solid var(--line);background:var(--raised);color:var(--ink);font:800 1.4rem var(--display);cursor:pointer}
+.stepper button:active{transform:scale(.94)}
+.stepper div{text-align:center}
+.stepper div b{display:block;font:800 1.8rem/1 var(--display);font-variant-numeric:tabular-nums}
+.stepper div small{color:var(--muted);font-size:.75rem}
+.clubtot{display:flex;justify-content:space-between;align-items:baseline;padding-top:12px;border-top:1px solid var(--line)}
+.clubtot b{font:800 1.9rem/1 var(--display);font-variant-numeric:tabular-nums}
+.clubtot span{font-size:.82rem;color:var(--muted);text-align:right}
+.feat{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px;font-size:.9rem}
+.feat li{display:flex;gap:9px;align-items:flex-start}
+.feat li .ic{margin:3px 0 0;width:15px;height:15px;color:var(--make);flex:none}
+.feat li.soon{color:var(--muted)}
+.feat li.soon .ic{color:var(--muted)}
+.feat em{font-style:normal;font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--faint);color:var(--muted);padding:2px 7px;border-radius:999px;margin-left:6px;white-space:nowrap}
+.h3s{margin:0 0 8px;font:800 .9rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.linkrow{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border:1px dashed var(--line);border-radius:14px;margin-bottom:14px;background:none;color:var(--ink);font:inherit;font-size:.86rem;cursor:pointer;text-align:left}
+.linkrow b{font:800 1rem var(--display);letter-spacing:.04em}
+.linkrow span{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1836,7 +1864,7 @@ async function loadCoachFollowers(pid){
 /* ---------- profile tab ---------- */
 ICONS.profile = '<circle cx="12" cy="8.5" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>';
 function accountBlock(){
-  return (mode === 'player' ? planBlock() : '') + appearanceBlock() + `<h2>Account</h2><div class="panel acctlist">
+  return (mode === 'player' ? planBlock() : clubBlock()) + appearanceBlock() + `<h2>Account</h2><div class="panel acctlist">
     <div class="acctrow"><span class="muted">Signed in as</span><b>${esc(me?.email)}</b></div>
     ${ui.preview ? `<button data-exitpreview>${ic('undo')}Exit player preview</button>` : ''}
     ${mode === 'coach' ? `<button data-previewpick>${ic('players')}Preview as a player</button>` : ''}
@@ -2327,19 +2355,32 @@ function planBlock(){
     ${pro ? '' : `<p class="note" style="margin:0">Premium is A$${PRICES.year}/year or A$${PRICES.month}/month.</p>`}
     <button class="primary" style="font-size:1.1rem;padding:14px" data-upgrade>${pro ? 'Plan details' : 'See Premium'}</button></div>`;
 }
+function clubBlock(){
+  return `<h2>Plan</h2><div class="panel plancard">
+    <div class="top"><b>Coach</b><span class="badge pro">Free</span></div>
+    <ul>${['Run drills, track every player and invite your team', 'Coaches always use Drill Board free'].map(t => `<li>${ic('check')}${t}</li>`).join('')}</ul>
+    <p class="note" style="margin:0">Club plan: A$${CLUB.perPlayer} per player a year, so every player gets Premium.</p>
+    <button class="primary" style="font-size:1.1rem;padding:14px" data-upgrade-club>See club pricing</button></div>`;
+}
 function lockNote(hidden){
   if(isPremium() || hidden <= 0) return '';
   return `<div class="lock">${ic('lock','ic')}<p>Free shows your last ${FREE_DAYS} days. ${hidden} older drill${hidden === 1 ? ' is' : 's are'} saved and unlock with Premium.</p><button data-upgrade>Unlock</button></div>`;
 }
 const PRICES = { month: 5, year: 40 };
-function upgradeSheet(){
+const CLUB = { perPlayer: 15, step: 5, min: 5, max: 500 };
+function clubN(){
+  if(!ui.clubN){ const n = (typeof state !== 'undefined' && state.players) ? state.players.length : 0; ui.clubN = Math.max(CLUB.min, Math.ceil((n || 15) / CLUB.step) * CLUB.step); }
+  return ui.clubN;
+}
+const money = n => 'A$' + Math.round(n).toLocaleString();
+function clubQuote(){ const n = clubN(), tot = n * CLUB.perPlayer;
+  return `Drill Board club plan (draft pricing)\n${n} players × A$${CLUB.perPlayer} per player a year = ${money(tot)} a year (about ${money(tot / 12)} a month).\nEvery player gets Premium: full history and the holographic Legend card. Coaches use Drill Board free.\nPrices are a preview and may change.`; }
+function playerPlans(){
   const pro = isPremium(), yr = ui.billing !== 'month';
   const Y = '<span class="y">✓</span>', N = '<span class="n">–</span>';
   const rows = [['Team drills, stats and streaks', Y, Y], ['Badges and leaderboards', Y, Y], ['All-time totals and XP', Y, Y], ['Trends and shot chart', `${FREE_DAYS} days`, 'Full history'], ['Holographic Legend card', N, Y]];
   const save = PRICES.month * 12 - PRICES.year, pc = Math.round(save / (PRICES.month * 12) * 100);
-  const html = `<div class="pwsheet"><h2>${pro ? 'You’re on Premium' : 'Drill Board Premium'}</h2>
-    <p class="sub">${pro ? 'Everything is unlocked on this device.' : 'Keep every drill you’ve ever logged and see how you’ve improved over the season.'}</p>
-    <div class="bill" role="group" aria-label="Billing period"><button data-bill="month" aria-pressed="${!yr}">Monthly</button><button data-bill="year" aria-pressed="${yr}">Yearly<em>Save ${pc}%</em></button></div>
+  return `<div class="bill" role="group" aria-label="Billing period"><button data-bill="month" aria-pressed="${!yr}">Monthly</button><button data-bill="year" aria-pressed="${yr}">Yearly<em>Save ${pc}%</em></button></div>
     <div class="plans">
       <div class="pcol"><span class="nm">Free</span><span class="pr">A$0</span><span class="sv">&nbsp;</span><span class="cur">${pro ? '' : 'Your current plan'}</span></div>
       <div class="pcol pro"><span class="tag2">Popular</span><span class="nm">Premium</span>
@@ -2347,18 +2388,53 @@ function upgradeSheet(){
         <span class="sv">${yr ? `Save A$${save} a year` : `or A$${PRICES.year}/year`}</span><span class="cur">${pro ? 'Your current plan' : ''}</span></div>
     </div>
     <table class="cmp"><tr><th></th><th>Free</th><th class="pro">Premium</th></tr>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table>
-    <div class="clubrow"><b>Club plans</b><span>Per-player pricing for teams and clubs. Coming soon.</span></div>
-    ${pro ? `<button class="primary" data-plan-set="free">Switch back to Free</button>` : `<button class="primary" data-plan-set="premium">Try Premium free on this device</button>`}
+    <button class="linkrow" data-plantab="club"><b>Coach or club?</b><span>See club pricing ›</span></button>
+    ${pro ? `<button class="primary" data-plan-set="free">Switch back to Free</button>` : `<button class="primary" data-plan-set="premium">Try Premium free on this device</button>`}`;
+}
+function clubPlans(){
+  const n = clubN(), tot = n * CLUB.perPlayer;
+  return `<div class="clubcalc">
+      <div class="pp"><b>A$${CLUB.perPlayer}</b><span>per player, per year</span></div>
+      <div class="stepper"><button data-club-step="-1" aria-label="Fewer players"${n <= CLUB.min ? ' disabled style="opacity:.4"' : ''}>−</button><div><b>${n}</b><small>players in your club</small></div><button data-club-step="1" aria-label="More players"${n >= CLUB.max ? ' disabled style="opacity:.4"' : ''}>+</button></div>
+      <div class="clubtot"><b>${money(tot)}</b><span>a year<br>about ${money(tot / 12)} a month</span></div>
+    </div>
+    <p class="h3s">Every player on the plan gets</p>
+    <ul class="feat">
+      <li>${ic('check')}<span>Premium: full history, trends and shot charts</span></li>
+      <li>${ic('check')}<span>The holographic Legend card</span></li>
+      <li>${ic('check')}<span>Coaches use Drill Board free, always</span></li>
+      <li class="soon">${ic('lock')}<span>Club dashboard for several teams<em>Coming soon</em></span></li>
+      <li class="soon">${ic('lock')}<span>Parent progress reports<em>Coming soon</em></span></li>
+      <li class="soon">${ic('lock')}<span>Club logo and colours<em>Coming soon</em></span></li>
+    </ul>
+    <p class="note" style="margin:0 0 14px">If your club covers the plan, players don’t pay for Premium themselves.</p>
+    <button class="primary" data-club-copy>Copy pricing for my club</button>`;
+}
+function upgradeSheet(){
+  const pro = isPremium(), tab = ui.planTab === 'club' ? 'club' : 'player';
+  const title = tab === 'club' ? 'Club plans' : (pro ? 'You’re on Premium' : 'Drill Board Premium');
+  const sub = tab === 'club' ? 'One simple price per player, paid by the club. Share it with your committee.'
+    : (pro ? 'Everything is unlocked on this device.' : 'Keep every drill you’ve ever logged and see how you’ve improved over the season.');
+  const html = `<div class="pwsheet"><h2>${title}</h2><p class="sub">${sub}</p>
+    <div class="ptabs2" role="group" aria-label="Plan type"><button data-plantab="player" aria-pressed="${tab === 'player'}">For players</button><button data-plantab="club" aria-pressed="${tab === 'club'}">For clubs</button></div>
+    ${tab === 'club' ? clubPlans() : playerPlans()}
     <button class="ghost" style="width:100%;margin-top:6px" data-pw-close>Close</button>
-    <p class="fine">Prices are in Australian dollars and are a preview. Payments aren’t switched on yet, so nothing is charged. Coaches always use Drill Board free.</p></div>`;
+    <p class="fine">Prices are in Australian dollars and are a preview. Payments aren’t switched on yet, so nothing is charged.${tab === 'club' ? '' : ' Coaches always use Drill Board free.'}</p></div>`;
   let el = document.querySelector('.pwov');
   if(!el){ el = document.createElement('div'); el.className = 'pwov'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Plans'); document.body.appendChild(el); }
+  const sc = el.querySelector('.pwsheet')?.scrollTop || 0;
   el.innerHTML = html;
+  const ns = el.querySelector('.pwsheet'); if(ns && sc && ui._lastPlanTab === tab) ns.scrollTop = sc;
+  ui._lastPlanTab = tab;
 }
 document.addEventListener('click', e => {
-  const up = e.target.closest('[data-upgrade]'), ps = e.target.closest('[data-plan-set]'), cl = e.target.closest('[data-pw-close]'), bl = e.target.closest('[data-bill]');
+  const up = e.target.closest('[data-upgrade]'), ps = e.target.closest('[data-plan-set]'), cl = e.target.closest('[data-pw-close]'), bl = e.target.closest('[data-bill]'), pt = e.target.closest('[data-plantab]'), cs = e.target.closest('[data-club-step]'), cc = e.target.closest('[data-club-copy]'), uc = e.target.closest('[data-upgrade-club]');
   if(bl){ ui.billing = bl.dataset.bill; upgradeSheet(); return; }
-  if(up){ upgradeSheet(); return; }
+  if(pt){ ui.planTab = pt.dataset.plantab; upgradeSheet(); return; }
+  if(cs){ ui.clubN = Math.max(CLUB.min, Math.min(CLUB.max, clubN() + (+cs.dataset.clubStep) * CLUB.step)); upgradeSheet(); return; }
+  if(cc){ copyText(clubQuote(), 'Club pricing copied'); return; }
+  if(uc){ ui.planTab = 'club'; upgradeSheet(); return; }
+  if(up){ ui.planTab = 'player'; upgradeSheet(); return; }
   if(ps){ setPref('drillboard-plan', ps.dataset.planSet); document.querySelectorAll('.pwov').forEach(n => n.remove()); if(mode === 'player') renderPlayerView(); toast(ps.dataset.planSet === 'premium' ? 'Premium preview on' : 'Back on Free'); return; }
   if(cl || (e.target.classList && e.target.classList.contains('pwov'))){ document.querySelectorAll('.pwov').forEach(n => n.remove()); }
 });
