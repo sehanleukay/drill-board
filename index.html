@@ -616,6 +616,25 @@ input[type=email],input[type=password]{font:500 1rem var(--body);padding:12px 14
 .cmp .y{color:var(--make);font-weight:800}.cmp .n{color:var(--muted)}
 .pwsheet .fine{font-size:.78rem;color:var(--muted);margin:10px 0 0}
 @media (prefers-reduced-motion: reduce){.pwov,.pwsheet{animation:none}}
+
+/* ---- pricing ---- */
+.bill{display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:3px;margin:0 0 14px}
+.bill button{border:0;background:none;color:var(--muted);font:700 .88rem var(--body);padding:9px 6px;border-radius:9px;cursor:pointer}
+.bill button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--shadow)}
+.bill em{font-style:normal;font-size:.7rem;font-weight:800;background:var(--make-soft);color:var(--make);padding:2px 7px;border-radius:999px;margin-left:6px}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.pcol{position:relative;border:1px solid var(--line);border-radius:16px;padding:14px 12px;background:var(--bg2);display:flex;flex-direction:column;gap:6px;min-width:0}
+.pcol.pro{border-color:var(--brass);background:linear-gradient(var(--brass-soft),var(--brass-soft)),var(--surface);box-shadow:0 0 0 1px var(--brass)}
+.pcol .nm{font:800 .95rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pcol.pro .nm{color:var(--brass)}
+.pcol .pr{font:800 2.1rem/1 var(--display);font-variant-numeric:tabular-nums}
+.pcol .pr small{font:600 .78rem var(--body);color:var(--muted);margin-left:2px}
+.pcol .sv{font-size:.76rem;color:var(--make);font-weight:700;min-height:1em}
+.pcol .cur{font-size:.74rem;font-weight:700;color:var(--muted)}
+.pcol .tag2{position:absolute;top:-9px;right:10px;font:800 .66rem var(--body);letter-spacing:.08em;text-transform:uppercase;background:var(--brass);color:var(--brass-ink);padding:2px 9px;border-radius:999px}
+.clubrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border:1px dashed var(--line);border-radius:14px;margin-bottom:14px;font-size:.86rem}
+.clubrow b{font:800 1rem var(--display);letter-spacing:.04em}
+.clubrow span{color:var(--muted);text-align:right}
 </style>
 </head>
 <body>
@@ -2305,26 +2324,40 @@ function planBlock(){
     <div class="top"><b>${pro ? 'Premium' : 'Free'}</b><span class="badge${pro ? ' pro' : ''}">${pro ? 'Premium' : 'Free'}</span></div>
     ${pro ? `<ul>${['Full history, trends and shot charts','Holographic Legend player card','Everything in Free'].map(t => `<li>${ic('check')}${t}</li>`).join('')}</ul>`
           : `<ul>${['Team drills, stats, streaks, badges and leaderboards','Trends and shot chart for the last ' + FREE_DAYS + ' days','Your all-time totals, XP and badges, always'].map(t => `<li>${ic('check')}${t}</li>`).join('')}</ul>`}
+    ${pro ? '' : `<p class="note" style="margin:0">Premium is A$${PRICES.year}/year or A$${PRICES.month}/month.</p>`}
     <button class="primary" style="font-size:1.1rem;padding:14px" data-upgrade>${pro ? 'Plan details' : 'See Premium'}</button></div>`;
 }
 function lockNote(hidden){
   if(isPremium() || hidden <= 0) return '';
   return `<div class="lock">${ic('lock','ic')}<p>Free shows your last ${FREE_DAYS} days. ${hidden} older drill${hidden === 1 ? ' is' : 's are'} saved and unlock with Premium.</p><button data-upgrade>Unlock</button></div>`;
 }
+const PRICES = { month: 5, year: 40 };
 function upgradeSheet(){
-  const pro = isPremium(), Y = '<span class="y">✓</span>', N = '<span class="n">–</span>';
-  const rows = [['Team drills, stats and streaks', Y, Y], ['Badges and leaderboards', Y, Y], ['All-time totals and XP', Y, Y], [`Trends and shot chart`, `${FREE_DAYS} days`, 'Full history'], ['Holographic Legend card', N, Y]];
-  const el = document.createElement('div'); el.className = 'pwov'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Plans');
-  el.innerHTML = `<div class="pwsheet"><h2>${pro ? 'You’re on Premium' : 'Drill Board Premium'}</h2>
+  const pro = isPremium(), yr = ui.billing !== 'month';
+  const Y = '<span class="y">✓</span>', N = '<span class="n">–</span>';
+  const rows = [['Team drills, stats and streaks', Y, Y], ['Badges and leaderboards', Y, Y], ['All-time totals and XP', Y, Y], ['Trends and shot chart', `${FREE_DAYS} days`, 'Full history'], ['Holographic Legend card', N, Y]];
+  const save = PRICES.month * 12 - PRICES.year, pc = Math.round(save / (PRICES.month * 12) * 100);
+  const html = `<div class="pwsheet"><h2>${pro ? 'You’re on Premium' : 'Drill Board Premium'}</h2>
     <p class="sub">${pro ? 'Everything is unlocked on this device.' : 'Keep every drill you’ve ever logged and see how you’ve improved over the season.'}</p>
+    <div class="bill" role="group" aria-label="Billing period"><button data-bill="month" aria-pressed="${!yr}">Monthly</button><button data-bill="year" aria-pressed="${yr}">Yearly<em>Save ${pc}%</em></button></div>
+    <div class="plans">
+      <div class="pcol"><span class="nm">Free</span><span class="pr">A$0</span><span class="sv">&nbsp;</span><span class="cur">${pro ? '' : 'Your current plan'}</span></div>
+      <div class="pcol pro"><span class="tag2">Popular</span><span class="nm">Premium</span>
+        <span class="pr">A$${yr ? PRICES.year : PRICES.month}<small>/${yr ? 'year' : 'month'}</small></span>
+        <span class="sv">${yr ? `Save A$${save} a year` : `or A$${PRICES.year}/year`}</span><span class="cur">${pro ? 'Your current plan' : ''}</span></div>
+    </div>
     <table class="cmp"><tr><th></th><th>Free</th><th class="pro">Premium</th></tr>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table>
-    ${pro ? `<button class="primary" data-plan-set="free">Switch back to Free</button>` : `<button class="primary" data-plan-set="premium">Try Premium on this device</button>`}
+    <div class="clubrow"><b>Club plans</b><span>Per-player pricing for teams and clubs. Coming soon.</span></div>
+    ${pro ? `<button class="primary" data-plan-set="free">Switch back to Free</button>` : `<button class="primary" data-plan-set="premium">Try Premium free on this device</button>`}
     <button class="ghost" style="width:100%;margin-top:6px" data-pw-close>Close</button>
-    <p class="fine">Payments aren’t switched on yet. This is a preview so you can see what Premium will include. Coaches always use Drill Board free.</p></div>`;
-  document.body.appendChild(el);
+    <p class="fine">Prices are in Australian dollars and are a preview. Payments aren’t switched on yet, so nothing is charged. Coaches always use Drill Board free.</p></div>`;
+  let el = document.querySelector('.pwov');
+  if(!el){ el = document.createElement('div'); el.className = 'pwov'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Plans'); document.body.appendChild(el); }
+  el.innerHTML = html;
 }
 document.addEventListener('click', e => {
-  const up = e.target.closest('[data-upgrade]'), ps = e.target.closest('[data-plan-set]'), cl = e.target.closest('[data-pw-close]');
+  const up = e.target.closest('[data-upgrade]'), ps = e.target.closest('[data-plan-set]'), cl = e.target.closest('[data-pw-close]'), bl = e.target.closest('[data-bill]');
+  if(bl){ ui.billing = bl.dataset.bill; upgradeSheet(); return; }
   if(up){ upgradeSheet(); return; }
   if(ps){ setPref('drillboard-plan', ps.dataset.planSet); document.querySelectorAll('.pwov').forEach(n => n.remove()); if(mode === 'player') renderPlayerView(); toast(ps.dataset.planSet === 'premium' ? 'Premium preview on' : 'Back on Free'); return; }
   if(cl || (e.target.classList && e.target.classList.contains('pwov'))){ document.querySelectorAll('.pwov').forEach(n => n.remove()); }
