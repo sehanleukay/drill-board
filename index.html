@@ -589,6 +589,33 @@ input[type=email],input[type=password]{font:500 1rem var(--body);padding:12px 14
 .tabbar button{transition:color .15s,transform .12s}
 .tabbar [aria-selected="true"]::before{content:"";position:absolute;top:-7px;left:50%;width:24px;height:3px;margin-left:-12px;border-radius:0 0 4px 4px;background:var(--brass);animation:tabin .32s cubic-bezier(.2,.8,.2,1)}
 @keyframes tabin{from{transform:scaleX(0);opacity:0}}
+
+/* ---- plans ---- */
+.plancard{display:grid;gap:12px}
+.plancard .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.plancard .badge{font:800 .8rem var(--display);letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;background:var(--faint);color:var(--muted)}
+.plancard .badge.pro{background:var(--brass);color:var(--brass-ink)}
+.plancard ul{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:.9rem}
+.plancard li{display:flex;gap:8px;align-items:flex-start}
+.plancard li .ic{margin:3px 0 0;width:15px;height:15px;color:var(--make)}
+.lock{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;border:1px dashed var(--line);background:var(--brass-soft);margin:14px 0 4px}
+.lock .ic{width:20px;height:20px;margin:0;color:var(--brass)}
+.lock p{margin:0;font-size:.85rem;line-height:1.35}
+.lock button{border:0;background:var(--brass);color:var(--brass-ink);font:700 .82rem var(--body);padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.pwov{position:fixed;inset:0;z-index:110;display:grid;align-items:end;background:rgba(6,14,11,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:pwfade .2s ease-out}
+@keyframes pwfade{from{opacity:0}}
+.pwsheet{width:min(100%,560px);margin:0 auto;max-height:88vh;overflow:auto;background:var(--surface);color:var(--ink);border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -20px 60px -20px rgba(0,0,0,.6);animation:pwup .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes pwup{from{transform:translateY(40px);opacity:0}}
+.pwsheet h2{margin:0 0 4px;font:800 2rem/1 var(--display)}
+.pwsheet .sub{margin:0 0 14px;color:var(--muted);font-size:.92rem}
+.cmp{width:100%;border-collapse:collapse;font-size:.9rem;margin-bottom:14px}
+.cmp th,.cmp td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:center}
+.cmp th:first-child,.cmp td:first-child{text-align:left}
+.cmp th{font:800 .95rem var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cmp th.pro{color:var(--brass)}
+.cmp .y{color:var(--make);font-weight:800}.cmp .n{color:var(--muted)}
+.pwsheet .fine{font-size:.78rem;color:var(--muted);margin:10px 0 0}
+@media (prefers-reduced-motion: reduce){.pwov,.pwsheet{animation:none}}
 </style>
 </head>
 <body>
@@ -1210,7 +1237,9 @@ function renderPlayerViewInner(){
   const zv = {}; ZONES.forEach(z => { const rs = res.filter(x => x.drill === z.drill); zv[z.id] = { m: rs.reduce((s,x)=>s+x.m,0), a: rs.reduce((s,x)=>s+x.a,0) }; });
   const drills = ['all', ...new Set([...(team.drills || []), ...res.map(x => x.drill)])];
   if(!drills.includes(ui.meDrill)) ui.meDrill = 'all';
-  const last = res.slice(-12);
+  const resV = isPremium() ? res : res.filter(x => Date.parse(x.date) >= Date.now() - FREE_DAYS * 864e5);
+  const zvV = {}; ZONES.forEach(z => { const rs = resV.filter(x => x.drill === z.drill); zvV[z.id] = { m: rs.reduce((s,x)=>s+x.m,0), a: rs.reduce((s,x)=>s+x.a,0) }; });
+  const last = resV.slice(-12);
   const bars = last.length ? `<svg viewBox="0 0 300 120" class="bars" role="img" aria-label="Make rate in your last ${last.length} drills">
       ${[0,50,100].map(v => `<line x1="24" x2="300" y1="${10 + (100-v)*0.9}" y2="${10 + (100-v)*0.9}" class="gl"/><text x="18" y="${14 + (100-v)*0.9}" text-anchor="end">${v}</text>`).join('')}
       ${last.map((x,i) => { const w = 276/12, h = x.a ? x.m/x.a*90 : 0; return `<rect x="${28 + i*w}" y="${100 - h}" width="${w-6}" height="${Math.max(h,1)}" rx="3"><title>${esc(x.drill)}, ${day(x.date)}: ${pct(x.m,x.a)}</title></rect>`; }).join('')}
@@ -1252,12 +1281,13 @@ function renderPlayerViewInner(){
     <div class="chips">${drills.map(d => `<button class="chip" data-medrill="${esc(d)}" aria-pressed="${d===ui.meDrill}">${d==='all' ? 'All drills' : esc(d)}</button>`).join('')}</div>
     <div class="seg">${[['all','All time'],['30','30 days'],['7','7 days']].map(([v,l]) => `<button data-meperiod="${v}" aria-pressed="${v===ui.mePeriod}">${l}</button>`).join('')}</div>
     <div class="panel rankbox" id="rankBox"><p class="muted" style="margin:0">Loading your rank…</p></div>
+    ${lockNote(res.length - resV.length)}
     <h2>By spot</h2>
-    ${courtSVG('heat', zv)}${heatKey()}
+    ${courtSVG('heat', zvV)}${heatKey()}
     <h2>Recent form</h2>
     <div class="panel">${bars}</div>
     <h2>Drill history</h2>
-    ${res.length ? `<ul class="hist">${[...res].reverse().slice(0,15).map(x => `<li><div class="t">${esc(x.drill)}<small>${day(x.date)}, ${x.m}/${x.a}</small></div><span class="p">${pct(x.m,x.a)}</span><span></span></li>`).join('')}</ul>` : '<p class="empty">Nothing yet.</p>'}`;
+    ${resV.length ? `<ul class="hist">${[...resV].reverse().slice(0,15).map(x => `<li><div class="t">${esc(x.drill)}<small>${day(x.date)}, ${x.m}/${x.a}</small></div><span class="p">${pct(x.m,x.a)}</span><span></span></li>`).join('')}</ul>` : '<p class="empty">Nothing yet.</p>'}`;
   loadRank(p);
 }
 async function loadRank(p){
@@ -1787,7 +1817,7 @@ async function loadCoachFollowers(pid){
 /* ---------- profile tab ---------- */
 ICONS.profile = '<circle cx="12" cy="8.5" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>';
 function accountBlock(){
-  return appearanceBlock() + `<h2>Account</h2><div class="panel acctlist">
+  return (mode === 'player' ? planBlock() : '') + appearanceBlock() + `<h2>Account</h2><div class="panel acctlist">
     <div class="acctrow"><span class="muted">Signed in as</span><b>${esc(me?.email)}</b></div>
     ${ui.preview ? `<button data-exitpreview>${ic('undo')}Exit player preview</button>` : ''}
     ${mode === 'coach' ? `<button data-previewpick>${ic('players')}Preview as a player</button>` : ''}
@@ -2235,7 +2265,7 @@ const TIERS = [[8, 'legend', 'Legend'], [5, 'star', 'All-Star'], [3, 'starter', 
 function tradingCard(p, team, L, badgeCount){
   const res = pdata.results.filter(x => x.pid === p.id);
   const m = res.reduce((s,x) => s + x.m, 0), a = res.reduce((s,x) => s + x.a, 0);
-  const [, tk, tn] = TIERS.find(t => L.lv >= t[0]);
+  const [, tk, tn] = TIERS.find(t => L.lv >= t[0] && (isPremium() || t[1] !== 'legend'));
   let best = null;
   ZONES.forEach(z => { const rs = res.filter(x => x.drill === z.drill), zm = rs.reduce((s,x) => s + x.m, 0), za = rs.reduce((s,x) => s + x.a, 0);
     if(za >= 5 && (!best || zm / za > best.f)) best = { f: zm / za, name: z.drill }; });
@@ -2250,7 +2280,7 @@ function tradingCard(p, team, L, badgeCount){
       <div class="tc-stats"><div><b>${a ? Math.round(m / a * 100) + '%' : '–'}</b><small>FG</small></div><div><b>${a.toLocaleString()}</b><small>Shots</small></div><div><b>${badgeCount}</b><small>Badges</small></div></div>
       ${best ? `<div class="tc-hot">Hot spot: ${esc(best.name)} ${Math.round(best.f * 100)}%</div>` : ''}
       <div class="tc-foot">Drill Board</div>
-    </div></div>`;
+    </div></div>${!isPremium() && L.lv >= 8 ? `<p class="note" style="text-align:center">You’ve reached Legend level. The holographic Legend card is part of Premium.</p>` : ''}`;
 }
 (function(){
   const reset = () => document.querySelectorAll('.tilting').forEach(c => { c.classList.remove('tilting'); ['--rx','--ry','--mx','--my'].forEach(k => c.style.removeProperty(k)); });
@@ -2263,6 +2293,42 @@ function tradingCard(p, team, L, badgeCount){
   });
   ['pointerup','pointercancel'].forEach(t => document.addEventListener(t, reset));
 })();
+
+/* ---------- plans (app-only, this device) ---------- */
+const FREE_DAYS = 30;
+const isPremium = () => getPref('drillboard-plan', 'free') === 'premium';
+ICONS.lock = '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>';
+ICONS.check = '<path d="M5 12.5l4.5 4.5L19 7.5"/>';
+function planBlock(){
+  const pro = isPremium();
+  return `<h2>Plan</h2><div class="panel plancard">
+    <div class="top"><b>${pro ? 'Premium' : 'Free'}</b><span class="badge${pro ? ' pro' : ''}">${pro ? 'Premium' : 'Free'}</span></div>
+    ${pro ? `<ul>${['Full history, trends and shot charts','Holographic Legend player card','Everything in Free'].map(t => `<li>${ic('check')}${t}</li>`).join('')}</ul>`
+          : `<ul>${['Team drills, stats, streaks, badges and leaderboards','Trends and shot chart for the last ' + FREE_DAYS + ' days','Your all-time totals, XP and badges, always'].map(t => `<li>${ic('check')}${t}</li>`).join('')}</ul>`}
+    <button class="primary" style="font-size:1.1rem;padding:14px" data-upgrade>${pro ? 'Plan details' : 'See Premium'}</button></div>`;
+}
+function lockNote(hidden){
+  if(isPremium() || hidden <= 0) return '';
+  return `<div class="lock">${ic('lock','ic')}<p>Free shows your last ${FREE_DAYS} days. ${hidden} older drill${hidden === 1 ? ' is' : 's are'} saved and unlock with Premium.</p><button data-upgrade>Unlock</button></div>`;
+}
+function upgradeSheet(){
+  const pro = isPremium(), Y = '<span class="y">✓</span>', N = '<span class="n">–</span>';
+  const rows = [['Team drills, stats and streaks', Y, Y], ['Badges and leaderboards', Y, Y], ['All-time totals and XP', Y, Y], [`Trends and shot chart`, `${FREE_DAYS} days`, 'Full history'], ['Holographic Legend card', N, Y]];
+  const el = document.createElement('div'); el.className = 'pwov'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Plans');
+  el.innerHTML = `<div class="pwsheet"><h2>${pro ? 'You’re on Premium' : 'Drill Board Premium'}</h2>
+    <p class="sub">${pro ? 'Everything is unlocked on this device.' : 'Keep every drill you’ve ever logged and see how you’ve improved over the season.'}</p>
+    <table class="cmp"><tr><th></th><th>Free</th><th class="pro">Premium</th></tr>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table>
+    ${pro ? `<button class="primary" data-plan-set="free">Switch back to Free</button>` : `<button class="primary" data-plan-set="premium">Try Premium on this device</button>`}
+    <button class="ghost" style="width:100%;margin-top:6px" data-pw-close>Close</button>
+    <p class="fine">Payments aren’t switched on yet. This is a preview so you can see what Premium will include. Coaches always use Drill Board free.</p></div>`;
+  document.body.appendChild(el);
+}
+document.addEventListener('click', e => {
+  const up = e.target.closest('[data-upgrade]'), ps = e.target.closest('[data-plan-set]'), cl = e.target.closest('[data-pw-close]');
+  if(up){ upgradeSheet(); return; }
+  if(ps){ setPref('drillboard-plan', ps.dataset.planSet); document.querySelectorAll('.pwov').forEach(n => n.remove()); if(mode === 'player') renderPlayerView(); toast(ps.dataset.planSet === 'premium' ? 'Premium preview on' : 'Back on Free'); return; }
+  if(cl || (e.target.classList && e.target.classList.contains('pwov'))){ document.querySelectorAll('.pwov').forEach(n => n.remove()); }
+});
 
 boot();
 if('serviceWorker' in navigator){ window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{})); }
