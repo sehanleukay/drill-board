@@ -715,14 +715,38 @@ const SB_KEY = 'sb_publishable_u1-tN9NvXyVDZRUk1urNwg_LQciq3a7';
 const APP_URL = location.origin + location.pathname;
 const sb = window.supabase.createClient(SB_URL, SB_KEY, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true } });
 const MIN_ATT = 10;
-const ZONES = [
-  { id:'paint',  drill:'Paint' },
-  { id:'mid',    drill:'Mid-range' },
-  { id:'corner', drill:'Corner 3' },
-  { id:'arc',    drill:'Above the break 3' },
-  { id:'ft',     drill:'Free throws' },
-];
-const ZONE_NAMES = ZONES.map(z => z.drill);
+const SPORTS = {
+  basketball: { label:'Basketball', anchor:'Free throws', makeLbl:'Make', missLbl:'Miss', plural:'makes', example:'Corner 3s',
+    zones:[ { id:'paint', drill:'Paint' }, { id:'mid', drill:'Mid-range' }, { id:'corner', drill:'Corner 3' }, { id:'arc', drill:'Above the break 3' }, { id:'ft', drill:'Free throws' } ],
+    metrics:[['makes','Makes'],['pct','Accuracy'],['ft','Free throws'],['three','Threes']], badges:{} },
+  soccer: { label:'Soccer', anchor:'Penalties', makeLbl:'Goal', missLbl:'Miss', plural:'goals', example:'Volleys',
+    zones:[ { id:'pen', drill:'Penalties' }, { id:'box', drill:'Inside the box' }, { id:'edge', drill:'Edge of the box' }, { id:'wide', drill:'Wide angle' }, { id:'long', drill:'Long range' } ],
+    metrics:[['makes','Goals'],['pct','Accuracy']],
+    badges:{
+      shots_100:{ name:'Century', glyph:'100', desc:'Take 100 shots' },
+      makes_250:{ name:'Goal Machine', glyph:'250', desc:'Score 250 goals' },
+      ft_80:{ name:'Penalty King', glyph:'PK', desc:'80%+ on penalties (20+ shots)' },
+      three_45:{ name:'Long Shot', glyph:'25', desc:'25%+ from long range (30+ shots)' },
+      spot_master:{ name:'Spot Master', glyph:'5/5', desc:'30%+ from every spot (10+ shots each)' },
+      streak_5:{ name:'Hot Streak', glyph:'×5', desc:'Score 5 in a row' },
+      streak_10:{ name:'Unstoppable', glyph:'×10', desc:'Score 10 in a row' },
+      potw:{ name:'Player of the Week', glyph:'★', desc:'Most goals in a week (20+ shots)' } } },
+  netball: { label:'Netball', anchor:'Under the post', makeLbl:'Goal', missLbl:'Miss', plural:'goals', example:'Rebounds',
+    zones:[ { id:'post', drill:'Under the post' }, { id:'close', drill:'Close range' }, { id:'left', drill:'Left side' }, { id:'top', drill:'Top of circle' }, { id:'right', drill:'Right side' } ],
+    metrics:[['makes','Goals'],['pct','Accuracy']],
+    badges:{
+      makes_250:{ name:'Goal Getter', glyph:'250', desc:'Score 250 goals' },
+      ft_80:{ name:'Post Perfect', glyph:'PP', desc:'80%+ under the post (20+ shots)' },
+      three_45:{ name:'Circle Sniper', glyph:'60', desc:'60%+ from the edge of the circle (30+ shots)' },
+      spot_master:{ name:'Spot Master', glyph:'5/5', desc:'60%+ from every spot (10+ shots each)' },
+      streak_5:{ name:'Hot Hands', glyph:'×5', desc:'Score 5 in a row' },
+      streak_10:{ name:'Unstoppable', glyph:'×10', desc:'Score 10 in a row' },
+      potw:{ name:'Player of the Week', glyph:'★', desc:'Most goals in a week (20+ shots)' } } },
+};
+let sportKey = 'basketball', ZONES = SPORTS.basketball.zones, ZONE_NAMES = ZONES.map(z => z.drill);
+const sp = () => SPORTS[sportKey];
+const sportOf = t => (t && SPORTS[t.sport]) ? t.sport : 'basketball';
+const madeLine = (m, a) => sportKey === 'basketball' ? `${m.toLocaleString()} of ${a.toLocaleString()} shots made` : `${m.toLocaleString()} goal${m === 1 ? '' : 's'} from ${a.toLocaleString()} shots`;
 
 let me = null, mode = null, coachTeam = null, myPlayers = [], pdata = null;
 let state = { teamId:null, team:'', drills:[...ZONE_NAMES], players:[], sessions:[], active:null };
@@ -829,7 +853,7 @@ async function boot(){
 }
 async function loadRoles(){
   const [t, p] = await Promise.all([
-    sb.from('teams').select('id,name,drills,show_names,suburb,state,age_group,division,public_boards,coach_avatar_v,allow_photos').eq('coach_id', me.id).order('created_at').limit(1),
+    sb.from('teams').select('id,name,sport,drills,show_names,suburb,state,age_group,division,public_boards,coach_avatar_v,allow_photos').eq('coach_id', me.id).order('created_at').limit(1),
     sb.from('players').select('id,name,num,team_id,nickname,public_opt_in').eq('user_id', me.id).order('created_at'),
   ]);
   if(t.error) throw t.error; if(p.error) throw p.error;
@@ -849,7 +873,7 @@ function renderOnboard(msg, kind, which){
   const showCoach = !coachTeam;
   $('#onboard').innerHTML = `<div class="authcard">${brand(me.email)}
     <form id="joinForm" class="panel">
-      <h2>I’m a player</h2><p class="muted">Enter the 6-character invite code from your coach.</p>
+      <h2>I’m a player</h2><p class="muted">Enter the 6-character invite code from your coach. You’ll join their team and sport.</p>
       <input id="code" type="text" class="codein" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="4F9A2C" aria-label="Invite code" required>
       ${msg && which==='join' ? `<p class="msg ${kind||'err'}">${esc(msg)}</p>` : ''}
       <button class="primary" type="submit">Join team</button>
@@ -857,6 +881,8 @@ function renderOnboard(msg, kind, which){
     ${showCoach ? `<form id="teamForm" class="panel" style="margin-top:14px">
       <h2>I’m a coach</h2><p class="muted">Set up your team to run drills and invite your players.</p>
       <input id="tname" type="text" maxlength="60" placeholder="Team name, e.g. Tigers U14" aria-label="Team name" required>
+      <p class="muted" style="margin:12px 0 6px">Sport</p>
+      <div class="seg" role="group" aria-label="Sport">${Object.entries(SPORTS).map(([k, sv]) => `<button type="button" data-newsport="${k}" aria-pressed="${(ui.newSport || 'basketball') === k}">${sv.label}</button>`).join('')}</div>
       ${msg && which==='team' ? `<p class="msg ${kind||'err'}">${esc(msg)}</p>` : ''}
       <button class="primary" type="submit" style="margin-top:12px">Create team</button>
     </form>` : ''}
@@ -874,7 +900,8 @@ function renderOnboard(msg, kind, which){
   const tf = $('#teamForm');
   if(tf) tf.onsubmit = async e => {
     e.preventDefault();
-    const { data, error } = await sb.from('teams').insert({ name: $('#tname').value.trim() }).select('id,name,drills').single();
+    const chosen = SPORTS[ui.newSport] ? ui.newSport : 'basketball';
+    const { data, error } = await sb.from('teams').insert({ name: $('#tname').value.trim(), sport: chosen, drills: SPORTS[chosen].zones.map(z => z.drill) }).select('id,name,sport,drills').single();
     if(error) return renderOnboard(error.message, 'err', 'team');
     coachTeam = data; route('coach');
   };
@@ -904,6 +931,7 @@ function activeKey(){ return 'drillboard-active-' + state.teamId; }
 function saveActive(){ try{ state.active ? localStorage.setItem(activeKey(), JSON.stringify(state.active)) : localStorage.removeItem(activeKey()); }catch(_){} }
 function loadActive(){ try{ return JSON.parse(localStorage.getItem(activeKey()) || 'null'); }catch(_){ return null; } }
 async function loadCoach(){
+  setSport(sportOf(coachTeam));
   show('loading'); $('#player').innerHTML = '';
   const id = coachTeam.id;
   const [p, s] = await Promise.all([
@@ -996,7 +1024,7 @@ function chip(x, y, name, value, opts = {}){
     ${name ? `<text class="cn" y="${-h/2 + 9.5}" text-anchor="middle">${esc(name)}</text>` : ''}
     <text class="cv" y="${name ? h/2 - 5 : 5.5}" text-anchor="middle"${opts.color ? ` style="fill:${opts.color}"` : ''}>${esc(value)}</text></g>`;
 }
-function courtSVG(mode, vals, selDrill){
+function basketballSVG(mode, vals, selDrill){
   const k = ++courtN;
   const z = id => ZONES.find(x => x.id === id);
   const v = id => vals[id] || {m:0,a:0};
@@ -1071,6 +1099,66 @@ function courtSVG(mode, vals, selDrill){
     ${flame}
   </svg>`;
 }
+
+const FLAME = (cx, cy) => `<g class="hotflame" pointer-events="none"><circle cx="${cx}" cy="${cy}" r="7"/><g transform="translate(${cx - 6.6},${cy - 6}) scale(.55)"><path d="M12 21.2c-4 0-7-2.7-7-6.6 0-3.3 2.3-5.2 3.6-7.9.4 1.9 1.5 3 2.6 3.4C11 6.6 12.8 4.2 15.6 3c-.5 3.1.7 4.9 2 6.7 1.1 1.5 1.4 2.8 1.4 4.7 0 3.9-3 6.8-7 6.8Z"/></g></g>`;
+const FIELDS = {
+  soccer: {
+    aria: 'Half pitch shooting spots',
+    paths: {
+      long: 'M6,125H294V240H6Z', wide: ['M6,10H64.6V125H6Z', 'M235.4,10H294V125H235.4Z'], edge: 'M64.6,80H235.4V125H64.6Z',
+      box: 'M64.6,10H235.4V80H64.6Z', pen: 'M138,56.6A12,12 0 1 0 162,56.6A12,12 0 1 0 138,56.6Z' },
+    order: ['long', 'wide', 'edge', 'box', 'pen'],
+    chips: [['pen', 150, 57, 'Penalty'], ['box', 96, 44, 'Inside box'], ['edge', 150, 103, 'Edge of box'], ['wide', 34, 68, 'Wide'], ['long', 150, 182, 'Long range']],
+    spots: { pen:[150,57,12], box:[96,44,26], edge:[150,103,30], wide:[34,68,26], long:[150,182,40] },
+    ground: () => { let g = '<rect width="300" height="240" fill="#1F5636"/>'; for(let y = 10; y < 240; y += 46) g += `<rect x="0" y="${y}" width="300" height="23" fill="#24603C"/>`; return g; },
+    lines: 'M6,10H294M6,10V240M294,10V240M64.6,10V80H235.4V10M111.2,10V33.3H188.8V10M119.1,80A38.75,38.75 0 0 0 180.9,80M6,14.2A4.2,4.2 0 0 0 10.2,10M289.8,10A4.2,4.2 0 0 0 294,14.2',
+    art: '<rect x="134.5" y="2" width="31" height="8" rx="1" fill="rgba(255,255,255,.14)" stroke="#fff" stroke-width="1.4"/><path d="M138.5,2V10M142.5,2V10M146.5,2V10M150.5,2V10M154.5,2V10M158.5,2V10M162.5,2V10M134.5,6H165.5" stroke="#fff" stroke-opacity=".5" stroke-width=".6" fill="none"/><circle cx="150" cy="56.6" r="1.7" fill="#fff"/><path d="M6,125H294M64.6,80V125M235.4,80V125" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="1" stroke-dasharray="4 4"/>' },
+  netball: {
+    aria: 'Shooting circle spots',
+    paths: {
+      post: 'M116,12A34,34 0 0 0 184,12Z',
+      close: 'M82,12A68,68 0 0 0 218,12L184,12A34,34 0 0 1 116,12Z',
+      left: 'M18,12L82,12A68,68 0 0 0 116,70.9L84,126.3A132,132 0 0 1 18,12Z',
+      top: 'M84,126.3L116,70.9A68,68 0 0 0 184,70.9L216,126.3A132,132 0 0 1 84,126.3Z',
+      right: 'M282,12L218,12A68,68 0 0 1 184,70.9L216,126.3A132,132 0 0 0 282,12Z' },
+    order: ['right', 'left', 'top', 'close', 'post'],
+    chips: [['post', 150, 26, 'Post'], ['close', 150, 60, 'Close'], ['left', 63, 64, 'Left'], ['top', 150, 106, 'Top'], ['right', 237, 64, 'Right']],
+    spots: { post:[150,26,28], close:[150,60,32], left:[63,64,26], top:[150,106,34], right:[237,64,26] },
+    ground: () => '<rect width="300" height="240" fill="#2A7590"/><rect width="300" height="12" fill="#205F76"/><path d="M18,12A132,132 0 0 0 282,12Z" fill="#3E90AC"/>',
+    lines: 'M0,12H300M18,12A132,132 0 0 0 282,12',
+    art: '<path d="M116,12A34,34 0 0 0 184,12M82,12A68,68 0 0 0 218,12M184,70.9L216,126.3M116,70.9L84,126.3" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1" stroke-dasharray="4 4"/><circle cx="150" cy="12" r="4" fill="#fff"/><circle cx="150" cy="21" r="5.2" fill="none" stroke="#F26B1D" stroke-width="1.8"/>' },
+};
+function fieldSVG(sport, mode, vals, selDrill){
+  const k = ++courtN, L = FIELDS[sport], ZS = SPORTS[sport].zones;
+  const z = id => ZS.find(x => x.id === id);
+  const v = id => vals[id] || { m:0, a:0 };
+  const p = id => v(id).a ? v(id).m / v(id).a : null;
+  const sel = id => mode === 'pick' && selDrill === z(id).drill;
+  const fill = id => (mode !== 'heat' || p(id) == null) ? '' : ` style="fill:${heatColor(p(id))};fill-opacity:${(0.10 + Math.min(p(id), .8) * 0.16).toFixed(2)}"`;
+  const paths = id => [].concat(L.paths[id]);
+  const zone = id => paths(id).map(d => `<path class="zone${sel(id) ? ' sel' : ''}" d="${d}"${fill(id)}${mode === 'pick'
+    ? ` data-zonepick="${esc(z(id).drill)}" role="button" tabindex="0" aria-label="${esc(z(id).drill)}${v(id).a ? `, ${pct(v(id).m, v(id).a)}` : ''}" aria-pressed="${sel(id)}"` : ''}/>`).join('');
+  const glow = mode === 'heat' ? `<g filter="url(#hb${k})" pointer-events="none">${L.order.map(id => p(id) == null ? '' : paths(id).map(d =>
+    `<path d="${d}" fill="${heatColor(p(id))}" opacity="${((0.28 + Math.min(v(id).a, 30) / 30 * 0.30) * (0.55 + 0.45 * Math.min(p(id) / .5, 1))).toFixed(2)}"/>`).join('')).join('')}</g>` : '';
+  const chips = L.chips.map(([id, x, y, name]) => chip(x, y, name, pct(v(id).m, v(id).a), { on: sel(id), muted: !v(id).a, color: sel(id) ? null : (mode === 'heat' && p(id) != null ? heatColor(p(id)) : null) })).join('');
+  const hot = mode === 'heat' ? Object.keys(L.spots).filter(id => v(id).a >= 5 && p(id) >= (sport === 'soccer' ? .3 : .55)).sort((x, y) => p(y) - p(x))[0] : null;
+  const flame = hot ? FLAME(L.spots[hot][0] + L.spots[hot][2] - 1, L.spots[hot][1] - 17) : '';
+  return `<svg class="court${mode === 'heat' ? ' heat' : ''}" viewBox="0 0 300 240" role="group" aria-label="${L.aria}">
+    <defs>
+      <filter id="hb${k}" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="7"/></filter>
+      <filter id="lsh${k}" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy=".5" stdDeviation=".4" flood-color="#0b2a1a" flood-opacity=".35"/></filter>
+      <filter id="csh${k}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#000" flood-opacity=".35"/></filter>
+    </defs>
+    ${L.ground()}
+    ${glow}
+    ${L.order.map(zone).join('')}
+    <g class="ln" filter="url(#lsh${k})"><path d="${L.lines}"/></g>
+    <g pointer-events="none">${L.art}</g>
+    <g filter="url(#csh${k})">${chips}</g>
+    ${flame}
+  </svg>`;
+}
+function courtSVG(mode, vals, selDrill){ return sportKey === 'basketball' ? basketballSVG(mode, vals, selDrill) : fieldSVG(sportKey, mode, vals, selDrill); }
 function zoneVals(pid){
   const out = {};
   ZONES.forEach(z => {
@@ -1112,7 +1200,7 @@ function renderDrill(){
       <div class="chips">${others.map(d => `<button class="chip" data-pick="${esc(d)}" aria-pressed="${d===ui.drill}">${esc(d)}</button>`).join('')}
       <button class="chip add" data-adddrill>${ic('plus')}Add drill</button></div>
       <button class="primary" data-start>Start ${esc(ui.drill)}</button>
-      <p class="lede">Court percentages are your team’s all-time rate from each spot. ${state.players.length} player${state.players.length>1?'s':''} ready.</p></div>`;
+      <p class="lede">${sportKey === 'soccer' ? 'Pitch' : 'Court'} percentages are your team’s all-time rate from each spot. ${state.players.length} player${state.players.length>1?'s':''} ready.</p></div>`;
     return;
   }
   const c = liveCounts();
@@ -1130,7 +1218,7 @@ function renderDrill(){
         <div class="pname">${avatarUrl(state.teamId, p.id) ? `<img class="pcav" src="${avatarUrl(state.teamId, p.id)}" alt="">` : ''}${esc(p.name)}${hot ? '<span class="tag">Hot</span>' : ''}</div>
         <div class="pstat"><b>${pct(x.m,x.a)}</b><span>${x.m}/${x.a}</span></div>
         <div class="track"><i style="width:${x.a ? Math.round(x.m/x.a*100) : 0}%"></i></div>
-        <div class="mm"><button class="mk" data-shot="${p.id}" data-m="1" aria-label="Make for ${esc(p.name)}">Make</button><button class="ms" data-shot="${p.id}" data-m="0" aria-label="Miss for ${esc(p.name)}">Miss</button></div>
+        <div class="mm"><button class="mk" data-shot="${p.id}" data-m="1" aria-label="${sp().makeLbl} for ${esc(p.name)}">${sp().makeLbl}</button><button class="ms" data-shot="${p.id}" data-m="0" aria-label="${sp().missLbl} for ${esc(p.name)}">${sp().missLbl}</button></div>
       </div>`; }).join('')}</div>
     <div class="actions">
       <div class="row">
@@ -1158,7 +1246,7 @@ function renderBoardInner(){
     ${ui.newChal ? `<form class="panel cform" id="chalForm" style="margin-bottom:12px">
         <label class="field"><span>Name</span><input type="text" id="cTitle" maxlength="80" placeholder="e.g. Free throw week"></label>
         <label class="field"><span>Drill</span><select id="cDrill">${drillOpts}</select></label>
-        <div class="field"><span>Winner is</span><div class="seg">${[['makes','Most makes'],['pct','Best %']].map(([v,l]) => `<button type="button" data-cmetric="${v}" aria-pressed="${(ui.cMetric||'makes')===v}">${l}</button>`).join('')}</div></div>
+        <div class="field"><span>Winner is</span><div class="seg">${[['makes','Most ' + sp().plural],['pct','Best %']].map(([v,l]) => `<button type="button" data-cmetric="${v}" aria-pressed="${(ui.cMetric||'makes')===v}">${l}</button>`).join('')}</div></div>
         <div class="field"><span>Runs for</span><div class="seg">${[['7','1 week'],['14','2 weeks'],['30','1 month']].map(([v,l]) => `<button type="button" data-cdays="${v}" aria-pressed="${(ui.cDays||'7')===v}">${l}</button>`).join('')}</div></div>
         <button class="primary" type="submit">Start challenge</button>
         <button class="ghost center" type="button" data-cancelchal>Cancel</button>
@@ -1272,7 +1360,7 @@ async function loadPlayer(){
   show('loading'); ['drill','board','players','cprofile'].forEach(id => $('#'+id).innerHTML = '');
   const ids = myPlayers.map(p => p.id), tids = [...new Set(myPlayers.map(p => p.team_id))];
   const [t, r] = await Promise.all([
-    sb.from('teams').select('id,name,drills,suburb,state,age_group,division,public_boards,allow_photos').in('id', tids),
+    sb.from('teams').select('id,name,sport,drills,suburb,state,age_group,division,public_boards,allow_photos').in('id', tids),
     sb.from('session_results').select('player_id,made,attempts,sessions(id,drill,started_at,kind)').in('player_id', ids),
   ]);
   if(t.error || r.error) return fail();
@@ -1291,7 +1379,8 @@ function renderPlayerView(){ renderPlayerViewInner(); $('#player').insertAdjacen
     (followState[p.id] ? Promise.resolve() : loadFollows(p.id)).then(() => { loadFollowFeed(p.id); renderTabbar(); }); }
   if(ui.ptab === 'profile'){ const p = myPlayers[ui.meIdx]; (followState[p.id] ? Promise.resolve() : loadFollows(p.id)).then(() => renderPeople(p.id)); } }
 function renderPlayerViewInner(){
-  const p = myPlayers[ui.meIdx], team = pdata.teams[p.team_id] || { name:'', drills:ZONE_NAMES };
+  const p = myPlayers[ui.meIdx]; setSport(sportOf(pdata.teams[p.team_id]));
+  const team = pdata.teams[p.team_id] || { name:'', drills:ZONE_NAMES };
   const res = pdata.results.filter(x => x.pid === p.id);
   const m = res.reduce((s,x) => s + x.m, 0), a = res.reduce((s,x) => s + x.a, 0);
   const zv = {}; ZONES.forEach(z => { const rs = res.filter(x => x.drill === z.drill); zv[z.id] = { m: rs.reduce((s,x)=>s+x.m,0), a: rs.reduce((s,x)=>s+x.a,0) }; });
@@ -1365,7 +1454,7 @@ async function loadRank(p){
 }
 
 /* ---------- achievements & competition ---------- */
-const BADGES = {
+const BASE_BADGES = {
   shots_100:  { name:'Century',        glyph:'100', desc:'Take 100 shots' },
   shots_500:  { name:'Workhorse',      glyph:'500', desc:'Take 500 shots' },
   shots_1000: { name:'Gym Rat',        glyph:'1K',  desc:'Take 1,000 shots' },
@@ -1380,6 +1469,16 @@ const BADGES = {
   regular:    { name:'Regular',        glyph:'14',  desc:'Do 5 drills within 2 weeks' },
   potw:       { name:'Player of the Week', glyph:'★', desc:'Most makes in a week (20+ shots)' },
 };
+let BADGES = BASE_BADGES;
+function setSport(k){
+  k = SPORTS[k] ? k : 'basketball';
+  if(k === sportKey) return;
+  sportKey = k; ZONES = SPORTS[k].zones; ZONE_NAMES = ZONES.map(z => z.drill);
+  BADGES = { ...BASE_BADGES, ...SPORTS[k].badges };
+  ui.drill = SPORTS[k].anchor; ui.soloDrill = null; ui.meDrill = 'all'; ui.boardDrill = 'all';
+  if(!SPORTS[k].metrics.some(m => m[0] === ui.lbMetric)) ui.lbMetric = 'makes';
+  state.drills = [...ZONE_NAMES];
+}
 const badgeKey = b => b.startsWith('potw:') ? 'potw' : b;
 function medal(key, earned, count){
   const b = BADGES[key]; if(!b) return '';
@@ -1415,9 +1514,9 @@ function potwCard(potw){
   const who = x => x.is_me ? 'You' : (x.name || 'A teammate');
   return `<div class="potw">
     <div class="pw main"><span class="star" aria-hidden="true">★</span><div><small>Player of the week</small>
-      ${last ? `<b>${esc(who(last))}</b><span class="muted">${last.made} makes from ${last.attempts} shots</span>` : '<b class="dim">Not awarded yet</b><span class="muted">Needs 20+ shots in a week</span>'}</div></div>
+      ${last ? `<b>${esc(who(last))}</b><span class="muted">${last.made} ${sp().plural} from ${last.attempts} shots</span>` : '<b class="dim">Not awarded yet</b><span class="muted">Needs 20+ shots in a week</span>'}</div></div>
     <div class="pw"><small>Leading this week</small>
-      ${cur ? `<b>${esc(who(cur))}</b><span class="muted">${cur.made} makes</span>` : '<span class="muted">Nobody has 20+ shots yet</span>'}</div>
+      ${cur ? `<b>${esc(who(cur))}</b><span class="muted">${cur.made} ${sp().plural}</span>` : '<span class="muted">Nobody has 20+ shots yet</span>'}</div>
   </div>`;
 }
 function challengeCard(c, coachView){
@@ -1427,7 +1526,7 @@ function challengeCard(c, coachView){
   const rows = c.rows.slice(0, 5); const me = c.rows.find(r => r.is_me);
   if(me && !rows.includes(me)) rows.push(me);
   return `<div class="panel chal">
-    <div class="row"><div><b>${esc(c.title)}</b><small class="muted">${c.metric === 'makes' ? 'Most makes' : 'Best percentage (10+ shots)'}, ${c.drill ? esc(c.drill) : 'any drill'}</small></div>
+    <div class="row"><div><b>${esc(c.title)}</b><small class="muted">${c.metric === 'makes' ? 'Most ' + sp().plural : 'Best percentage (10+ shots)'}, ${c.drill ? esc(c.drill) : 'any drill'}</small></div>
       <span class="when ${live ? 'live' : ''}">${live ? (left <= 1 ? 'Ends today' : `${left} days left`) : 'Finished'}</span></div>
     ${rows.length ? `<ol class="mini">${rows.map(r => `<li class="${r.is_me ? 'me' : ''}"><span class="n">${r.rank ?? '–'}</span><span>${r.is_me ? 'You' : esc(r.name || 'Teammate')}</span><b>${r.score ?? '–'}${r.score != null ? unit : ''}</b></li>`).join('')}</ol>`
       : '<p class="muted" style="margin:8px 0 0">No shots logged for this challenge yet.</p>'}
@@ -1575,7 +1674,7 @@ function renderPractice(p, team, res, zv){
   const solo = loadSolo(p.id);
   if(!solo){
     const drills = team.drills && team.drills.length ? team.drills : ZONE_NAMES;
-    if(!ui.soloDrill || !drills.includes(ui.soloDrill)) ui.soloDrill = 'Free throws';
+    if(!ui.soloDrill || !drills.includes(ui.soloDrill)) ui.soloDrill = sp().anchor;
     const others = drills.filter(d => !ZONE_NAMES.includes(d));
     const mine = res.filter(x => x.kind === 'solo').slice(-10).reverse();
     return `<div class="panel"><h2>Practise on your own</h2>
@@ -1583,7 +1682,7 @@ function renderPractice(p, team, res, zv){
       ${courtSVG('pick', zv, ui.soloDrill)}
       ${others.length ? `<p class="minihead">Other drills</p><div class="chips">${others.map(d => `<button class="chip" data-spick="${esc(d)}" aria-pressed="${d===ui.soloDrill}">${esc(d)}</button>`).join('')}</div>` : ''}
       <button class="primary" data-sstart>Start ${esc(ui.soloDrill)}</button>
-      <p class="lede">Court percentages are your all-time rate from each spot. Team ranks and challenges only count drills your coach runs.</p></div>
+      <p class="lede">${sportKey === 'soccer' ? 'Pitch' : 'Court'} percentages are your all-time rate from each spot. Team ranks and challenges only count drills your coach runs.</p></div>
       <h2>Recent practice</h2>
       ${mine.length ? `<ul class="hist">${mine.map(x => `<li><div class="t">${esc(x.drill)}<small>${day(x.date)}, ${x.m}/${x.a}</small></div><span class="p">${pct(x.m,x.a)}</span>
         <button class="x" data-sdel="${x.sid}" aria-label="Delete practice from ${day(x.date)}">${ic('trash')}</button></li>`).join('')}</ul>`
@@ -1597,7 +1696,7 @@ function renderPractice(p, team, res, zv){
       <div><div class="pct">${pct(m,a)}</div><span class="of">${m} of ${a} made</span></div>
     </div>
     <div class="runline"><span>${run >= 2 ? `${ic('flame')}${run} in a row` : 'Current run: ' + run}</span><span>Best run: ${best}</span></div>
-    <div class="mm solo" id="soloPad"><button class="mk" data-sshot="1">Make</button><button class="ms" data-sshot="0">Miss</button></div>
+    <div class="mm solo" id="soloPad"><button class="mk" data-sshot="1">${sp().makeLbl}</button><button class="ms" data-sshot="0">${sp().missLbl}</button></div>
     <div class="actions">
       <div class="row">
         <button class="ghost" data-sundo ${a ? '' : 'disabled'}>${ic('undo')}Undo last shot</button>
@@ -1670,16 +1769,15 @@ async function openShare(o){
 
 /* ---------- public leaderboards & team feed ---------- */
 const STATES = ['VIC','NSW','QLD','SA','WA','TAS','ACT','NT'], AGES = ['U8','U10','U12','U14','U16','U18','U20','Open'], DIVS = ['Boys','Girls','Mixed'];
-const METRICS = [['makes','Makes'],['pct','Accuracy'],['ft','Free throws'],['three','Threes']];
 const lbCache = {}, feedCache = {};
 const monthName = () => new Date().toLocaleDateString(undefined, { month:'long', timeZone:'Australia/Melbourne' });
 function ago(t){ const s = (Date.now() - Date.parse(t)) / 1000; return s < 3600 ? `${Math.max(1, Math.round(s/60))}m` : s < 86400 ? `${Math.round(s/3600)}h` : `${Math.round(s/86400)}d`; }
 function boardsShell(){
-  ui.lbScope = ui.lbScope || 'team'; ui.lbMetric = ui.lbMetric || 'makes';
+  ui.lbScope = ui.lbScope || 'team'; ui.lbMetric = ui.lbMetric || 'makes'; if(!sp().metrics.some(m => m[0] === ui.lbMetric)) ui.lbMetric = 'makes';
   const scopes = [['team','Team'],['suburb','Suburb'],['state','State']].concat(mode === 'player' ? [['following','Following']] : []);
   if(mode === 'coach' && ui.lbScope === 'following') ui.lbScope = 'team';
   return `<div class="seg full" style="grid-template-columns:repeat(${scopes.length},1fr)">${scopes.map(([v,l]) => `<button data-lbscope="${v}" aria-pressed="${ui.lbScope===v}">${l}</button>`).join('')}</div>
-    <div class="chips">${METRICS.map(([v,l]) => `<button class="chip" data-lbmetric="${v}" aria-pressed="${ui.lbMetric===v}">${l}</button>`).join('')}</div>
+    <div class="chips">${sp().metrics.map(([v,l]) => `<button class="chip" data-lbmetric="${v}" aria-pressed="${ui.lbMetric===v}">${l}</button>`).join('')}</div>
     <div id="lbBox" class="panel lb"><div class="skel" style="height:140px;border:0"></div></div>`;
 }
 async function loadBoards(team){
@@ -1894,7 +1992,7 @@ function renderCoachProfile(){
       <button class="bigav coach" data-photo="coach" aria-label="Profile photo">${avatarUrl(state.teamId, null) ? `<img class="avimg" src="${avatarUrl(state.teamId, null)}" alt="">` : `<span>${esc(initials(me?.email?.split('@')[0]?.replace(/[._-]+/g,' ')))}</span>`}<i class="camb">${ic('camera','')}</i></button>
       <div class="pstats">${[[state.players.length,'Players'],[linked,'Linked'],[drills,'Drills']].map(([n,l]) => `<div><b>${numUp(n)}</b><small>${l}</small></div>`).join('')}</div>
     </div>
-    <p class="pname2">Coach<small>${esc(state.team)}${coachTeam.suburb ? `, ${esc(coachTeam.suburb)}` : ''}${coachTeam.age_group ? `, ${esc(coachTeam.age_group)}` : ''}</small></p>
+    <p class="pname2">Coach<small>${esc(state.team)}, ${esc(sp().label)}${coachTeam.suburb ? `, ${esc(coachTeam.suburb)}` : ''}${coachTeam.age_group ? `, ${esc(coachTeam.age_group)}` : ''}</small></p>
     <div class="pactions" style="grid-template-columns:1fr"><button data-settings>${ic('gear')}Settings and plan</button></div>
     ${teamProfileCard()}
     <div class="panel switch" style="margin-bottom:16px"><div><b>Show names to teammates</b>
@@ -1918,7 +2016,7 @@ function renderPlayerProfile(p, team, C, meRow){
         <button data-plistgo="following"><b>${numUp(following)}</b><small>Following</small></button>
       </div>
     </div>
-    <p class="pname2">${esc(p.nickname || p.name)}<small>${p.nickname ? esc(p.name) + ', ' : ''}${p.num ? `#${esc(p.num)}, ` : ''}${esc(team.name)}${team.suburb ? `, ${esc(team.suburb)}` : ''}</small></p>
+    <p class="pname2">${esc(p.nickname || p.name)}<small>${p.nickname ? esc(p.name) + ', ' : ''}${p.num ? `#${esc(p.num)}, ` : ''}${esc(team.name)}, ${esc(sp().label)}${team.suburb ? `, ${esc(team.suburb)}` : ''}</small></p>
     <div class="pactions p3"><button data-editprof>${ui.editProf ? 'Done' : 'Edit profile'}</button><button data-sharestats>${ic('share')}Share</button><button data-settings>${ic('gear')}Settings</button></div>
     ${tradingCard(p, team, L, earned.length)}
     ${ui.editProf ? profileCard(p) : ''}
@@ -2025,7 +2123,7 @@ document.addEventListener('submit', async e => {
   if(e.target.id !== 'chalForm') return;
   e.preventDefault();
   const drill = $('#cDrill').value || null, metric = ui.cMetric || 'makes', days = +(ui.cDays || 7);
-  const title = $('#cTitle').value.trim() || `${metric === 'makes' ? 'Most makes' : 'Best %'}${drill ? ': ' + drill : ''}`;
+  const title = $('#cTitle').value.trim() || `${metric === 'makes' ? 'Most ' + sp().plural : 'Best %'}${drill ? ': ' + drill : ''}`;
   const ends = new Date(Date.now() + days * 864e5).toISOString();
   const { error } = await sb.from('challenges').insert({ team_id: state.teamId, title: title.slice(0,80), drill, metric, ends_at: ends });
   if(error) return toast('Couldn’t start the challenge. Check your connection.');
@@ -2137,7 +2235,7 @@ document.addEventListener('click', async e => {
     const res = pdata.results.filter(x => x.pid === p.id), m = res.reduce((s,x)=>s+x.m,0), a = res.reduce((s,x)=>s+x.a,0);
     const meRow = C.board.find(r => r.player_id === p.id) || { xp:0, badges:0 }, st = dayStreak(res.map(x => x.date));
     openShare({ type:'stats', name: p.name + (p.num ? `  #${p.num}` : ''), team: pdata.teams[p.team_id]?.name || '', big: pct(m,a),
-      sub: `${m.toLocaleString()} of ${a.toLocaleString()} shots made`, pills: [[`Lv ${levelInfo(meRow.xp).lv}`, 'Level'], [String(st.cur), 'Day streak'], [String(meRow.badges), 'Badges']] });
+      sub: madeLine(m, a), pills: [[`Lv ${levelInfo(meRow.xp).lv}`, 'Level'], [String(st.cur), 'Day streak'], [String(meRow.badges), 'Badges']] });
     return;
   }
   if(d.spick){ ui.soloDrill = d.spick; renderPlayerView(); return; }
@@ -2172,7 +2270,7 @@ document.addEventListener('click', async e => {
   if('import' in d){ importLocal(b); return; }
   if(d.pick){ ui.drill = d.pick; renderDrill(); return; }
   if('adddrill' in d){
-    const n = (prompt('Drill name, e.g. Corner 3s') || '').trim().slice(0,60);
+    const n = (prompt('Drill name, e.g. ' + sp().example) || '').trim().slice(0,60);
     if(n && !state.drills.includes(n)){
       const next = [...state.drills, n];
       const { error } = await sb.from('teams').update({ drills: next }).eq('id', state.teamId);
@@ -2308,7 +2406,7 @@ function heroCard(p, m, a, res, L, meRow){
     ${p.num ? `<span class="jersey" aria-hidden="true">${esc(p.num)}</span>` : ''}
     <div class="htxt">
       <p class="label">${esc(p.name)}</p>
-      <p class="muted" style="margin:2px 0 0">${a ? `${m} of ${a} shots made across ${res.length} drill${res.length === 1 ? '' : 's'}` : 'No shots logged yet'}</p>
+      <p class="muted" style="margin:2px 0 0">${a ? `${madeLine(m, a)} across ${res.length} drill${res.length === 1 ? '' : 's'}` : 'No shots logged yet'}</p>
       <ul class="legend">
         <li><i style="background:var(--brass)"></i>Accuracy<b>${a ? Math.round(acc * 100) + '%' : '–'}</b></li>
         <li><i style="background:var(--make)"></i>Level ${L.lv}<b>${L.toNext.toLocaleString()} XP to go</b></li>
@@ -2473,6 +2571,12 @@ document.addEventListener('keydown', e => {
   if(e.key !== 'Escape') return;
   const p = document.querySelector('.pwov'); if(p){ p.remove(); return; }
   closeSettings();
+});
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-newsport]'); if(!b) return;
+  ui.newSport = b.dataset.newsport;
+  b.parentElement.querySelectorAll('[data-newsport]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
 });
 
 boot();
